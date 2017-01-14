@@ -1,49 +1,83 @@
-This is your new Play application
-=================================
+# Devoxx LeadTracker
 
-This file will be packaged with your application when using `activator dist`.
+Lead tracker back-end application
 
-There are several demonstration files available in this template.
+## Getting Started
 
-Controllers
-===========
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
-- HomeController.scala:
+### Prerequisites
 
-  Shows how to handle simple HTTP requests.
+Devoxx LeadTracker is written in Scala and uses the [Lagom](https://www.lightbend.com/lagom) framework. You need to install several tools.
 
-- AsyncController.scala:
+#### Scala
 
-  Shows how to do asynchronous programming when handling a request.
+```
+$ brew install scala  
+$ scala -version
+Scala code runner version 2.12.1 -- Copyright 2002-2016, LAMP/EPFL and Lightbend, Inc.
+```
 
-- CountController.scala:
+#### SBT
 
-  Shows how to inject a component into a controller and use the component when
-  handling requests.
+[SBT](http://www.scala-sbt.org) is the Scala build tool. Check the [documentation](http://www.scala-sbt.org/0.13/docs/).
 
-Components
-==========
+```
+$ brew install sbt  
+$ sbt about
+[info] This is sbt 0.13.11
+```
 
-- Module.scala:
+#### Intellij IDEA
 
-  Shows how to use Guice to bind all the components needed by your application.
+If you use [Intellij IDE](https://www.jetbrains.com/idea/) IDE you will need to install the Scala plugin to be able to develop.
 
-- Counter.scala:
+* Scala and SBT Plugin : check the [page](https://www.jetbrains.com/help/idea/2016.3/creating-and-running-your-scala-application.html) and download/install the [plugin](https://plugins.jetbrains.com/plugin/?idea&id=1347) directly from the IDE
 
-  An example of a component that contains state, in this case a simple counter.
+Then install the Scala SDK in Intellij IDEA
 
-- ApplicationTimer.scala:
+### Installing
 
-  An example of a component that starts when the application starts and stops
-  when the application stops.
+Once you have all the code, you can run the following command :
 
-Filters
-=======
+```
+sbt runAll
+```
 
-- Filters.scala:
+This will compile all the code, and deploy it on several servers. Just check you have access to the following URLs: 
 
-  Creates the list of HTTP filters used by your application.
+* [http://localhost:8000/services]() : access the gateway API
+* [http://localhost:9000]() : access a MOCK web interface
 
-- ExampleFilter.scala
+## Running the tests
 
-  A simple filter that adds a header to every response.
+Explain how to run the automated tests for this system
+
+```
+Give an example
+```
+
+## Development
+
+Coding styles are described in the `.editorconfig` file.
+
+## Architecture
+
+The Devoxx Lead Tracker is made of several services : 
+
+* Attendee
+* Authorization
+* Lead Tracker
+
+## Deployment
+
+Add additional notes about how to deploy this on a live system
+
+## Built With
+
+* [Lagom](https://www.lightbend.com/lagom) - The microservice framework
+* [SBT](http://www.scala-sbt.org/) - Dependency Management
+
+## Authors
+
+See the list of [contributors](https://github.com/devoxx/devoxx-leadTracker/graphs/contributors) who participated in this project.
