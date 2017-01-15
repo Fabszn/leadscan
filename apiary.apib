@@ -9,7 +9,7 @@ Lead Manager API
 
 Obtain data for person with id : 1
 
-### Public data [GET]
+### Read person [GET]
 
 + Response 200 (application/json)
 
@@ -33,6 +33,10 @@ Obtain data for person with id : 1
                     {
                         "rel": "self",
                         "href": "http://localhost:8080/persons/1"
+                    },
+                    {
+                        "rel": "sensitive",
+                        "href": "http://localhost:8080/persons/1/sensitive"
                     }
                 ]
            }
@@ -47,46 +51,53 @@ Obtain data for person with id : 1
         }
 
 
-### Update data [PUT]
+### Update person [PUT]
 
-    +Body
-    {
-    person : {
-        id:1
-        firstname : "Michel"
-    }
++ Request (application/json)
+    
+        {
+            "person" : {
+                id:1
+                firstname : "Michel"
+            }
+        }
     
 + Response 201 (application/json)
+        
+        {
+            message : "person with id 1 updated"
+        }
 
     
 
 ## Person sensitive information [/persons/:idperson/sensitive]
 
-### Sensitive data for one person [GET]
+### Read Sensitive data for a person [GET]
            
 + Response 200 (application/json)
 
         {
             "person": {
             id:1
-            firstname : "Fabrice"
-            lastname : "Sznajderman"
-            gender : "male"
-            position : "developer"
-            status : "contractor"
-            technologies : ["scala", "lagom"]
-            experience : 16
-            isTraining : false
-            showSensitive : true
+            email
+            phone number
+            company
+            workLocation : "Paris"
+            lookingForAJob : "false"
             links:[
+                    {
+                        "rel": "self",
+                        "href": "http://localhost:8080/persons/1/sensitive"
+                    },
+                    {
+                        "rel": "person",
+                        "href": "http://localhost:8080/persons/1"
+                    },
                     {
                         "rel": "contacts",
                         "href": "http://localhost:8080/persons/1/contacts"
-                    }, 
-                    {
-                        "rel": "self",
-                        "href": "http://localhost:8080/persons/1"
-                    }
+                    },
+                    
                 ]
            }
         }
