@@ -25,6 +25,7 @@ Obtain data for person with id : 1
             experience : 16
             isTraining : false
             showSensitive : true
+            profil : "attendee"
             links:[
                     {
                         "rel": "contacts",
@@ -72,6 +73,8 @@ Obtain data for person with id : 1
 
 ## Person sensitive information [/persons/:idperson/sensitive]
 
+Obtain SENSITIVE data for person with id : 1
+
 ### Read Sensitive data for a person [GET]
            
 + Response 200 (application/json)
@@ -100,4 +103,90 @@ Obtain data for person with id : 1
                     
                 ]
            }
+        }
+        
+## Notification information [/notifications/:idperson]
+
+Obtain notification for person with id : 1
+
+### Read all notifications for person [GET]
+
++ Response 200 (application/json)
+        
+        {
+         "notifications" : [
+            {
+                "id" : 2
+                "type" : "update"
+                "message": "[person2 has updated his profil"
+            },
+            {
+                "id" : 10
+                "type" : "askForUpdate"
+                "message": "[person33] ask you to update your profile"
+            }
+         
+         ]
+         links : [
+            {
+                "rel": "self",
+                "href": "http://localhost:8080/notifications/1"
+            },
+            {
+                "rel": "person",
+                "href": "http://localhost:8080/persons/1"
+            }
+         ]
+         
+        }
+        
++ Response 404 (application/json)
+
+        {
+            "error":{
+                "code" : "notifications_not_found"
+                "message : "Notification for person with id 1 are not found"
+        }
+
+## Notification information by type [/notifications/:idperson/type/:type]
+
+Obtain notification for person with id : 1 by type of notification
+
+### Read all notifications for person by type [GET]
+
++ Response 200 (application/json)
+        
+        {
+         "notifications" : [
+            {
+                "id" : 2
+                "type" : "askForUpdate"
+                "message": "[person35] ask you to update your profile"
+            },
+            {
+                "id" : 10
+                "type" : "askForUpdate"
+                "message": "[person33] ask you to update your profile"
+            }
+         
+         ]
+         links : [
+            {
+                "rel": "self",
+                "href": "http://localhost:8080/notifications/1/type/askForUpdate"
+            },
+            {
+                "rel": "person",
+                "href": "http://localhost:8080/persons/1"
+            }
+         ]
+         
+        }
+        
++ Response 404 (application/json)
+
+        {
+            "error":{
+                "code" : "notifications_not_found"
+                "message : "Notification for person with id 1 are not found"
         }
