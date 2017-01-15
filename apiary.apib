@@ -1,66 +1,92 @@
 FORMAT: 1A
-HOST: here
+HOST: http://localhost:8080
 
 # leadTracker
 
 Lead Manager API
 
-## person's data [/persons/:idperson]
+## Person information [/persons/:idperson]
 
-### Data for one person [GET]
+Obtain data for person with id : 1
+
+### Public data [GET]
 
 + Response 200 (application/json)
 
-        [
-            {
-                "person": {
-               
-               }
-            }
-        ]
-
-### Create a New Question [POST]
-
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
-
-+ Request (application/json)
-
         {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
-            ]
-        }
-
-+ Response 201 (application/json)
-
-    + Headers
-
-            Location: /questions/2
-
-    + Body
-
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
+            "person": {
+            id:1
+            firstname : "Fabrice"
+            lastname : "Sznajderman"
+            gender : "male"
+            position : "developer"
+            status : "contractor"
+            technologies : ["scala", "lagom"]
+            experience : 16
+            isTraining : false
+            showSensitive : true
+            links:[
                     {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
+                        "rel": "contacts",
+                        "href": "http://localhost:8080/persons/1/contacts"
+                    }, 
+                    {
+                        "rel": "self",
+                        "href": "http://localhost:8080/persons/1"
                     }
                 ]
-            }
+           }
+        }
+       
++ Response 404 (application/json)
+        
+        {
+            "error":{
+                "code" : "person_not_found"
+                "message : "Person with id 1 not found"
+        }
+
+
+### Update data [PUT]
+
+    +Body
+    {
+    person : {
+        id:1
+        firstname : "Michel"
+    }
+    
++ Response 201 (application/json)
+
+    
+
+## Person sensitive information [/persons/:idperson/sensitive]
+
+### Sensitive data for one person [GET]
+           
++ Response 200 (application/json)
+
+        {
+            "person": {
+            id:1
+            firstname : "Fabrice"
+            lastname : "Sznajderman"
+            gender : "male"
+            position : "developer"
+            status : "contractor"
+            technologies : ["scala", "lagom"]
+            experience : 16
+            isTraining : false
+            showSensitive : true
+            links:[
+                    {
+                        "rel": "contacts",
+                        "href": "http://localhost:8080/persons/1/contacts"
+                    }, 
+                    {
+                        "rel": "self",
+                        "href": "http://localhost:8080/persons/1"
+                    }
+                ]
+           }
+        }
