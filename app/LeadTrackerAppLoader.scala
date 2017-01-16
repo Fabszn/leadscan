@@ -29,6 +29,7 @@ class Components(context: Context)
 
   lazy val router = new Routes(
     httpErrorHandler,
-    new controllers.Index(database)
+    new controllers.Index(database),
+    new controllers.Status()
   )
 }

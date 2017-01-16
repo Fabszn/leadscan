@@ -8,15 +8,8 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-Devoxx LeadTracker is written in Scala and uses the [Lagom](https://www.lightbend.com/lagom) framework. You need to install several tools.
+Devoxx LeadTracker is written in Scala and uses the Play framework. You need to install several tools.
 
-#### Scala
-
-```
-$ brew install scala  
-$ scala -version
-Scala code runner version 2.12.1 -- Copyright 2002-2016, LAMP/EPFL and Lightbend, Inc.
-```
 
 #### SBT
 
@@ -36,18 +29,23 @@ If you use [Intellij IDE](https://www.jetbrains.com/idea/) IDE you will need to 
 
 Then install the Scala SDK in Intellij IDEA
 
+### Pre requis
+ To run the application, you must have local database. You could run one postgresql DB in docker container with the following command :
+
+	docker run  -p 5432:5432 -e POSTGRES_PASSWORD=test -e POSTGRES_USER=fabszn -e POSTGRES_DB=leadtracker  -d postgres:9.6
+
 ### Installing
 
 Once you have all the code, you can run the following command :
 
 ```
-sbt runAll
+sbt run
 ```
 
-This will compile all the code, and deploy it on several servers. Just check you have access to the following URLs: 
+This will compile all the code, and deploy it. Just check you have access to the following URL:
 
-* [http://localhost:8000/services]() : access the gateway API
-* [http://localhost:9000]() : access a MOCK web interface
+[http://localhost:9000/status]() : status information 
+
 
 ## Running the tests
 
