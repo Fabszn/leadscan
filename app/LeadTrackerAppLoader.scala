@@ -1,3 +1,4 @@
+import org.flywaydb.play.PlayInitializer
 import play.api.ApplicationLoader.Context
 import play.api.db.{BoneCPComponents, DBComponents}
 import play.api.libs.ws.ahc.AhcWSComponents
@@ -25,11 +26,14 @@ class Components(context: Context)
     with AhcWSComponents {
 
 
-  val database = dbApi.database("leadTracker_DB")
+  val database = dbApi.database("leadTrackerDb")
+
+  val flyway = new PlayInitializer(configuration, environment, webCommands)
+
 
   lazy val router = new Routes(
     httpErrorHandler,
-    new controllers.Index(database),
+    new controllers.PersonController(database),
     new controllers.Status()
   )
 }

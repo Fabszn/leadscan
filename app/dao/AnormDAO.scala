@@ -100,4 +100,9 @@ trait AnormDAO[T, PK, C <: Connection] extends AnormBasicDAO[T, C] {
       }
       case _ => () // empty list, do nothing
     }
+
+
+
 }
+
+trait mainDBDAO[T,PK] extends AnormDAO[T, PK, Connection]
