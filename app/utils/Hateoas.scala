@@ -1,6 +1,6 @@
 package utils
 
-import model.{ErrorMessage, Person}
+import model.{ErrorMessage, Notification, Person}
 import play.api.libs.json.{JsObject, JsString}
 import play.api.mvc.Request
 import utils.HateoasConverter.Converter
@@ -17,7 +17,8 @@ object HateoasUtils {
   }
 
 
-  case class Item(k: String, v: String)
+  case class Item(k: String, v: String, isHref: Boolean = false)
+
 
   case class Links(items: Seq[Item]) {
     val name = "links"
@@ -25,9 +26,10 @@ object HateoasUtils {
 
 
   def linkWrites(ls: Links)(implicit request: Request[_]): JsObject = {
-
-    JsObject(ls.items.map(i => i.k -> JsString(s"${href(request)}${i.v}")).toMap)
-
+    JsObject(ls.items.map {
+      case item@Item(_, _, true) => item.k -> JsString(s"${href(request)}${item.v}")
+      case item@Item(_, _, false) => item.k -> JsString(s"${item.v}")
+    }.toMap)
   }
 
 
@@ -76,23 +78,21 @@ object HateoasConverter {
 
 
     override def links(person: Person): Seq[Links] = Seq(
-      Links(Seq(Item("rel", "self"), Item("href", s"/persons/${person.id.get}"))),
-      Links(Seq(Item("rel", "contacts"), Item("href", s"/persons/${person.id.get}/contacts"))),
-      Links(Seq(Item("rel", "sensitive"), Item("href", s"/persons/${person.id.get}/sensitive")))
+      Links(Seq(Item("rel", "self"), Item("href", s"/persons/${person.id.get}",isHref = true))),
+      Links(Seq(Item("rel", "contacts"), Item("href", s"/persons/${person.id.get}/contacts",isHref = true))),
+      Links(Seq(Item("rel", "sensitive"), Item("href", s"/persons/${person.id.get}/sensitive",isHref = true)))
     )
   }
 
-  /* case class NotificationConverter(notification: Notification) extends Converter[Notification] {
+  case class NotificationConverter(notification: Notification) extends Converter[Notification] {
 
-     override def get: Notification = notification
+    override def name: String = "notification"
 
-     override def name: String = "notification"
+    override def convertMap(notification: Notification): Map[String, String] = Map()
 
-     override def convertMap: Map[String, String] = Map()
+    override def links(notification: Notification): Seq[Links] = ???
+  }
 
-     override def links: Seq[Links] = ???
-   }
-*/
   implicit object ErrorConverter extends Converter[ErrorMessage] {
     override def name: String = "error"
 
