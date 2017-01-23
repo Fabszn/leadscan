@@ -49,6 +49,7 @@ Obtain data for person with id : 1
             "error":{
                 "code" : "person_not_found"
                 "message : "Person with id 1 not found"
+                }
         }
 
 
@@ -57,14 +58,16 @@ Obtain data for person with id : 1
 + Request (application/json)
     
         {
-            id:1
             firstname : "Michel"
+            position : "developer"
         }
     
 + Response 201 (application/json)
         
         {
+            "info":{
             message : "person with id 1 updated"
+            }
         }
 
     
