@@ -61,9 +61,18 @@ trait AnormDAO[T, PK, C <: Connection] extends AnormBasicDAO[T, C] {
       .executeUpdate()
   }
 
+  def updateByNamedParameters(pk: PK)(params: List[NamedParameter])(implicit conn: C, toStmt: ToStatement[PK]): Int = {
+
+    val updates = getUpdatesString(params)
+
+    SQL(s"UPDATE $table SET $updates WHERE $pkField = $pk")
+      .on(params: _*)
+      .executeUpdate()
+  }
+
   protected def getUpdatesString(params: Seq[NamedParameter]): String = {
     params.map(_.name).filterNot(_ == pkField).map { n =>
-      val placeholder = customUpdatePlaceholders.get(n).map(_(n)).getOrElse(s"{$n}")
+      val placeholder = customUpdatePlaceholders.get(n).map(_ (n)).getOrElse(s"{$n}")
       s"$n = $placeholder"
     }.mkString(", ")
   }
@@ -102,7 +111,6 @@ trait AnormDAO[T, PK, C <: Connection] extends AnormBasicDAO[T, C] {
     }
 
 
-
 }
 
-trait mainDBDAO[T,PK] extends AnormDAO[T, PK, Connection]
+trait mainDBDAO[T, PK] extends AnormDAO[T, PK, Connection]

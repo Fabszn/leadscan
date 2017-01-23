@@ -2,6 +2,8 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-GET        /persons/:id              controllers.PersonController.readPerson(id:Long)
+GET        /persons/:id        controllers.PersonController.read(id:Long)
 
-GET        /status        controllers.Status.status
+PUT        /persons/:id        controllers.PersonController.maj(id:Long)
+
+GET        /status             controllers.Status.status

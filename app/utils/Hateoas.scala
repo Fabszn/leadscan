@@ -1,6 +1,6 @@
 package utils
 
-import model.{ErrorMessage, Notification, Person}
+import model.{ErrorMessage, InfoMessage, Notification, Person}
 import play.api.libs.json.{JsObject, JsString}
 import play.api.mvc.Request
 import utils.HateoasConverter.Converter
@@ -103,6 +103,16 @@ object HateoasConverter {
     }
 
     override def links(a: ErrorMessage): Seq[Links] = Seq()
+  }
+
+  implicit object MessageConverter extends Converter[InfoMessage] {
+    override def name: String = "info"
+
+    override def convertMap(a: InfoMessage): Map[String, String] = {
+      Map("message" -> a.message)
+    }
+
+    override def links(a: InfoMessage): Seq[Links] = Seq()
   }
 
 }
