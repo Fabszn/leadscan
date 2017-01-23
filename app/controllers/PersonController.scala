@@ -19,6 +19,13 @@ class PersonController(ps: PersonService) extends Controller with LoggerAudit {
     }
   }
 
+  def readSensitive(id: Long) = Action { implicit request =>
+    ps.getPersonSensitive(id) match {
+      case Some(pSensitive) => Ok(toHateoas(pSensitive))
+      case _ => NotFound(toHateoas(ErrorMessage("Person_sensitive_not_found", s"Person sensitive with id $id not found")))
+    }
+  }
+
   def maj(id: Long) = Action(parse.json) { implicit request =>
 
     import jsonUtils._

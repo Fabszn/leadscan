@@ -23,7 +23,7 @@ object PersonDAO extends mainDBDAO[Person, Long] {
       experience <- get[Int]("experience")
       isTraining <- get[Boolean]("isTraining")
       showSensitive <- get[Boolean]("showSensitive")
-      profil <- get[Int]("profil")
+      profil <- get[Int]("profilid")
     } yield
       Person(
         id,

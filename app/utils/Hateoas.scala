@@ -1,6 +1,6 @@
 package utils
 
-import model.{ErrorMessage, InfoMessage, Notification, Person}
+import model._
 import play.api.libs.json.{JsObject, JsString}
 import play.api.mvc.Request
 import utils.HateoasConverter.Converter
@@ -81,6 +81,26 @@ object HateoasConverter {
       Links(Seq(Item("rel", "self"), Item("href", s"/persons/${person.id.get}",isHref = true))),
       Links(Seq(Item("rel", "contacts"), Item("href", s"/persons/${person.id.get}/contacts",isHref = true))),
       Links(Seq(Item("rel", "sensitive"), Item("href", s"/persons/${person.id.get}/sensitive",isHref = true)))
+    )
+  }
+
+  implicit object PersonSensitiveConverter extends Converter[PersonSensitive] {
+
+    override def name: String = "person_sensitive"
+
+    override def convertMap(pSensitive: PersonSensitive): Map[String, String] = Map(
+      "email" -> pSensitive.email,
+      "company" -> pSensitive.company,
+      "phoneNumber" -> pSensitive.phoneNumber,
+      "workLocation" -> pSensitive.workLocation,
+      "lookingForAJob" -> pSensitive.lookingForAJob.toString
+    )
+
+
+    override def links(pSensitive: PersonSensitive): Seq[Links] = Seq(
+      Links(Seq(Item("rel", "self"), Item("href", s"/persons/${pSensitive.id.get}/sensitive",isHref = true))),
+      Links(Seq(Item("rel", "contacts"), Item("href", s"/persons/${pSensitive.id.get}/contacts",isHref = true))),
+      Links(Seq(Item("rel", "person"), Item("href", s"/persons/${pSensitive.id.get}",isHref = true)))
     )
   }
 

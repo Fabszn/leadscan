@@ -5,6 +5,16 @@ CREATE TABLE PROFIL_TYPE (
 
 );
 
+CREATE TABLE PERSON_SENSITIVE (
+    id   BIGSERIAL not NULL,
+    email character varying(100) NOT NULL,
+    phoneNumber character varying(255) NOT NULL,
+    company character varying(255) NOT NULL,
+    workLocation character varying(255) NOT NULL,
+    lookingForAJob boolean NOT NULL,
+     CONSTRAINT id_PERSON_SENSITIVE_pkey PRIMARY KEY (id)
+);
+
 CREATE TABLE PERSON (
     id   BIGSERIAL not NULL,
     firstname character varying(255) NOT NULL,
@@ -15,7 +25,7 @@ CREATE TABLE PERSON (
     experience INTEGER,
     isTraining boolean NOT NULL,
     showSensitive boolean NOT NULL,
-    profil bigint NOT NULL REFERENCES PROFIL_TYPE(id),
+    profilid bigint NOT NULL REFERENCES PROFIL_TYPE(id),
+    sensitiveId bigint NOT NULL REFERENCES PERSON_SENSITIVE(id),
      CONSTRAINT id_PERSON_pkey PRIMARY KEY (id)
 );
-
