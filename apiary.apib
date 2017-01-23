@@ -190,4 +190,58 @@ Obtain notification for person with id : 1 by type of notification
             "error":{
                 "code" : "notifications_not_found"
                 "message : "Notification for person with id 1 are not found"
+                }
+        }
+        
+## contacts [/persons/:idperson/contacts]
+
+Obtain contact for person with id : 1
+
+### Read person contacts [GET]
+
++ Response 200 (application/json)
+
+        {
+            "contacts":[
+                {
+                    "firstname":"Michel"
+                    "lastname" : "Paul"
+                    links:[
+                        {
+                            "rel": "sensitive",
+                            "href": "http://localhost:8080/persons/10/sensitive"
+                        },
+                        {
+                            "rel": "self",
+                            "href": "http://localhost:8080/persons/10"
+                        },
+                        {
+                            "rel": "contacts",
+                            "href": "http://localhost:8080/persons/10/contacts"
+                        }
+                    ]
+                    
+                },
+                 {
+                    "firstname":"Louisa"
+                    "lastname" : "Delfont"
+                    links:[
+                        {
+                            "rel": "sensitive",
+                            "href": "http://localhost:8080/persons/14/sensitive"
+                        },
+                        {
+                            "rel": "self",
+                            "href": "http://localhost:8080/persons/14"
+                        },
+                        {
+                            "rel": "contacts",
+                            "href": "http://localhost:8080/persons/14/contacts"
+                        }
+                    ]
+                    
+                }
+                
+              
+            ]
         }
