@@ -193,9 +193,40 @@ Obtain notification for person with id : 1 by type of notification
                 }
         }
         
-## contacts [/persons/:idperson/contacts]
 
-Obtain contact for person with id : 1
+## Lead [/leads/]
+
+Put to person in relation
+
+### Associate person A with Person B [GET]
+
++ Request (application/json)
+    
+        {
+            idApplicant : 1
+            idTarget : 2
+        }
+    
++ Response 201 (application/json)
+        
+        {
+            "info":{
+            message : "person with id 1 has been connected with person with id 2"
+            }
+        }
+
++ Response 409 (application/json)
+        
+        {
+            "info":{
+            message : "Connetion betwwen person with id 1 and person with id 2 is already exists"
+            }
+        }
+
+
+## Contacts [/persons/:idperson/contacts]
+
+Obtain contacts for person with id : 1
 
 ### Read person contacts [GET]
 
