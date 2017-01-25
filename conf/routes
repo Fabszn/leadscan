@@ -1,11 +1,11 @@
 # Routes
-# This file defines all application routes (Higher priority routes first)
-# ~~~~
 
-GET        /persons/:id        controllers.PersonController.read(id:Long)
+GET         /persons/:id                  controllers.PersonController.read(id:Long)
 
-GET        /persons/:id/sensitive        controllers.PersonController.readSensitive(id:Long)
+GET         /persons/:id/sensitive        controllers.PersonController.readSensitive(id:Long)
 
-PUT        /persons/:id        controllers.PersonController.maj(id:Long)
+PUT         /persons/:id                  controllers.PersonController.maj(id:Long)
 
-GET        /status             controllers.Status.status
+POST        /lead                         controllers.LeadController.connect
+
+GET         /status                       controllers.Status.status

@@ -33,11 +33,11 @@ class PersonController(ps: PersonService) extends Controller with LoggerAudit {
     val j = request.body
 
 
-    val r = jsonToMapExtractor[String](List("firstname", "lastname"), j)
-    val r2 = jsonToMapExtractor[Int](List("age", "experience"), j)
-    val r3 = jsonToMapExtractor[Boolean](List("isTraining"), j)
+    val strFields = jsonToMapExtractor[String](List("firstname", "lastname"), j)
+    val intFields = jsonToMapExtractor[Int](List("age", "experience"), j)
+    val boolFields = jsonToMapExtractor[Boolean](List("isTraining"), j)
 
-    ps.majPerson(id, UpdatePerson(r, r2, r3))
+    ps.majPerson(id, UpdatePerson(strFields, intFields, boolFields))
 
 
     Accepted(toHateoas(InfoMessage(s"Person with id $id updated")))
