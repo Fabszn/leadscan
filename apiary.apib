@@ -233,46 +233,60 @@ Obtain contacts for person with id : 1
 + Response 200 (application/json)
 
         {
-            "contacts":[
+            "contacts": [
                 {
-                    "firstname":"Michel"
-                    "lastname" : "Paul"
-                    links:[
-                        {
-                            "rel": "sensitive",
-                            "href": "http://localhost:8080/persons/10/sensitive"
-                        },
-                        {
-                            "rel": "self",
-                            "href": "http://localhost:8080/persons/10"
-                        },
-                        {
-                            "rel": "contacts",
-                            "href": "http://localhost:8080/persons/10/contacts"
-                        }
-                    ]
-                    
+                "person": {
+                    "profil": "1",
+                    "firstname": "Fabrice",
+                    "lastname": "Sznajderman",
+                    "isTraining": "false",
+                    "experience": "16",
+                    "status": "contractor",
+                    "showSensitive": "true",
+                    "position": "developer",
+                    "gender": "M"
                 },
-                 {
-                    "firstname":"Louisa"
-                    "lastname" : "Delfont"
-                    links:[
-                        {
-                            "rel": "sensitive",
-                            "href": "http://localhost:8080/persons/14/sensitive"
-                        },
-                        {
-                            "rel": "self",
-                            "href": "http://localhost:8080/persons/14"
-                        },
-                        {
-                            "rel": "contacts",
-                            "href": "http://localhost:8080/persons/14/contacts"
-                        }
-                    ]
-                    
+                "links": [
+                {
+                   "rel": "self",
+                   "href": "http://localhost:9000/persons/1"
+                },
+                {
+                   "rel": "contacts",
+                   "href": "http://localhost:9000/persons/1/contacts"
+                },
+                {
+                   "rel": "sensitive",
+                   "href": "http://localhost:9000/persons/1/sensitive"
                 }
-                
-              
-            ]
+                ]
+                },
+                {
+                "person": {
+                    "profil": "2",
+                    "firstname": "Michel",
+                    "lastname": "Bernard",
+                    "isTraining": "false",
+                    "experience": "5",
+                    "status": "contractor",
+                    "showSensitive": "false",
+                    "position": "developer",
+                    "gender": "M"
+                },
+                "links": [
+                    {
+                       "rel": "self",
+                       "href": "http://localhost:9000/persons/2"
+                    },
+                    {
+                       "rel": "contacts",
+                       "href": "http://localhost:9000/persons/2/contacts"
+                    },
+                    {
+                        "rel": "sensitive",
+                        "href": "http://localhost:9000/persons/2/sensitive"
+                    }
+                ]
+            }
+        ]
         }
