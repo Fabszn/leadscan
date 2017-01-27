@@ -4,7 +4,6 @@ import anorm.NamedParameter
 import dao.{PersonDAO, PersonSensitiveDAO}
 import model.{Person, PersonSensitive}
 import play.api.db.Database
-import play.mvc.Http
 import utils.LoggerAudit
 
 /**

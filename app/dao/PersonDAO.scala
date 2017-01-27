@@ -1,7 +1,9 @@
 package dao
 
+import java.sql.Connection
+
 import anorm.SqlParser.get
-import anorm.{NamedParameter, RowParser}
+import anorm.{NamedParameter, RowParser, _}
 import model.Person
 
 /**
@@ -37,4 +39,14 @@ object PersonDAO extends mainDBDAO[Person, Long] {
         showSensitive,
         profil
       )
+
+
+  def findAllLeadById(id: Long)(implicit c: Connection): Seq[Person] = {
+
+    SQL"""
+         SELECT * FROM PERSON p inner join LEAD l on p.id=l.idTarget WHERE l.idApplicant=$id
+       """.as(rowParser.*)
+
+  }
+
 }

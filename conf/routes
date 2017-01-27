@@ -6,6 +6,8 @@ GET         /persons/:id/sensitive        controllers.PersonController.readSensi
 
 PUT         /persons/:id                  controllers.PersonController.maj(id:Long)
 
-POST        /lead                         controllers.LeadController.connect
+GET         /persons/:id/contacts         controllers.LeadController.leads(id:Long)
+
+POST        /lead                         controllers.LeadController.lead
 
 GET         /status                       controllers.Status.status

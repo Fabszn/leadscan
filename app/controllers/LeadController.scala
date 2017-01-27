@@ -1,20 +1,21 @@
 package controllers
 
 import model.{InfoMessage, Lead}
+import play.api.libs.functional.syntax._
+import play.api.libs.json.Reads._
 import play.api.libs.json.{Reads, _}
 import play.api.mvc.{Action, Controller}
 import services.LeadService
-import play.api.libs.json.Reads._
-import play.api.libs.functional.syntax._
-import utils.HateoasUtils.toHateoas
+import utils.HateoasUtils._
+import utils.LoggerAudit
 
 /**
   * Created by fsznajderman on 24/01/2017.
   */
-class LeadController(ls: LeadService) extends Controller {
+class LeadController(ls: LeadService) extends Controller with LoggerAudit {
 
 
-  def connect = Action(parse.json) { implicit request => {
+  def lead = Action(parse.json) { implicit request => {
 
 
     implicit val leadReader: Reads[Lead] = (
@@ -35,6 +36,16 @@ class LeadController(ls: LeadService) extends Controller {
 
 
   }
+
+  }
+
+
+  def leads(id: Long) = Action { implicit request =>
+
+    val leads = ls.getLeads(id)
+    logger.debug("tail : " + leads.foreach(println))
+
+    Ok(toHateoas(leads))
 
   }
 

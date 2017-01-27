@@ -1,10 +1,10 @@
 package utils
 
 import model._
-import play.api.libs.json.{JsObject, JsString}
+import play.api.libs.json._
 import play.api.mvc.Request
 import utils.HateoasConverter.Converter
-import utils.HateoasUtils.{Item, Links}
+import utils.HateoasUtils.{Item, Links, person2Map}
 
 /**
   * Created by fsznajderman on 19/01/2017.
@@ -37,6 +37,21 @@ object HateoasUtils {
     s"http://${request.host}"
   }
 
+
+  def person2Map(person: Person): Map[String, JsValue] = {
+    Map(
+      "firstname" -> JsString(person.firstname),
+      "lastname" -> JsString(person.lastname),
+      "gender" -> JsString(person.gender),
+      "position" -> JsString(person.position),
+      "status" -> JsString(person.status),
+      "experience" -> JsNumber(person.experience),
+      "isTraining" -> JsBoolean(person.isTraining),
+      "showSensitive" -> JsBoolean(person.showSensitive),
+      "profil" -> JsNumber(person.profil)
+    )
+  }
+
 }
 
 object HateoasConverter {
@@ -45,13 +60,13 @@ object HateoasConverter {
 
     def name: String
 
-    def convertMap(a: A): Map[String, String]
+    def convertMap(a: A)(implicit request: Request[_]): Map[String, JsValue]
 
     def links(a: A): Seq[Links]
 
     def convert(a: A)(implicit request: Request[_]): JsObject = {
       import play.api.libs.json._
-      val p = JsObject(Map(name -> JsObject(convertMap(a).map(i => i._1 -> JsString(i._2)))))
+      val p = JsObject(Map(name -> JsObject(convertMap(a))))
 
       links(a) match {
         case Nil => p
@@ -64,51 +79,56 @@ object HateoasConverter {
 
     override def name: String = "person"
 
-    override def convertMap(person: Person): Map[String, String] = Map(
-      "firstname" -> person.firstname,
-      "lastname" -> person.lastname,
-      "gender" -> person.gender,
-      "position" -> person.position,
-      "status" -> person.status,
-      "experience" -> person.experience.toString,
-      "isTraining" -> person.isTraining.toString,
-      "showSensitive" -> person.showSensitive.toString,
-      "profil" -> person.profil.toString
-    )
+    override def convertMap(person: Person)(implicit request: Request[_]): Map[String, JsValue] = person2Map(person)
 
 
     override def links(person: Person): Seq[Links] = Seq(
-      Links(Seq(Item("rel", "self"), Item("href", s"/persons/${person.id.get}",isHref = true))),
-      Links(Seq(Item("rel", "contacts"), Item("href", s"/persons/${person.id.get}/contacts",isHref = true))),
-      Links(Seq(Item("rel", "sensitive"), Item("href", s"/persons/${person.id.get}/sensitive",isHref = true)))
+      Links(Seq(Item("rel", "self"), Item("href", s"/persons/${person.id.get}", isHref = true))),
+      Links(Seq(Item("rel", "contacts"), Item("href", s"/persons/${person.id.get}/contacts", isHref = true))),
+      Links(Seq(Item("rel", "sensitive"), Item("href", s"/persons/${person.id.get}/sensitive", isHref = true)))
     )
   }
+
 
   implicit object PersonSensitiveConverter extends Converter[PersonSensitive] {
 
     override def name: String = "person_sensitive"
 
-    override def convertMap(pSensitive: PersonSensitive): Map[String, String] = Map(
-      "email" -> pSensitive.email,
-      "company" -> pSensitive.company,
-      "phoneNumber" -> pSensitive.phoneNumber,
-      "workLocation" -> pSensitive.workLocation,
-      "lookingForAJob" -> pSensitive.lookingForAJob.toString
+    override def convertMap(pSensitive: PersonSensitive)(implicit request: Request[_]): Map[String, JsValue] = Map(
+      "email" -> JsString(pSensitive.email),
+      "company" -> JsString(pSensitive.company),
+      "phoneNumber" -> JsString(pSensitive.phoneNumber),
+      "workLocation" -> JsString(pSensitive.workLocation),
+      "lookingForAJob" -> JsBoolean(pSensitive.lookingForAJob)
     )
 
 
     override def links(pSensitive: PersonSensitive): Seq[Links] = Seq(
-      Links(Seq(Item("rel", "self"), Item("href", s"/persons/${pSensitive.id.get}/sensitive",isHref = true))),
-      Links(Seq(Item("rel", "contacts"), Item("href", s"/persons/${pSensitive.id.get}/contacts",isHref = true))),
-      Links(Seq(Item("rel", "person"), Item("href", s"/persons/${pSensitive.id.get}",isHref = true)))
+      Links(Seq(Item("rel", "self"), Item("href", s"/persons/${pSensitive.id.get}/sensitive", isHref = true))),
+      Links(Seq(Item("rel", "contacts"), Item("href", s"/persons/${pSensitive.id.get}/contacts", isHref = true))),
+      Links(Seq(Item("rel", "person"), Item("href", s"/persons/${pSensitive.id.get}", isHref = true)))
     )
+  }
+
+
+  implicit object LeadsConverter extends Converter[Seq[Person]] {
+    override def name: String = "leads"
+
+    override def convertMap(a: Seq[Person])(implicit request: Request[_]): Map[String, JsValue] = {
+      import play.api.libs.json._
+      a.map(p => s"person_${p.id.get}" -> {
+        (JsObject(person2Map(p)) ++ JsObject(Map("links" -> JsArray(PersonConverter.links(p).map(HateoasUtils.linkWrites)))))
+      }).toMap
+    }
+
+    override def links(a: Seq[Person]): Seq[Links] = Seq()
   }
 
   case class NotificationConverter(notification: Notification) extends Converter[Notification] {
 
     override def name: String = "notification"
 
-    override def convertMap(notification: Notification): Map[String, String] = Map()
+    override def convertMap(notification: Notification)(implicit request: Request[_]): Map[String, JsValue] = Map()
 
     override def links(notification: Notification): Seq[Links] = ???
   }
@@ -116,9 +136,9 @@ object HateoasConverter {
   implicit object ErrorConverter extends Converter[ErrorMessage] {
     override def name: String = "error"
 
-    override def convertMap(a: ErrorMessage): Map[String, String] = {
-      Map("code" -> a.code,
-        "message" -> a.message
+    override def convertMap(a: ErrorMessage)(implicit request: Request[_]): Map[String, JsValue] = {
+      Map("code" -> JsString(a.code),
+        "message" -> JsString(a.message)
       )
     }
 
@@ -128,8 +148,8 @@ object HateoasConverter {
   implicit object MessageConverter extends Converter[InfoMessage] {
     override def name: String = "info"
 
-    override def convertMap(a: InfoMessage): Map[String, String] = {
-      Map("message" -> a.message)
+    override def convertMap(a: InfoMessage)(implicit request: Request[_]): Map[String, JsValue] = {
+      Map("message" -> JsString(a.message))
     }
 
     override def links(a: InfoMessage): Seq[Links] = Seq()
