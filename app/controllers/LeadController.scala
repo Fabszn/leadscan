@@ -1,6 +1,6 @@
 package controllers
 
-import model.{InfoMessage, Lead}
+import model.{ErrorMessage, InfoMessage, Lead}
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.{Reads, _}
@@ -42,10 +42,11 @@ class LeadController(ls: LeadService) extends Controller with LoggerAudit {
 
   def leads(id: Long) = Action { implicit request =>
 
-    val leads = ls.getLeads(id)
-    logger.debug("tail : " + leads.foreach(println))
+    ls.getLeads(id) match {
+      case Nil => NotFound(toHateoas(ErrorMessage("leads_not_found", s"Leads for person with id ${id} are not found")))
+      case leads => Ok(toHateoas(leads))
+    }
 
-    Ok(toHateoas(leads))
 
   }
 
