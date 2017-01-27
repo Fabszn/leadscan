@@ -10,7 +10,6 @@ These instructions will get you a copy of the project up and running on your loc
 
 Devoxx LeadTracker is written in Scala and uses the Play framework. You need to install several tools.
 
-
 #### SBT
 
 [SBT](http://www.scala-sbt.org) is the Scala build tool. Check the [documentation](http://www.scala-sbt.org/0.13/docs/).
