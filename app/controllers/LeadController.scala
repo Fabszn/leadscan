@@ -29,7 +29,7 @@ class LeadController(ls: LeadService) extends Controller with LoggerAudit {
       case Some(c) => Conflict(toHateoas(InfoMessage(s"Connection betwwen person with id ${miseEnContact.idApplicant} and person with id ${miseEnContact.idTarget} is already exists")))
       case None =>
         ls.addLead(miseEnContact)
-        Created(toHateoas(InfoMessage(s"person with id ${miseEnContact.idApplicant}1 has been connected with person with id ${miseEnContact.idTarget}")))
+        Created(toHateoas(InfoMessage(s"person with id ${miseEnContact.idApplicant} has been connected with person with id ${miseEnContact.idTarget}")))
 
 
     }
