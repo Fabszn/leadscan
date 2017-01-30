@@ -37,4 +37,27 @@ CREATE TABLE LEAD (
  CONSTRAINT id_LEAD_pkey PRIMARY KEY (idApplicant,idTarget)
 );
 
+CREATE table NOTIFICATION_STATUS(
+id   BIGSERIAL not NULL,
+label character varying(255) NOT NULL,
+CONSTRAINT id_NOTIFICATION_STATUS_pkey PRIMARY KEY (id)
+);
 
+CREATE table NOTIFICATION_TYPE(
+id   BIGSERIAL not NULL,
+label character varying(255) NOT NULL,
+description character varying(255) NOT NULL,
+CONSTRAINT id_NOTIFICATION_TYPE_pkey PRIMARY KEY (id)
+);
+
+CREATE SEQUENCE notification_id_seq START 1;
+
+CREATE TABLE NOTIFICATION (
+id INT  default nextval('notification_id_seq'),
+idRecipient  BIGSERIAL not NULL REFERENCES PERSON(id),
+IdRequester BIGSERIAL not NULL REFERENCES PERSON(id),
+idType bigint NOT NULL REFERENCES NOTIFICATION_TYPE(id),
+idStatus bigint NOT NULL REFERENCES NOTIFICATION_STATUS(id),
+dateTime timestamp NOT NULL,
+CONSTRAINT id_NOTIFICATION_pkey PRIMARY KEY (id)
+);

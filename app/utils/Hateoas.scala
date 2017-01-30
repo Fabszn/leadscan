@@ -4,7 +4,7 @@ import model._
 import play.api.libs.json._
 import play.api.mvc.Request
 import utils.HateoasConverter.Converter
-import utils.HateoasUtils.{Item, Links, person2Map}
+import utils.HateoasUtils.{Item, Links, person2Map, notification2Map}
 
 /**
   * Created by fsznajderman on 19/01/2017.
@@ -52,6 +52,15 @@ object HateoasUtils {
     )
   }
 
+  def notification2Map(notification: Notification): Map[String, JsValue] = {
+    Map(
+      "idRecipient" -> JsNumber(notification.idRecipient),
+      "idRequester" -> JsNumber(notification.idRequester),
+      "typeNotif" -> JsNumber(notification.typeNotif),
+      "status" -> JsNumber(notification.status.id),
+      "dateTimee" -> JsString(notification.dateTime.toString)
+    )
+  }
 }
 
 object HateoasConverter {
@@ -117,20 +126,37 @@ object HateoasConverter {
     override def convertMap(a: Seq[Person])(implicit request: Request[_]): Map[String, JsValue] = {
       import play.api.libs.json._
       a.map(p => s"person_${p.id.get}" -> {
-        (JsObject(person2Map(p)) ++ JsObject(Map("links" -> JsArray(PersonConverter.links(p).map(HateoasUtils.linkWrites)))))
+        JsObject(person2Map(p)) ++ JsObject(Map("links" -> JsArray(PersonConverter.links(p).map(HateoasUtils.linkWrites))))
       }).toMap
     }
 
     override def links(a: Seq[Person]): Seq[Links] = Seq()
   }
 
-  case class NotificationConverter(notification: Notification) extends Converter[Notification] {
+  implicit object NotificationConverter extends Converter[Notification] {
 
     override def name: String = "notification"
 
-    override def convertMap(notification: Notification)(implicit request: Request[_]): Map[String, JsValue] = Map()
+    override def convertMap(notification: Notification)(implicit request: Request[_]): Map[String, JsValue] = notification2Map(notification)
 
-    override def links(notification: Notification): Seq[Links] = ???
+    override def links(notification: Notification): Seq[Links] = Seq(
+      Links(Seq(Item("rel", "self"), Item("href", s"/notifications/${notification.id.get}", isHref = true))),
+      Links(Seq(Item("rel", "requester"), Item("href", s"/persons/${notification.idRequester}", isHref = true))),
+      Links(Seq(Item("rel", "recipient"), Item("href", s"/persons/${notification.idRecipient}", isHref = true))))
+  }
+
+
+  implicit object NotificationsConverter extends Converter[Seq[Notification]] {
+    override def name: String = "notifications"
+
+    override def convertMap(a: Seq[Notification])(implicit request: Request[_]): Map[String, JsValue] = {
+      import play.api.libs.json._
+      a.map(n => s"notification_${n.id.get}" -> {
+        JsObject(notification2Map(n)) ++ JsObject(Map("links" -> JsArray(NotificationConverter.links(n).map(HateoasUtils.linkWrites))))
+      }).toMap
+    }
+
+    override def links(a: Seq[Notification]): Seq[Links] = Seq()
   }
 
   implicit object ErrorConverter extends Converter[ErrorMessage] {

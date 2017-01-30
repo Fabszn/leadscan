@@ -1,10 +1,11 @@
+import controllers.NotificationController
 import org.flywaydb.play.PlayInitializer
 import play.api.ApplicationLoader.Context
-import play.api.db.{BoneCPComponents, DBComponents}
+import play.api.db.{BoneCPComponents, DBComponents, Database}
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.{ApplicationLoader, BuiltInComponentsFromContext, LoggerConfigurator, _}
 import router.Routes
-import services.{LeadServiceImpl, PersonServiceImpl}
+import services.{LeadServiceImpl, NotificationServiceImple, PersonServiceImpl}
 
 
 /**
@@ -28,9 +29,10 @@ class Components(context: Context)
 
 
 
-  val database = dbApi.database("leadTrackerDb")
+  val database: Database = dbApi.database("leadTrackerDb")
   val ps = new PersonServiceImpl(database)
   val ls = new LeadServiceImpl(database)
+  val ns = new NotificationServiceImple(database)
 
   val flyway = new PlayInitializer(configuration, environment, webCommands)
 
@@ -38,7 +40,9 @@ class Components(context: Context)
   lazy val router = new Routes(
     httpErrorHandler,
     new controllers.PersonController(ps),
-    new controllers.LeadController(ls),
+    new controllers.LeadController(ls,ns),
+    new controllers.NotificationController(ns),
     new controllers.Status()
+
   )
 }
