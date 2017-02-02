@@ -33,6 +33,31 @@ Then install the Scala SDK in Intellij IDEA
 
 	docker run  -p 5432:5432 -e POSTGRES_PASSWORD=test -e POSTGRES_USER=fabszn -e POSTGRES_DB=leadtracker  -d postgres:9.6
 
+### local configuration
+
+Into application.conf file, there is information for database connectivity for the clever cloud environment.
+To ease the local configuration and avoid the modification for clever cloud env, you have to create a file named :
+
+    local.conf
+This file must be located in conf directory.  In this file, you can add your local configuration for database.
+
+sample : 
+
+    
+    db_server_url = "jdbc:postgresql://localhost"
+    
+    db {
+        leadTrackerDb = ${db_leadTrackerDb} {
+        url = ${db_server_url}"/leadtracker"
+        username = "fabszn"
+        password = "test"
+
+        }
+    }
+ Information above are linked with information provided to the docker image. It will overrided information contained in application.conf
+ 
+ /!\ This file mustn't be commited! 
+
 ### Installing
 
 Once you have all the code, you can run the following command :
