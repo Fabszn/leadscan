@@ -9,8 +9,8 @@ GET         /persons/:id/contacts                              controllers.LeadC
 
 
 #Leads
-POST        /lead                                              controllers.LeadController.lead
-POST        /lead/note                                         controllers.LeadController.addNote
+POST        /leads                                              controllers.LeadController.lead
+POST        /leads/note                                         controllers.LeadController.addNote
 
 
 
