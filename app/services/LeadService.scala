@@ -1,7 +1,7 @@
 package services
 
-import dao.{LeadDAO, PersonDAO}
-import model.{Lead, Person}
+import dao.{LeadDAO, LeadNoteDAO, PersonDAO}
+import model.{Lead, LeadNote, Person}
 import play.api.db.Database
 
 /**
@@ -9,7 +9,9 @@ import play.api.db.Database
   */
 trait LeadService {
 
-  def addLead(contact: Lead)
+  def addLead(contact: Lead, note: Option[LeadNote]):Unit
+
+  def addNote(note: LeadNote):Unit
 
   def isAlreadyConnect(contact: Lead): Option[Lead]
 
@@ -22,15 +24,27 @@ trait LeadService {
 class LeadServiceImpl(db: Database) extends LeadService {
 
 
+  override def addNote(note: LeadNote): Unit = {
+    db.withConnection { implicit c =>
+      LeadNoteDAO.create(note)
+    }
+  }
+
   override def isAlreadyConnect(contact: Lead): Option[Lead] = {
     db.withConnection { implicit c =>
       LeadDAO.findByPks(contact.idApplicant, contact.idTarget)
     }
   }
 
-  override def addLead(contact: Lead): Unit = {
-    db.withConnection { implicit c =>
+  override def addLead(contact: Lead, leadNote: Option[LeadNote]): Unit = {
+    db.withTransaction { implicit c =>
       LeadDAO.create(contact)
+      for {
+        note <- leadNote
+      } yield {
+        LeadNoteDAO.create(note)
+      }
+
     }
   }
 

@@ -3,16 +3,15 @@
 
 #person
 GET         /persons/:id                                       controllers.PersonController.read(id:Long)
-
 GET         /persons/:id/sensitive                             controllers.PersonController.readSensitive(id:Long)
-
 PUT         /persons/:id                                       controllers.PersonController.maj(id:Long)
-
 GET         /persons/:id/contacts                              controllers.LeadController.leads(id:Long)
 
 
 #Leads
 POST        /lead                                              controllers.LeadController.lead
+POST        /lead/note                                         controllers.LeadController.addNote
+
 
 
 #Notification
@@ -24,5 +23,4 @@ GET         /notifications/:id                                 controllers.Notif
 GET         /status                                            controllers.Status.status
 
 #index
-
 GET         /                                                  controllers.Status.index

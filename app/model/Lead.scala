@@ -8,6 +8,3 @@ import java.time.LocalDateTime
 case class Lead(idApplicant: Long, idTarget: Long, dateTime: LocalDateTime = LocalDateTime.now())
 
 
-object Lead{
-  def apply(idApplicant: Long, idTarget: Long): Lead = new Lead(idApplicant, idTarget, LocalDateTime.now())
-}

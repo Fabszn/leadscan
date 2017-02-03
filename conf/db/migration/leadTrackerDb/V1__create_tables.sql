@@ -38,6 +38,19 @@ CREATE TABLE LEAD (
  CONSTRAINT id_LEAD_pkey PRIMARY KEY (idApplicant,idTarget)
 );
 
+
+CREATE SEQUENCE lead_note_id_seq START 1;
+
+CREATE TABLE LEAD_NOTE (
+ id INT default nextval('lead_note_id_seq'),
+ idApplicant BIGSERIAL not NULL REFERENCES PERSON(id),
+ idTarget BIGSERIAL not NULL REFERENCES PERSON(id),
+ note character varying(1000),
+ dateTime timestamp NOT NULL,
+ CONSTRAINT id_LEAD_NOTE_pkey PRIMARY KEY (id)
+);
+
+
 CREATE table NOTIFICATION_STATUS(
 id   BIGSERIAL not NULL,
 label character varying(255) NOT NULL,
