@@ -34,6 +34,7 @@ CREATE TABLE PERSON (
 CREATE TABLE LEAD (
  idApplicant BIGSERIAL not NULL REFERENCES PERSON(id),
  idTarget BIGSERIAL not NULL REFERENCES PERSON(id),
+ dateTime timestamp NOT NULL,
  CONSTRAINT id_LEAD_pkey PRIMARY KEY (idApplicant,idTarget)
 );
 

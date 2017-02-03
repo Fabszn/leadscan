@@ -1,6 +1,7 @@
 package dao
 
 import java.sql.Connection
+import java.time.LocalDateTime
 
 import anorm.SqlParser.get
 import anorm.{NamedParameter, RowParser, _}
@@ -14,13 +15,15 @@ object LeadDAO extends mainDBDAO[Lead, Long] {
   override def rowParser: RowParser[Lead] = for {
     idApplicant <- get[Long]("idApplicant")
     idTarget <- get[Long]("idTarget")
-  } yield Lead(idApplicant, idTarget)
+    dateTime <- get[LocalDateTime]("dateTime")
+  } yield Lead(idApplicant, idTarget, dateTime)
 
   override def table: String = "lead"
 
   override def getParams(item: Lead): Seq[NamedParameter] = Seq[NamedParameter](
     'idApplicant -> item.idApplicant,
-    'idTarget -> item.idTarget
+    'idTarget -> item.idTarget,
+    'dateTime -> item.dateTime
   )
 
 
@@ -28,9 +31,6 @@ object LeadDAO extends mainDBDAO[Lead, Long] {
     SQL"""
          SELECT * from LEAD where idApplicant=${idApplicant} and idTarget=$idTarget
        """.as(rowParser.singleOpt)
-
-
-
 
 
 }

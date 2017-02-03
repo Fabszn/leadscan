@@ -10,4 +10,6 @@ trait LoggerAudit {
 
   val logger = Logger("AUDIT")
 
+  val loggerBatch = Logger("batch")
+
 }

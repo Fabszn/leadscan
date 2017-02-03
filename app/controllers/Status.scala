@@ -12,4 +12,8 @@ class Status extends Controller {
     Ok(BuildInfo.toJson)
   }
 
+  def index = Action {
+    Ok("Lead Tracker up! (look at /status for version details)")
+  }
+
 }

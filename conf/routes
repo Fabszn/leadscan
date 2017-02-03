@@ -18,7 +18,11 @@ POST        /lead                                              controllers.LeadC
 #Notification
 
 GET         /notifications/:idRecipient/since/:dateTime        controllers.NotificationController.allNotif(idRecipient:Long, dateTime:String)
-GET         /notifications/:id        controllers.NotificationController.read(id:Long)
+GET         /notifications/:id                                 controllers.NotificationController.read(id:Long)
 
 #Status
 GET         /status                                            controllers.Status.status
+
+#index
+
+GET         /                                                  controllers.Status.index

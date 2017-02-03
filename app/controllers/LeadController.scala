@@ -19,7 +19,6 @@ class LeadController(ls: LeadService, ns: NotificationService) extends Controlle
 
   def lead = Action(parse.json) { implicit request => {
 
-
     implicit val leadReader: Reads[Lead] = (
       (__ \ "idApplicant").read[Long] and (__ \ "idTarget").read[Long]
       ) (Lead.apply _)
