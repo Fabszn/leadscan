@@ -35,14 +35,12 @@ Then install the Scala SDK in Intellij IDEA
 
 ### local configuration
 
-Into application.conf file, there is information for database connectivity for the clever cloud environment.
+In `application.conf` file, there is the information for database connectivity for the clever cloud environment.
 To ease the local configuration and avoid the modification for clever cloud env, you have to create a file named :
 
-    local.conf
-This file must be located in conf directory.  In this file, you can add your local configuration for database.
+    conf/local.conf
 
-sample : 
-
+This file must be located in conf directory.  In this file, you can add your local configuration for database. For example : 
     
     db_server_url = "jdbc:postgresql://localhost"
     
@@ -54,9 +52,10 @@ sample :
 
         }
     }
- Information above are linked with information provided to the docker image. It will overrided information contained in application.conf
+
+The information above is related to the information provided to the docker image. It will override the information contained in the `application.conf`.
  
- /!\ This file mustn't be commited! 
+ /!\ This file must not be commited (that's why it's in the `.gitignore`)! 
 
 ### Installing
 
@@ -66,9 +65,9 @@ Once you have all the code, you can run the following command :
 sbt run
 ```
 
-This will compile all the code, and deploy it. Just check you have access to the following URL:
+This will compile all the code, and deploy it. Just check you have access to the following URLs:
 
-[http://localhost:9000/status]() : status information 
+* [http://localhost:9000/status]() : status information 
 
 
 ## Running the tests
