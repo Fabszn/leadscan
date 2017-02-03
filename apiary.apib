@@ -194,7 +194,7 @@ Obtain notification for person with id : 1 by type of notification
         }
         
 
-## Lead [/leads/]
+## Lead [/leads]
 
 Put to person in relation
 
@@ -205,6 +205,7 @@ Put to person in relation
         {
             idApplicant : 1
             idTarget : 2
+            note : "one note" //optional
         }
     
 + Response 201 (application/json)
@@ -223,6 +224,37 @@ Put to person in relation
             }
         }
 
+
+## Lead's Note [/leads/note]
+
+Add one note on lead
+
+### add new note [POST]
+
+ + Request (application/json)
+    
+        {
+            idApplicant : 1
+            idTarget : 2
+            note : "one note" 
+        }
+        
+ + Response 201 (application/json)
+        
+        {
+            "info":{
+            "message":"Note added successfully"
+            }
+        }
+
+ + Response 400 (application/json)
+        
+        {
+            "error": {
+                "code": "person_not_connected",
+                "message": "Person with id 1 is not already connected with person with id 23"
+        }
+        }
 
 ## Contacts [/persons/:idperson/contacts]
 
