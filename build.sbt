@@ -23,6 +23,7 @@ lazy val root = (project in file("."))
       "org.postgresql" % "postgresql" % "9.4.1212",
       cache,
       ws,
+      filters,
       "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test
 
     ))
