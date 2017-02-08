@@ -1,9 +1,11 @@
-import controllers.NotificationController
+import io.netty.handler.codec.http.cors.CorsConfig
 import org.flywaydb.play.PlayInitializer
 import play.api.ApplicationLoader.Context
 import play.api.db.{BoneCPComponents, DBComponents, Database}
 import play.api.libs.ws.ahc.AhcWSComponents
+import play.api.mvc.EssentialFilter
 import play.api.{ApplicationLoader, BuiltInComponentsFromContext, LoggerConfigurator, _}
+import play.filters.cors.{CORSComponents, CORSFilter}
 import router.Routes
 import services.{LeadServiceImpl, NotificationServiceImple, PersonServiceImpl}
 
@@ -25,9 +27,12 @@ class Components(context: Context)
   extends BuiltInComponentsFromContext(context)
     with DBComponents
     with BoneCPComponents
-    with AhcWSComponents {
+    with AhcWSComponents
+    with CORSComponents {
 
+  //val filter = new Filters()
 
+  override lazy val httpFilters: Seq[EssentialFilter] = Seq(corsFilter)
 
   val database: Database = dbApi.database("leadTrackerDb")
   val ps = new PersonServiceImpl(database)
@@ -40,7 +45,7 @@ class Components(context: Context)
   lazy val router = new Routes(
     httpErrorHandler,
     new controllers.PersonController(ps),
-    new controllers.LeadController(ls,ns),
+    new controllers.LeadController(ls, ns),
     new controllers.NotificationController(ns),
     new controllers.Status()
 
