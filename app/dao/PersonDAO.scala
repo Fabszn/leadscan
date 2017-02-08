@@ -12,7 +12,20 @@ import model.Person
 object PersonDAO extends mainDBDAO[Person, Long] {
   override def table: String = "person"
 
-  override def getParams(item: Person): Seq[NamedParameter] = ???
+  override def getParams(item: Person): Seq[NamedParameter] = Seq[NamedParameter](
+    'id -> item.id.get,
+    'firstname -> item.firstname,
+    'lastname -> item.lastname,
+    'gender -> item.gender,
+    'position -> item.gender,
+    'status -> item.status,
+    'experience -> item.experience,
+    'isTraining -> item.isTraining,
+    'showSensitive -> item.showSensitive,
+    'profilid -> item.profil
+
+
+  )
 
   override def rowParser: RowParser[Person] =
     for {

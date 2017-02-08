@@ -1,11 +1,10 @@
-import io.netty.handler.codec.http.cors.CorsConfig
 import org.flywaydb.play.PlayInitializer
 import play.api.ApplicationLoader.Context
 import play.api.db.{BoneCPComponents, DBComponents, Database}
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.mvc.EssentialFilter
 import play.api.{ApplicationLoader, BuiltInComponentsFromContext, LoggerConfigurator, _}
-import play.filters.cors.{CORSComponents, CORSFilter}
+import play.filters.cors.CORSComponents
 import router.Routes
 import services.{LeadServiceImpl, NotificationServiceImple, PersonServiceImpl}
 
@@ -47,7 +46,8 @@ class Components(context: Context)
     new controllers.PersonController(ps),
     new controllers.LeadController(ls, ns),
     new controllers.NotificationController(ns),
-    new controllers.Status()
+    new controllers.Status(),
+    new controllers.ImportController(ps)
 
   )
 }

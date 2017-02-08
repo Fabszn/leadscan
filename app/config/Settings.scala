@@ -1,3 +1,5 @@
+package config
+
 import com.typesafe.config.ConfigFactory
 
 /**
@@ -6,5 +8,7 @@ import com.typesafe.config.ConfigFactory
 object Settings {
 
   private val config = ConfigFactory.load
+
+  val separator = config.getString("batch.separator")
 
 }

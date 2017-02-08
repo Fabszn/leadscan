@@ -159,7 +159,7 @@ object HateoasConverter {
     override def links(a: Seq[Notification]): Seq[Links] = Seq()
   }
 
-  implicit object ErrorConverter extends Converter[ErrorMessage] {
+    implicit object ErrorConverter extends Converter[ErrorMessage] {
     override def name: String = "error"
 
     override def convertMap(a: ErrorMessage)(implicit request: Request[_]): Map[String, JsValue] = {

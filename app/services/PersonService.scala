@@ -22,6 +22,8 @@ trait PersonService {
   def getPersonSensitive(id: Long): Option[PersonSensitive]
 
   def majPerson(id: Long, up: UpdatePerson)
+
+  def addPerson(p: Person): Unit
 }
 
 
@@ -57,8 +59,13 @@ class PersonServiceImpl(db: Database) extends PersonService with LoggerAudit {
     db.withConnection { implicit c =>
       PersonDAO.updateByNamedParameters(id)(params)
     }
+  }
 
+  override def addPerson(p: Person): Unit = {
+    db.withConnection(implicit connexion =>
 
+    PersonDAO.create(p)
+    )
   }
 }
 

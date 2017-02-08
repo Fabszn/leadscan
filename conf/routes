@@ -9,8 +9,8 @@ GET         /persons/:id/contacts                              controllers.LeadC
 
 
 #Leads
-POST        /leads                                              controllers.LeadController.lead
-POST        /leads/note                                         controllers.LeadController.addNote
+POST        /leads                                             controllers.LeadController.lead
+POST        /leads/note                                        controllers.LeadController.addNote
 
 
 
@@ -24,3 +24,8 @@ GET         /status                                            controllers.Statu
 
 #index
 GET         /                                                  controllers.Status.index
+
+
+#Import Data
+GET         /import                                            controllers.ImportController.importIndex()
+POST        /batch                                             controllers.ImportController.importData()

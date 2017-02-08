@@ -27,7 +27,7 @@ object PersonSensitiveDAO extends mainDBDAO[PersonSensitive, Long] {
   def getSensitiveDataByIdPerson(idPerson: Long)(implicit conn: Connection): Option[PersonSensitive] = {
 
     SQL"""SELECT ps.* FROM person p
-         inner join person_sensitive ps on p.sensitiveId=ps.id
+         inner join person_sensitive ps on p.id=ps.id
          where p.id=${idPerson}""".as(rowParser.singleOpt)
 
 
