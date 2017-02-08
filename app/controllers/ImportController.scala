@@ -2,7 +2,7 @@ package controllers
 
 import play.api.mvc.{Action, Controller}
 import batch.utils._
-import model.Person
+import model.{Person, PersonSensitive}
 import services.PersonService
 
 /**
@@ -17,7 +17,7 @@ class ImportController(ps: PersonService) extends Controller {
       val csv = csvFile.ref
       val r: Seq[Map[String, String]] = loadCVSSourceFile(csv.file)
 
-      val convertedValue = for {
+      val convertedPerson = for {
         kv <- r
       } yield Person(kv.get("\uFEFFRegId").map(_.toLong),
         kv.getOrElse("first_Name", "notFound"),
@@ -29,10 +29,21 @@ class ImportController(ps: PersonService) extends Controller {
         isTraining = false,
         showSensitive = true,
         1
-
       )
 
-      convertedValue.foreach(ps.addPerson)
+      val convertedPersonSensitive = for {
+        kv <- r
+      } yield PersonSensitive(kv.get("\uFEFFRegId").map(_.toLong),
+        kv.getOrElse("Email_Address", "notFound"),
+        kv.getOrElse("Phone", "notFound"),
+        kv.getOrElse("Company", "notFound"),
+        kv.getOrElse("City", "notFound"),
+        lookingForAJob = false
+      )
+
+
+      convertedPerson.foreach(ps.addPerson)
+      convertedPersonSensitive.foreach(ps.addPersonSensitive)
 
     }
 

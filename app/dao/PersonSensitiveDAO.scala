@@ -21,7 +21,14 @@ object PersonSensitiveDAO extends mainDBDAO[PersonSensitive, Long] {
 
   override def table: String = "person_sensitive"
 
-  override def getParams(item: PersonSensitive): Seq[NamedParameter] = ???
+  override def getParams(item: PersonSensitive): Seq[NamedParameter] = Seq[NamedParameter](
+    'id -> item.id.get,
+    'email -> item.email,
+    'phonenumber -> item.phoneNumber,
+    'company -> item.company,
+    'workLocation -> item.workLocation,
+    'lookingForAJob -> item.lookingForAJob
+  )
 
 
   def getSensitiveDataByIdPerson(idPerson: Long)(implicit conn: Connection): Option[PersonSensitive] = {
