@@ -14,15 +14,15 @@ class PersonController(ps: PersonService) extends Controller with LoggerAudit {
 
   def read(id: Long) = Action { implicit request =>
     ps.getPerson(id) match {
-      case Some(person) => Ok(toHateoas(person))
-      case _ => NotFound(toHateoas(ErrorMessage("Person_not_found", s"Person with id $id not found")))
+      case Some(person) => Ok(toHateoas(person)).withHeaders(("Access-Control-Allow-Origin","*"))
+      case _ => NotFound(toHateoas(ErrorMessage("Person_not_found", s"Person with id $id not found"))).withHeaders(("Access-Control-Allow-Origin","*"))
     }
   }
 
   def readSensitive(id: Long) = Action { implicit request =>
     ps.getPersonSensitive(id) match {
-      case Some(pSensitive) => Ok(toHateoas(pSensitive))
-      case _ => NotFound(toHateoas(ErrorMessage("Person_sensitive_not_found", s"Person sensitive with id $id not found")))
+      case Some(pSensitive) => Ok(toHateoas(pSensitive)).withHeaders(("Access-Control-Allow-Origin","*"))
+      case _ => NotFound(toHateoas(ErrorMessage("Person_sensitive_not_found", s"Person sensitive with id $id not found"))).withHeaders(("Access-Control-Allow-Origin","*"))
     }
   }
 
