@@ -29,3 +29,6 @@ GET         /                                                  controllers.Statu
 #Import Data
 GET         /import                                            controllers.ImportController.importIndex()
 POST        /batch                                             controllers.ImportController.importData()
+
+
+GET         /assets/*file                                      controllers.Assets.at(path="/public", file)

@@ -47,7 +47,8 @@ class Components(context: Context)
     new controllers.LeadController(ls, ns),
     new controllers.NotificationController(ns),
     new controllers.Status(),
-    new controllers.ImportController(ps)
+    new controllers.ImportController(ps),
+    new controllers.Assets(httpErrorHandler)
 
   )
 }

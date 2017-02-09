@@ -9,59 +9,7 @@ import utils.HateoasUtils.{Item, Links, person2Map, notification2Map}
 /**
   * Created by fsznajderman on 19/01/2017.
   */
-object HateoasUtils {
 
-
-  implicit def toHateoas[A](a: A)(implicit converter: Converter[A], request: Request[_]): JsObject = {
-    converter.convert(a)
-  }
-
-
-  case class Item(k: String, v: String, isHref: Boolean = false)
-
-
-  case class Links(items: Seq[Item]) {
-    val name = "links"
-  }
-
-
-  def linkWrites(ls: Links)(implicit request: Request[_]): JsObject = {
-    JsObject(ls.items.map {
-      case item@Item(_, _, true) => item.k -> JsString(s"${href(request)}${item.v}")
-      case item@Item(_, _, false) => item.k -> JsString(s"${item.v}")
-    }.toMap)
-  }
-
-
-  private def href(request: Request[_]): String = {
-    s"http://${request.host}"
-  }
-
-
-  def person2Map(person: Person): Map[String, JsValue] = {
-    Map(
-      "firstname" -> JsString(person.firstname),
-      "lastname" -> JsString(person.lastname),
-      "gender" -> JsString(person.gender),
-      "position" -> JsString(person.position),
-      "status" -> JsString(person.status),
-      "experience" -> JsNumber(person.experience),
-      "isTraining" -> JsBoolean(person.isTraining),
-      "showSensitive" -> JsBoolean(person.showSensitive),
-      "profil" -> JsNumber(person.profil)
-    )
-  }
-
-  def notification2Map(notification: Notification): Map[String, JsValue] = {
-    Map(
-      "idRecipient" -> JsNumber(notification.idRecipient),
-      "idRequester" -> JsNumber(notification.idRequester),
-      "typeNotif" -> JsNumber(notification.typeNotif),
-      "status" -> JsNumber(notification.status.id),
-      "dateTimee" -> JsString(notification.dateTime.toString)
-    )
-  }
-}
 
 object HateoasConverter {
 
@@ -181,4 +129,59 @@ object HateoasConverter {
     override def links(a: InfoMessage): Seq[Links] = Seq()
   }
 
+}
+
+
+object HateoasUtils {
+
+
+  implicit def toHateoas[A](a: A)(implicit converter: Converter[A], request: Request[_]): JsObject = {
+    converter.convert(a)
+  }
+
+
+  case class Item(k: String, v: String, isHref: Boolean = false)
+
+
+  case class Links(items: Seq[Item]) {
+    val name = "links"
+  }
+
+
+  def linkWrites(ls: Links)(implicit request: Request[_]): JsObject = {
+    JsObject(ls.items.map {
+      case item@Item(_, _, true) => item.k -> JsString(s"${href(request)}${item.v}")
+      case item@Item(_, _, false) => item.k -> JsString(s"${item.v}")
+    }.toMap)
+  }
+
+
+  private def href(request: Request[_]): String = {
+    s"http://${request.host}"
+  }
+
+
+  def person2Map(person: Person): Map[String, JsValue] = {
+    Map(
+      "firstname" -> JsString(person.firstname),
+      "lastname" -> JsString(person.lastname),
+      "gender" -> JsString(person.gender),
+      "position" -> JsString(person.position),
+      "status" -> JsString(person.status),
+      "experience" -> JsNumber(person.experience),
+      "isTraining" -> JsBoolean(person.isTraining),
+      "showSensitive" -> JsBoolean(person.showSensitive),
+      "profil" -> JsNumber(person.profil)
+    )
+  }
+
+  def notification2Map(notification: Notification): Map[String, JsValue] = {
+    Map(
+      "idRecipient" -> JsNumber(notification.idRecipient),
+      "idRequester" -> JsNumber(notification.idRequester),
+      "typeNotif" -> JsNumber(notification.typeNotif),
+      "status" -> JsNumber(notification.status.id),
+      "dateTimee" -> JsString(notification.dateTime.toString)
+    )
+  }
 }
