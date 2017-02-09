@@ -11,7 +11,7 @@ import utils.{CORSAction, LoggerAudit}
 /**
   * Created by fsznajderman on 11/01/2017.
   */
-class PersonController(ps: PersonService, configuration: Configuration) extends Controller with LoggerAudit {
+class PersonController(ps: PersonService) extends Controller with LoggerAudit {
 
   def read(id: Long) = CORSAction { implicit request => {
     //println(configuration.getString("play.filters.cors.allowed.origins"))
