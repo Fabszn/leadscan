@@ -9,7 +9,7 @@ import play.api.libs.json.{Reads, _}
 import play.api.mvc.{Action, Controller}
 import services.{LeadService, NotificationService}
 import utils.HateoasUtils._
-import utils.LoggerAudit
+import utils.{CORSAction, LoggerAudit}
 
 /**
   * Created by fsznajderman on 24/01/2017.
@@ -22,9 +22,10 @@ class LeadController(ls: LeadService, ns: NotificationService) extends Controlle
     (__ \ "idApplicant").read[Long] and (__ \ "idTarget").read[Long] and (__ \ "note").readNullable[String]
     ) (LeadFromRequest.apply _)
 
-  def lead = Action(parse.json) { implicit request => {
+  def lead = CORSAction(parse.json) { implicit request => {
 
     val miseEnContact = request.body.validate[LeadFromRequest].get
+    //TODO
     val lead = convert2Lead(miseEnContact)
     val leadNote = convert2LeadNote(miseEnContact)
 
@@ -43,7 +44,7 @@ class LeadController(ls: LeadService, ns: NotificationService) extends Controlle
   }
   }
 
-  def addNote = Action(parse.json) { implicit request =>
+  def addNote = CORSAction(parse.json) { implicit request =>
 
     request.body.validate[LeadFromRequest].asEither match {
       case Left(errors) => BadRequest(toHateoas(ErrorMessage("Json_parsing_error", s"Json parsing throws an error ${errors}")))
@@ -71,7 +72,7 @@ class LeadController(ls: LeadService, ns: NotificationService) extends Controlle
   }
 
 
-  def leads(id: Long) = Action { implicit request =>
+  def leads(id: Long) = CORSAction { implicit request =>
 
     ls.getLeads(id) match {
       case Nil => NotFound(toHateoas(ErrorMessage("leads_not_found", s"Leads for person with id ${id} are not found")))

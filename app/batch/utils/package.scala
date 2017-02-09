@@ -24,13 +24,3 @@ package object utils {
 
 }
 
-
-object TestApp extends App {
-
-  val data = utils.loadCVSSourceFile(new File("/Users/fsznajderman/dev/projects/devoxx/data/data.csv"))
-  println(data(0))
-  println(data(0).get(" RegId"))
-  println(data(0).values)
-
-
-}
