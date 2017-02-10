@@ -48,7 +48,8 @@ class Components(context: Context)
     new controllers.NotificationController(ns),
     new controllers.Status(),
     new controllers.ImportController(ps),
-    new controllers.Assets(httpErrorHandler)
+    new controllers.Assets(httpErrorHandler),
+    new controllers.AdminController()
 
   )
 }

@@ -34,3 +34,8 @@ POST        /batch                                             controllers.Impor
 
 
 GET         /assets/*file                                      controllers.Assets.at(path="/public", file)
+
+
+#Admin
+
+GET         /admin                                             controllers.AdminController.index()
