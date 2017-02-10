@@ -14,7 +14,6 @@ import utils.{CORSAction, LoggerAudit}
 class PersonController(ps: PersonService) extends Controller with LoggerAudit {
 
   def read(id: Long) = CORSAction { implicit request => {
-    //println(configuration.getString("play.filters.cors.allowed.origins"))
     ps.getPerson(id) match {
       case Some(person) => Ok(toHateoas(person))
       case _ => NotFound(toHateoas(ErrorMessage("Person_not_found", s"Person with id $id not found")))

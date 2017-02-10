@@ -4,7 +4,7 @@ import model._
 import play.api.libs.json._
 import play.api.mvc.Request
 import utils.HateoasConverter.Converter
-import utils.HateoasUtils.{Item, Links, person2Map, notification2Map}
+import utils.HateoasUtils._
 
 /**
   * Created by fsznajderman on 19/01/2017.
@@ -107,7 +107,7 @@ object HateoasConverter {
     override def links(a: Seq[Notification]): Seq[Links] = Seq()
   }
 
-    implicit object ErrorConverter extends Converter[ErrorMessage] {
+  implicit object ErrorConverter extends Converter[ErrorMessage] {
     override def name: String = "error"
 
     override def convertMap(a: ErrorMessage)(implicit request: Request[_]): Map[String, JsValue] = {
@@ -129,6 +129,33 @@ object HateoasConverter {
     override def links(a: InfoMessage): Seq[Links] = Seq()
   }
 
+
+  implicit object LeadNoteConverter extends Converter[LeadNote] {
+    override def name: String = "Lead_note"
+
+    override def convertMap(a: LeadNote)(implicit request: Request[_]): Map[String, JsValue] = leadNote2Map(a)
+
+    override def links(a: LeadNote): Seq[Links] = Seq(
+      Links(Seq(Item("rel", "self"), Item("href", s"/lead_note/${a.id.get}", isHref = true))),
+      Links(Seq(Item("rel", "requester"), Item("href", s"/persons/${a.idApplicant}", isHref = true))),
+      Links(Seq(Item("rel", "recipient"), Item("href", s"/persons/${a.idTarget}", isHref = true)))
+    )
+
+  }
+
+  implicit object leadNotesConverter extends Converter[Seq[LeadNote]] {
+    override def name: String = "Lead_notes"
+
+    override def convertMap(a: Seq[LeadNote])(implicit request: Request[_]): Map[String, JsValue] = {
+      import play.api.libs.json._
+      a.map(n => s"lead_note${n.id.get}" -> {
+        JsObject(leadNote2Map(n)) ++ JsObject(Map("links" -> JsArray(LeadNoteConverter.links(n).map(HateoasUtils.linkWrites))))
+      }).toMap
+    }
+
+    override def links(a: Seq[LeadNote]): Seq[Links] = Seq()
+  }
+
 }
 
 
@@ -139,15 +166,6 @@ object HateoasUtils {
     converter.convert(a)
   }
 
-
-  case class Item(k: String, v: String, isHref: Boolean = false)
-
-
-  case class Links(items: Seq[Item]) {
-    val name = "links"
-  }
-
-
   def linkWrites(ls: Links)(implicit request: Request[_]): JsObject = {
     JsObject(ls.items.map {
       case item@Item(_, _, true) => item.k -> JsString(s"${href(request)}${item.v}")
@@ -155,11 +173,9 @@ object HateoasUtils {
     }.toMap)
   }
 
-
   private def href(request: Request[_]): String = {
     s"http://${request.host}"
   }
-
 
   def person2Map(person: Person): Map[String, JsValue] = {
     Map(
@@ -184,4 +200,21 @@ object HateoasUtils {
       "dateTimee" -> JsString(notification.dateTime.toString)
     )
   }
+
+  def leadNote2Map(note: LeadNote): Map[String, JsValue] = {
+    Map(
+      "idApplicant" -> JsNumber(note.idApplicant),
+      "idTarget" -> JsNumber(note.idTarget),
+      "note" -> JsString(note.note),
+      "id" -> JsNumber(note.id.get),
+      "dateTimee" -> JsString(note.dateTime.toString)
+    )
+  }
+
+  case class Item(k: String, v: String, isHref: Boolean = false)
+
+  case class Links(items: Seq[Item]) {
+    val name = "links"
+  }
+
 }

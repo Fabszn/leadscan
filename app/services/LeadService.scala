@@ -9,20 +9,29 @@ import play.api.db.Database
   */
 trait LeadService {
 
-  def addLead(contact: Lead, note: Option[LeadNote]):Unit
+  def addLead(contact: Lead, note: Option[LeadNote]): Unit
 
-  def addNote(note: LeadNote):Unit
+  def addNote(note: LeadNote): Unit
 
   def isAlreadyConnect(contact: Lead): Option[Lead]
 
   def getLeads(id: Long): Seq[Person]
 
+  def getNotes(id: Long): Seq[LeadNote]
 
 }
 
 
 class LeadServiceImpl(db: Database) extends LeadService {
 
+
+  override def getNotes(id: Long): Seq[LeadNote] = {
+
+    db.withConnection { implicit c =>
+      LeadNoteDAO.listBy("idapplicant", id)
+    }
+
+  }
 
   override def addNote(note: LeadNote): Unit = {
     db.withConnection { implicit c =>

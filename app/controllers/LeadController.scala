@@ -6,7 +6,7 @@ import model._
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.{Reads, _}
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{Action, Controller, Result}
 import services.{LeadService, NotificationService}
 import utils.HateoasUtils._
 import utils.{CORSAction, LoggerAudit}
@@ -24,22 +24,25 @@ class LeadController(ls: LeadService, ns: NotificationService) extends Controlle
 
   def lead = CORSAction(parse.json) { implicit request => {
 
-    val miseEnContact = request.body.validate[LeadFromRequest].get
-    //TODO
-    val lead = convert2Lead(miseEnContact)
-    val leadNote = convert2LeadNote(miseEnContact)
+    request.body.validate[LeadFromRequest].asEither match {
+      case Left(errors) => BadRequest(toHateoas(ErrorMessage("Json_parsing_error", s"Json parsing throws an error ${errors}")))
+      case Right(miseEnContact) => {
+        val lead = convert2Lead(miseEnContact)
+        val leadNote = convert2LeadNote(miseEnContact)
 
-    ls.isAlreadyConnect(lead) match {
-      case Some(_) => Conflict(toHateoas(InfoMessage(s"Connection between person with id ${miseEnContact.idApplicant} and person with id ${miseEnContact.idTarget} is already exists")))
-      case None =>
-        ls.addLead(lead, leadNote)
-        ns.addNotification(Notification(id = None,
-          idRecipient = miseEnContact.idTarget,
-          idRequester = miseEnContact.idApplicant,
-          NotificationType.Connected.id.toLong,
-          NotificationStatus.READ,
-          LocalDateTime.now()))
-        Created(toHateoas(InfoMessage(s"person with id ${miseEnContact.idApplicant} has been connected with person with id ${miseEnContact.idTarget}")))
+        ls.isAlreadyConnect(lead) match {
+          case Some(_) => Conflict(toHateoas(InfoMessage(s"Connection between person with id ${miseEnContact.idApplicant} and person with id ${miseEnContact.idTarget} is already exists")))
+          case None =>
+            ls.addLead(lead, leadNote)
+            ns.addNotification(Notification(id = None,
+              idRecipient = miseEnContact.idTarget,
+              idRequester = miseEnContact.idApplicant,
+              NotificationType.Connected.id.toLong,
+              NotificationStatus.READ,
+              LocalDateTime.now()))
+            Created(toHateoas(InfoMessage(s"person with id ${miseEnContact.idApplicant} has been connected with person with id ${miseEnContact.idTarget}")))
+        }
+      }
     }
   }
   }
@@ -69,6 +72,10 @@ class LeadController(ls: LeadService, ns: NotificationService) extends Controlle
       }
     }
 
+  }
+
+  def readNotes(idAppliquant: Long) = CORSAction { implicit request =>
+    Ok(toHateoas(ls.getNotes(idAppliquant)))
   }
 
 
