@@ -6,7 +6,7 @@ import play.api.mvc.EssentialFilter
 import play.api.{ApplicationLoader, BuiltInComponentsFromContext, LoggerConfigurator, _}
 import play.filters.cors.CORSComponents
 import router.Routes
-import services.{LeadServiceImpl, NotificationServiceImple, PersonServiceImpl}
+import services.{LeadServiceImpl, NotificationServiceImple, PersonServiceImpl, SponsorServiceImpl}
 
 
 /**
@@ -37,6 +37,7 @@ class Components(context: Context)
   val ps = new PersonServiceImpl(database)
   val ls = new LeadServiceImpl(database)
   val ns = new NotificationServiceImple(database)
+  val ss = new SponsorServiceImpl(database)
 
   val flyway = new PlayInitializer(configuration, environment, webCommands)
 
@@ -49,7 +50,7 @@ class Components(context: Context)
     new controllers.Status(),
     new controllers.ImportController(ps),
     new controllers.Assets(httpErrorHandler),
-    new controllers.AdminController()
-
+    new controllers.AdminController(),
+    new controllers.SponsorsController(ss)
   )
 }

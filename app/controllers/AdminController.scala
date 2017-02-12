@@ -13,4 +13,8 @@ class AdminController extends Controller with LoggerAudit {
     Ok(views.html.index())
   }
 
+  def home = Action {
+    Ok(views.html.home())
+  }
+
 }

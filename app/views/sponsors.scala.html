@@ -1,0 +1,243 @@
+<div class="row">
+
+    <div class="col-md-3">
+        <div class="panel panel-default" id="formSponsorVue" v-show="show" transition="remove" >
+
+            <div>
+                <h3><span class="label label-default" >Add sponsor</span></h3>
+            </div>
+            <div class="panel-body" >
+                <div class="form-group">
+                    <input type="text" class="form-control sponsorcheckForm" id="nom" name="nom" v-model="name" placeholder="Name">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control sponsorcheckForm" id="prenom" name="prenom" v-model="level" placeholder="Level">
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-default" v-on:click="add" >Save</button>
+                    <button type="button" class="btn btn-default" v-on:click="cancel" >Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default" id="formSponsorUpdateVue" v-show="show" transition="remove" >
+
+            <div>
+                <h3><span class="label label-default" >Update sponsor</span></h3>
+            </div>
+            <div class="panel-body" >
+                <div class="form-group">
+                    <input type="text" class="form-control sponsorUpdatecheckForm" id="nom" name="nom" v-model="name" placeholder="Name">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control sponsorUpdatecheckForm" id="prenom" name="prenom" v-model="level" placeholder="Level">
+
+                    <input type="hidden"  id="id" name="id" v-model="id" >
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-default" v-on:click="update" >Update</button>
+                    <button type="button" class="btn btn-default" v-on:click="cancel" >Cancel</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6" id="errorMessage" v-if="isError">
+            <div class="alert alert-danger" v-model="message" role="alert">{{message}}</div>
+        </div>
+    </div>
+    <div class="col-md-9">
+
+        <table id="sponsors" class="display">
+            <thead>
+                <tr>
+                    <th>id</th>
+                    <th>Name</th>
+                    <th>Level</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+
+        <button type="button" class="btn btn-default" disabled id="addRepresentative" >Add representative</button>
+
+    </div>
+
+</div>
+
+
+
+
+<script>
+
+        $(function () {
+            var formSponsorUpdateVue = new Vue({
+                el: "#formSponsorUpdateVue",
+                data: {
+                    show: false,
+                    id:"",
+                    name: "",
+                    level: ""
+                },
+                methods: {
+                    cancel: function (e) {
+                        console.log('cancel')
+                        formSponsorUpdateVue.name = ""
+                        formSponsorUpdateVue.level = ""
+                        formSponsorUpdateVue.show = false
+                        formSponsorVue.show = true
+
+                    },
+                    update: function (e) {
+
+                        if (isNoError('sponsorUpdatecheckForm')) {
+
+                            $.ajax({
+                                url: "/admin/sponsors",
+                                type: 'PUT',
+                                data: JSON.stringify({
+                                    id: formSponsorUpdateVue.id,
+                                    name: formSponsorUpdateVue.name,
+                                    level: formSponsorUpdateVue.level
+                                }),
+                                async: true,
+                                success: function (data) {
+                                    console.log("reload");
+                                    datatable.ajax.reload(false);
+                                    formSponsorUpdateVue.name = ""
+                                    formSponsorUpdateVue.level = ""
+                                    formSponsorUpdateVue.id = ""
+                                    formSponsorUpdateVue.show = false
+                                    formSponsorVue.show = true
+                                },
+                                cache: false,
+                                contentType: 'application/json',
+                                processData: false
+                            });
+
+
+                        }
+                    }
+                }
+            });
+            var formSponsorVue = new Vue({
+                el: "#formSponsorVue",
+                data: {
+                    show: true,
+                    name: "",
+                    level: ""
+                },
+                methods: {
+                    cancel: function (e) {
+                        console.log('cancel')
+                        formSponsorVue.name = ""
+                        formSponsorVue.level = ""
+                    },
+                    add: function (e) {
+                        if (isNoError('sponsorcheckForm')) {
+                            $.ajax({
+                                url: "/admin/sponsors",
+                                type: 'POST',
+                                data: JSON.stringify({
+                                    name: formSponsorVue.name,
+                                    level: formSponsorVue.level
+                                }),
+                                async: true,
+                                success: function (data) {
+                                    console.log("reload");
+                                    datatable.ajax.reload(false);
+                                    formSponsorVue.name = ""
+                                    formSponsorVue.level = ""
+                                },
+                                cache: false,
+                                contentType: 'application/json',
+                                processData: false
+                            });
+
+
+                        }
+                    }
+                }
+            });
+
+
+            $('#addRepresentative').click(function () {
+
+                console.log("tobe implemented")
+
+            });
+
+
+            $('#sponsors tbody').on('dblclick', 'tr', function () {
+                var id = datatable.row(this).data()[0];
+                console.log(id)
+                $.get("/admin/sponsors/" + id).fail(function () {
+                    eVue.isError = true;
+                    eVue.message = "Sponsor not found for " + id;
+                }).success(function (data) {
+                    formSponsorUpdateVue.name = data.name;
+                    formSponsorUpdateVue.level = data.level;
+                    formSponsorUpdateVue.id = data.id;
+                    formSponsorVue.show = false;
+                    formSponsorUpdateVue.show = true
+
+                });
+
+            });
+
+            $('#sponsors tbody').on('click', 'tr', function () {
+                var id = datatable.row(this).data()[0];
+                console.log(id)
+                $('#addRepresentative').removeAttr("disabled")
+
+            });
+
+
+            var datatable = $('#sponsors').DataTable({
+                "bServerSide": false,
+                "ajax": {url: "/admin/sponsors/all"},
+                "columnDefs": [
+                    {"visible": false, "targets": 0},
+                    {"visible": true, "targets": 1},
+                    {"visible": true, "targets": 2}
+                ]
+            });
+
+
+            function isNoError(classId) {
+                var isError = false;
+                _.each($('.' + classId), function (r) {
+                    if ($(r).val() == "" || $(r).val() == null) {
+                        isError = true;
+                        $(r).addClass('inputError');
+                        eVue.isError=true;
+                        eVue.message="Please fill missed field(s))";
+                    } else {
+                        $(r).removeClass('inputError');
+                    }
+
+                    if(!isError){
+                        eVue.isError=false;
+                    }
+                });
+                return !isError
+            }
+
+            var eVue = new Vue({
+                el: "#errorMessage",
+                data: {
+                    isError: false,
+                    message: ""
+                }
+            });
+
+
+        })
+
+
+
+
+
+
+</script>
+

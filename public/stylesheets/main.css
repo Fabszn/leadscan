@@ -16,3 +16,11 @@
 .col-md-6{
     border: 0px solid #000000;
 }
+
+.inputError{
+    box-shadow: 0 0 3px #CC0000;
+    border: 1px solid #e20505;
+    color: #ec1a13;
+    background-color: #f2dede;
+
+}

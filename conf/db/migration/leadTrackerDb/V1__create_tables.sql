@@ -76,3 +76,12 @@ idStatus bigint NOT NULL REFERENCES NOTIFICATION_STATUS(id),
 dateTime timestamp NOT NULL,
 CONSTRAINT id_NOTIFICATION_pkey PRIMARY KEY (id)
 );
+
+CREATE SEQUENCE sponsor_id_seq START 1;
+
+CREATE TABLE SPONSOR (
+ id Int default nextval('sponsor_id_seq') ,
+ name character varying(255) NOT NULL,
+ level character varying(255) NOT NULL,
+ CONSTRAINT id_sponsor_pkey PRIMARY KEY (id)
+);

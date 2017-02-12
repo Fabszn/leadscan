@@ -4,13 +4,17 @@
         <title>Lead Tracker</title>
         <link rel="stylesheet" href="@routes.Assets.at("stylesheets/bootstrap/bootstrap.min.css")"/>
         <link rel="stylesheet" href="@routes.Assets.at("stylesheets/bootstrap/bootstrap-theme.min.css")"/>
+        <link rel="stylesheet" href="@routes.Assets.at("stylesheets/datatable/jquery.dataTables.min.css")"/>
         <link rel="stylesheet" href="@routes.Assets.at("stylesheets/main.css")"/>
         <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700" rel="stylesheet" type="text/css">
 
+
         <script type="text/javascript" src="@routes.Assets.at("javascripts/jquery/jquery-2.2.3.min.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/datatable/jquery.dataTables.min.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/bootstrap/bootstrap.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("/javascripts/underscore/underscore.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/vuejs/vue.min.js")"></script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/utils.js")"></script>
         <script type="application/javascript">
         </script>
 
@@ -43,6 +47,8 @@
                         <button type="submit" class="btn btn-default">Submit</button>
                     </form>-->
                 <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#" id="homeLink">Home</a></li>
+                    <li><a href="#" id="sponsorsLink">Sponsors</a></li>
                     <li><a href="#">Search Person</a></li>
                     <li><a href="#">Liste des Leads</a></li>
                         <!--<li class="dropdown">
@@ -61,8 +67,10 @@
                 <!-- /.container-fluid -->
         </nav>
         <div id="display"></div>
-        <div class="container-fluid">
-            <div class="row">
+        <div class="container-fluid" id="main">
+
+            Welcome
+                <!--<div class="row">
                 <div class="col-md-6">
                     <div class="panel panel-default">
                         <div class="panel-body">
@@ -102,13 +110,16 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <script>
+
+
+
+            </div>-->
+
+
+       <!-- <script>
 
             $(function () {
-
 
 
 
@@ -116,7 +127,7 @@
                 $("#LinkForm").click(function () {
 
                     // addJson("id", $("#idConf").val())
-                    $.get("/api/leads/" + $("#idConf").val()).fail(function () {
+                    $.get("/persons/" + $("#idConf").val()).fail(function () {
                         eVue.isError = true;
                         aVue.isAttendee = false;
                         eVue.message = "Attendee not found for " + $("#idConf").val();
@@ -133,7 +144,7 @@
                 $("#validForm").click(function () {
 
                     // addJson("id", $("#idConf").val())
-                    $.get("/api/leads/" + $("#idConf").val()).fail(function () {
+                    $.get("/persons/" + $("#idConf").val()).fail(function () {
                         eVue.isError = true;
                         aVue.isAttendee = false;
                         eVue.message = "Attendee not found for " + $("#idConf").val();
@@ -168,7 +179,20 @@
                 }
             });
 
-        </script>
 
+
+
+
+
+        </script>-->
+        </div>
+
+        <script>
+
+            $(function(){
+                registerMenuItem('#sponsorsLink', '/admin/sponsors')
+                registerMenuItem('#homeLink', '/admin/home')
+            })
+        </script>
     </body>
 </html>

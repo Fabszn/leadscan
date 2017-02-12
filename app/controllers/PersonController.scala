@@ -1,8 +1,7 @@
 package controllers
 
 import model.{ErrorMessage, InfoMessage}
-import play.api.Configuration
-import play.api.mvc.{Action, Controller, Request}
+import play.api.mvc.Controller
 import services.{PersonService, UpdatePerson}
 import utils.HateoasConverter._
 import utils.HateoasUtils.toHateoas
