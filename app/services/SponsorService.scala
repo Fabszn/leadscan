@@ -23,8 +23,7 @@ class SponsorServiceImpl(db: Database) extends SponsorService {
 
   override def modifySponsor(sponsor: Sponsor): Unit = {
     db.withConnection(implicit connection =>
-      SponsorDAO.update(sponsor)
-
+      SponsorDAO.updateByNamedParameters(sponsor.id.get)(SponsorDAO.getParams(sponsor).toList)
     )
   }
 

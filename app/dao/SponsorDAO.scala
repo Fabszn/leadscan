@@ -27,7 +27,6 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
   override def table: String = "sponsor"
 
   override def getParams(item: Sponsor): Seq[NamedParameter] = Seq[NamedParameter](
-    'id -> item.id,
     'name -> item.name,
     'level -> item.level
   )
