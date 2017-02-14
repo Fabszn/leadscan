@@ -32,7 +32,7 @@
                 <div class="form-group">
                     <input type="text" class="form-control sponsorUpdatecheckForm" id="prenom" name="prenom" v-model="level" placeholder="Level">
 
-                    <input type="hidden"  id="id" name="id" v-model="id" >
+                    <input type="hidden" id="id" name="id" v-model="id" >
                 </div>
                 <div class="form-group">
                     <button type="button" class="btn btn-default" v-on:click="update" >Update</button>
@@ -52,6 +52,7 @@
                     <th>id</th>
                     <th>Name</th>
                     <th>Level</th>
+
                 </tr>
             </thead>
             <tbody>
@@ -59,7 +60,29 @@
             </tbody>
         </table>
 
-        <button type="button" class="btn btn-default" disabled id="addRepresentative" >Add representative</button>
+        <h4><span  id="selectedSponsor"></span> / <span  id="selectedRepresentative"></span></h4><button type="button" class="btn btn-default" disabled id="addRepresentative" >Add representative</button>
+        <input type="hidden" id="idPerson">
+        <input type="hidden" id="idSponsor">
+
+    </div>
+
+</div>
+
+<div class="row" id="representativeVue" v-show="show">
+    <div class="col-md-12">
+
+        <table id="representative" class="display">
+            <thead>
+                <tr>
+                    <th>id</th>
+                    <th>Firstname</th>
+                    <th>Lastname</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
 
     </div>
 
@@ -71,11 +94,20 @@
 <script>
 
         $(function () {
+            var representativeVue = new Vue({
+                el: "#representativeVue",
+                data: {
+                    sponsor: "",
+                    show: true
+                }
+            });
+
+
             var formSponsorUpdateVue = new Vue({
                 el: "#formSponsorUpdateVue",
                 data: {
                     show: false,
-                    id:"",
+                    id: "",
                     name: "",
                     level: ""
                 },
@@ -102,8 +134,8 @@
                                 }),
                                 async: true,
                                 success: function (data) {
-                                   // console.log("reload");
-                                    datatable.ajax.reload(false);
+
+                                    sponsorDatatable.ajax.reload(false);
                                     formSponsorUpdateVue.name = ""
                                     formSponsorUpdateVue.level = ""
                                     formSponsorUpdateVue.id = ""
@@ -129,7 +161,7 @@
                 },
                 methods: {
                     cancel: function (e) {
-                        //console.log('cancel')
+
                         formSponsorVue.name = ""
                         formSponsorVue.level = ""
                     },
@@ -144,8 +176,8 @@
                                 }),
                                 async: true,
                                 success: function (data) {
-                                    //console.log("reload");
-                                    datatable.ajax.reload(false);
+
+                                    sponsorDatatable.ajax.reload(false);
                                     formSponsorVue.name = ""
                                     formSponsorVue.level = ""
                                 },
@@ -161,16 +193,9 @@
             });
 
 
-            $('#addRepresentative').click(function () {
-
-                console.log("tobe implemented")
-
-            });
-
 
             $('#sponsors tbody').on('dblclick', 'tr', function () {
-                var id = datatable.row(this).data()[0];
-                console.log(id)
+                var id = sponsorDatatable.row(this).data()[0];
                 $.get("/admin/sponsors/" + id).fail(function () {
                     eVue.isError = true;
                     eVue.message = "Sponsor not found for " + id;
@@ -186,14 +211,28 @@
             });
 
             $('#sponsors tbody').on('click', 'tr', function () {
-                var id = datatable.row(this).data()[0];
-                console.log(id)
+
                 $('#addRepresentative').removeAttr("disabled")
+                $("#sponsors tbody tr").removeClass('row_selected');
+                $(this).addClass('row_selected');
+                $('#selectedSponsor').html(sponsorDatatable.row(this).data()[1]);
+                $('#idSponsor').val(sponsorDatatable.row(this).data()[0])
+
+            });
+
+            $('#representative tbody').on('click', 'tr', function () {
+
+                $('#addRepresentative').removeAttr("disabled")
+                $("#representative tbody tr").removeClass('row_selected');
+                $(this).addClass('row_selected');
+                $('#selectedRepresentative').html(representativeDatatable.row(this).data()[1] + " " + representativeDatatable.row(this).data()[2]);
+                $('#idPerson').val(representativeDatatable.row(this).data()[0])
+
 
             });
 
 
-            var datatable = $('#sponsors').DataTable({
+            var sponsorDatatable = $('#sponsors').DataTable({
                 "bServerSide": false,
                 "ajax": {url: "/admin/sponsors/all"},
                 "columnDefs": [
@@ -203,6 +242,43 @@
                 ]
             });
 
+            var representativeDatatable = $('#representative').DataTable({
+                "bServerSide": false,
+                "ajax": {url: "/admin/representatives"},
+                "columnDefs": [
+                    {"visible": true, "targets": 0},
+                    {"visible": true, "targets": 1},
+                    {"visible": true, "targets": 2}
+                ]
+            });
+
+            $('#addRepresentative').click(function () {
+
+                console.log($("#idPerson").val());
+                console.log($("#idSponsor").val());
+
+                $.ajax({
+                    url: "/admin/representatives",
+                    type: 'POST',
+                    data: JSON.stringify({
+                        idPerson: Number($("#idPerson").val()),
+                        idSponsor: Number($("#idSponsor").val())
+                    }),
+                    async: true,
+                    success: function (data) {
+
+                        console.log(data)
+                    },
+                    cache: false,
+                    contentType: 'application/json',
+                    processData: false
+                });
+
+
+
+            });
+
+
 
             function isNoError(classId) {
                 var isError = false;
@@ -210,14 +286,14 @@
                     if ($(r).val() == "" || $(r).val() == null) {
                         isError = true;
                         $(r).addClass('inputError');
-                        eVue.isError=true;
-                        eVue.message="Please fill missed field(s))";
+                        eVue.isError = true;
+                        eVue.message = "Please fill missed field(s))";
                     } else {
                         $(r).removeClass('inputError');
                     }
 
-                    if(!isError){
-                        eVue.isError=false;
+                    if (!isError) {
+                        eVue.isError = false;
                     }
                 });
                 return !isError

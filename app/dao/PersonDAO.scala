@@ -4,7 +4,7 @@ import java.sql.Connection
 
 import anorm.SqlParser.get
 import anorm.{NamedParameter, RowParser, _}
-import model.Person
+import model.{Person, Sponsor}
 
 /**
   * Created by fsznajderman on 19/01/2017.
@@ -59,6 +59,12 @@ object PersonDAO extends mainDBDAO[Person, Long] {
     SQL"""
          SELECT * FROM PERSON p inner join LEAD l on p.id=l.idTarget WHERE l.idApplicant=$id
        """.as(rowParser.*)
+
+  }
+
+  def all(implicit connection: Connection): Seq[Person] = {
+
+    SQL"""select * from Person""".as(rowParser.*)
 
   }
 

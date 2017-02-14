@@ -1,26 +1,29 @@
 
-
 .navbar-default {
     background-color: #080808;
     border-color: #080808;
 }
 
 .vertical-center {
-    min-height: 100%;  /* Fallback for browsers do NOT support vh unit */
+    min-height: 100%; /* Fallback for browsers do NOT support vh unit */
     min-height: 100vh; /* These two lines are counted as one :-)       */
 
     display: flex;
     align-items: center;
 }
 
-.col-md-6{
+.col-md-6 {
     border: 0px solid #000000;
 }
 
-.inputError{
+.inputError {
     box-shadow: 0 0 3px #CC0000;
     border: 1px solid #e20505;
     color: #ec1a13;
     background-color: #f2dede;
 
+}
+
+tr.row_selected td {
+    background-color: #CCFB5D !important;
 }

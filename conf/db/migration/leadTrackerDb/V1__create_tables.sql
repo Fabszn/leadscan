@@ -85,3 +85,9 @@ CREATE TABLE SPONSOR (
  level character varying(255) NOT NULL,
  CONSTRAINT id_sponsor_pkey PRIMARY KEY (id)
 );
+
+CREATE TABLE PERSON_SPONSOR (
+ idPerson BIGSERIAL not NULL REFERENCES PERSON(id),
+ idSponsor BIGSERIAL not NULL REFERENCES SPONSOR(id),
+ CONSTRAINT id_person_sponsor_pkey PRIMARY KEY (idPerson,idSponsor)
+);

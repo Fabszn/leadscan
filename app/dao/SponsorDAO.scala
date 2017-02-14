@@ -37,4 +37,11 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
     SQL"""select * from SPONSOR""".as(rowParser.*)
 
   }
+
+
+  def addRepresentative(idPerson: Long, idSponsor: Long)(implicit connection: Connection): Unit = {
+
+    SQL"""insert into PERSON_SPONSOR (idperson, idsponsor) values ($idPerson, $idSponsor)"""
+
+  }
 }

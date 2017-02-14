@@ -50,7 +50,7 @@ class Components(context: Context)
     new controllers.Status(),
     new controllers.ImportController(ps),
     new controllers.Assets(httpErrorHandler),
-    new controllers.AdminController(),
+    new controllers.AdminController(ps, ss),
     new controllers.SponsorsController(ss)
   )
 }

@@ -24,11 +24,22 @@ trait PersonService {
   def majPerson(id: Long, up: UpdatePerson)
 
   def addPerson(p: Person): Unit
+
   def addPersonSensitive(p: PersonSensitive): Unit
+
+  def allPersons(): Seq[Person]
+
 }
 
 
 class PersonServiceImpl(db: Database) extends PersonService with LoggerAudit {
+
+
+  override def allPersons(): Seq[Person] = {
+    db.withConnection { implicit c =>
+      PersonDAO.all
+    }
+  }
 
   override def getPerson(id: Long): Option[Person] = {
     db.withConnection { implicit c =>
@@ -65,14 +76,14 @@ class PersonServiceImpl(db: Database) extends PersonService with LoggerAudit {
   override def addPerson(p: Person): Unit = {
     db.withConnection(implicit connexion =>
 
-    PersonDAO.create(p)
+      PersonDAO.create(p)
     )
   }
 
   override def addPersonSensitive(p: PersonSensitive): Unit = {
     db.withConnection(implicit connexion =>
 
-    PersonSensitiveDAO.create(p)
+      PersonSensitiveDAO.create(p)
     )
   }
 }
