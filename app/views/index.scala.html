@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Lead Tracker</title>
+        <title>Devoxx Scanning</title>
         <link rel="stylesheet" href="@routes.Assets.at("stylesheets/bootstrap/bootstrap.min.css")"/>
         <link rel="stylesheet" href="@routes.Assets.at("stylesheets/bootstrap/bootstrap-theme.min.css")"/>
         <link rel="stylesheet" href="@routes.Assets.at("stylesheets/datatable/jquery.dataTables.min.css")"/>
@@ -30,7 +30,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="#">Lead tracker</a>
+                    <a class="navbar-brand" href="#">Devoxx Scanning</a>
                 </div>
 
                     <!-- Collect the nav links, forms, and other content for toggling
@@ -50,7 +50,7 @@
                     <li><a href="#" id="homeLink">Home</a></li>
                     <li><a href="#" id="sponsorsLink">Sponsors</a></li>
                     <li><a href="#" id="personLink">Person</a></li>
-                    <li><a href="#">Leads</a></li>
+                    <li><a href="#" id="stats">Stats</a></li>
                         <!--<li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
                             <ul class="dropdown-menu">
@@ -193,6 +193,9 @@
                 registerMenuItem('#sponsorsLink', '/admin/sponsors')
                 registerMenuItem('#homeLink', '/admin/home')
                 registerMenuItem('#personLink', '/admin/persons')
+                registerMenuItem('#stats', '/admin/stats ')
+
+                $("#homeLink").click();
             })
         </script>
     </body>

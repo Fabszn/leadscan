@@ -27,6 +27,10 @@ class AdminController(ps: PersonService, ss: SponsorService) extends Controller 
     Ok(views.html.person())
   }
 
+  def stats = Action {
+    Ok(views.html.stats())
+  }
+
 
   def all() = Action {
 
