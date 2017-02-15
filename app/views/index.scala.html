@@ -49,8 +49,8 @@
                 <ul class="nav navbar-nav navbar-right">
                     <li><a href="#" id="homeLink">Home</a></li>
                     <li><a href="#" id="sponsorsLink">Sponsors</a></li>
-                    <li><a href="#">Search Person</a></li>
-                    <li><a href="#">Liste des Leads</a></li>
+                    <li><a href="#" id="personLink">Person</a></li>
+                    <li><a href="#">Leads</a></li>
                         <!--<li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
                             <ul class="dropdown-menu">
@@ -192,6 +192,7 @@
             $(function(){
                 registerMenuItem('#sponsorsLink', '/admin/sponsors')
                 registerMenuItem('#homeLink', '/admin/home')
+                registerMenuItem('#personLink', '/admin/persons')
             })
         </script>
     </body>

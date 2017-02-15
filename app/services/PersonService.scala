@@ -86,6 +86,8 @@ class PersonServiceImpl(db: Database) extends PersonService with LoggerAudit {
       PersonSensitiveDAO.create(p)
     )
   }
+
+
 }
 
 

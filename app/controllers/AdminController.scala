@@ -22,6 +22,10 @@ class AdminController(ps: PersonService, ss: SponsorService) extends Controller 
     Ok(views.html.home())
   }
 
+  def person = Action {
+    Ok(views.html.person())
+  }
+
 
   def all() = Action {
 
@@ -41,11 +45,18 @@ class AdminController(ps: PersonService, ss: SponsorService) extends Controller 
     request.body.validate[RepresentativeSponsor].asEither match {
       case Right(link) => {
         ss.addRepresentative(link.idPerson, link.idSponsor)
-        Created("")
+        Created("Representative and sponsor are associated")
       }
       case Left(errors) => BadRequest(toHateoas(ErrorMessage("Json_parsing_error", s"Json parsing throws an error ${errors}")))
     }
 
+  }
+
+
+  def removeRepreSponsor(idPerson: Long) = Action {
+
+    ss.removeRepresentative(idPerson)
+    Created("Representative has been removed")
   }
 
 

@@ -2,53 +2,56 @@
 
 
 #person
-GET         /persons/:id                                       controllers.PersonController.read(id:Long)
-GET         /persons/:id/sensitive                             controllers.PersonController.readSensitive(id:Long)
-PUT         /persons/:id                                       controllers.PersonController.maj(id:Long)
-GET         /persons/:id/contacts                              controllers.LeadController.leads(id:Long)
+GET           /persons/:id                                       controllers.PersonController.read(id:Long)
+GET           /persons/:id/sensitive                             controllers.PersonController.readSensitive(id:Long)
+PUT           /persons/:id                                       controllers.PersonController.maj(id:Long)
+GET           /persons/:id/contacts                              controllers.LeadController.leads(id:Long)
 
 
 #Leads
-POST        /leads                                             controllers.LeadController.lead
-POST        /leads/note                                        controllers.LeadController.addNote
-GET         /leads/notes/:id                                   controllers.LeadController.readNotes(id:Long)
+POST          /leads                                             controllers.LeadController.lead
+POST          /leads/note                                        controllers.LeadController.addNote
+GET           /leads/notes/:id                                   controllers.LeadController.readNotes(id:Long)
 
 
 
 
 #Notification
 
-GET         /notifications/:idRecipient/since/:dateTime        controllers.NotificationController.allNotif(idRecipient:Long, dateTime:String)
-GET         /notifications/:id                                 controllers.NotificationController.read(id:Long)
+GET           /notifications/:idRecipient/since/:dateTime        controllers.NotificationController.allNotif(idRecipient:Long, dateTime:String)
+GET           /notifications/:id                                 controllers.NotificationController.read(id:Long)
 
 #Status
-GET         /status                                            controllers.Status.status
+GET           /status                                            controllers.Status.status
 
 #index
-GET         /                                                  controllers.Status.index
+GET           /                                                  controllers.Status.index
 
 
 #Import Data
-GET         /import                                            controllers.ImportController.importIndex()
-POST        /batch                                             controllers.ImportController.importData()
+GET           /import                                            controllers.ImportController.importIndex()
+POST          /batch                                             controllers.ImportController.importData()
 
 
-GET         /assets/*file                                      controllers.Assets.at(path="/public", file)
+GET           /assets/*file                                      controllers.Assets.at(path="/public", file)
 
 
 #Admin
-GET         /admin                                             controllers.AdminController.index()
-GET         /admin/home                                        controllers.AdminController.home()
-GET         /admin/representatives                             controllers.AdminController.all()
-POST        /admin/representatives                             controllers.AdminController.linkRepreSponsor
+GET           /admin                                             controllers.AdminController.index()
+GET           /admin/home                                        controllers.AdminController.home()
+GET           /admin/representatives                             controllers.SponsorsController.readAllRepr
+POST          /admin/representatives                             controllers.AdminController.linkRepreSponsor
+DELETE        /admin/representatives/:idPerson                   controllers.AdminController.removeRepreSponsor(idPerson:Long)
 
+GET           /admin/persons                                     controllers.AdminController.person
 
 #Sponsor
-GET         /admin/sponsors                                    controllers.SponsorsController.view
-GET         /admin/sponsors/all                                controllers.SponsorsController.readAll
+GET           /admin/sponsors                                    controllers.SponsorsController.view
 
-GET         /admin/sponsors/:id                                controllers.SponsorsController.read(id:Long)
-PUT         /admin/sponsors                                    controllers.SponsorsController.modify
+GET           /admin/sponsors/all                                controllers.SponsorsController.readAll
 
-POST        /admin/sponsors                                    controllers.SponsorsController.add
+GET           /admin/sponsors/:id                                controllers.SponsorsController.read(id:Long)
+PUT           /admin/sponsors                                    controllers.SponsorsController.modify
+
+POST          /admin/sponsors                                    controllers.SponsorsController.add
 

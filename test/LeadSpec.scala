@@ -15,7 +15,7 @@ import services.{LeadService, NotificationService}
 class LeadSpec extends PlaySpec with MockitoSugar {
 
 
-  "Person without lead" should {
+  "person without lead" should {
     "return 404 error code" in {
 
       val lsMock = mock[LeadService]
@@ -38,7 +38,7 @@ class LeadSpec extends PlaySpec with MockitoSugar {
     }
   }
 
-  "Person with some leads" should {
+  "person with some leads" should {
     "return 200 with json" in {
 
       val lsMock = mock[LeadService]

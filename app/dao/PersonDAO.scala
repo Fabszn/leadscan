@@ -4,7 +4,7 @@ import java.sql.Connection
 
 import anorm.SqlParser.get
 import anorm.{NamedParameter, RowParser, _}
-import model.{Person, Sponsor}
+import model.Person
 
 /**
   * Created by fsznajderman on 19/01/2017.
@@ -67,5 +67,7 @@ object PersonDAO extends mainDBDAO[Person, Long] {
     SQL"""select * from Person""".as(rowParser.*)
 
   }
+
+
 
 }

@@ -60,7 +60,10 @@
             </tbody>
         </table>
 
-        <h4><span  id="selectedSponsor"></span> / <span  id="selectedRepresentative"></span></h4><button type="button" class="btn btn-default" disabled id="addRepresentative" >Add representative</button>
+        <h4><span id="selectedSponsor"></span> / <span id="selectedRepresentative"></span></h4>
+        <button type="button" class="btn btn-default" disabled id="addRepresentative" >Add representative</button>
+        <button type="button" class="btn btn-default" disabled id="removeRepresentative" >remove representative</button>
+
         <input type="hidden" id="idPerson">
         <input type="hidden" id="idSponsor">
 
@@ -77,6 +80,8 @@
                     <th>id</th>
                     <th>Firstname</th>
                     <th>Lastname</th>
+                    <th>idSponsor</th>
+                    <th>Sponsor</th>
                 </tr>
             </thead>
             <tbody>
@@ -193,7 +198,6 @@
             });
 
 
-
             $('#sponsors tbody').on('dblclick', 'tr', function () {
                 var id = sponsorDatatable.row(this).data()[0];
                 $.get("/admin/sponsors/" + id).fail(function () {
@@ -212,21 +216,24 @@
 
             $('#sponsors tbody').on('click', 'tr', function () {
 
-                $('#addRepresentative').removeAttr("disabled")
                 $("#sponsors tbody tr").removeClass('row_selected');
                 $(this).addClass('row_selected');
                 $('#selectedSponsor').html(sponsorDatatable.row(this).data()[1]);
                 $('#idSponsor').val(sponsorDatatable.row(this).data()[0])
 
+
+                activeAddRepresentative()
             });
 
             $('#representative tbody').on('click', 'tr', function () {
 
-                $('#addRepresentative').removeAttr("disabled")
+
                 $("#representative tbody tr").removeClass('row_selected');
                 $(this).addClass('row_selected');
                 $('#selectedRepresentative').html(representativeDatatable.row(this).data()[1] + " " + representativeDatatable.row(this).data()[2]);
                 $('#idPerson').val(representativeDatatable.row(this).data()[0])
+                activeAddRepresentative()
+                activeRemoveRepresentative()
 
 
             });
@@ -246,9 +253,11 @@
                 "bServerSide": false,
                 "ajax": {url: "/admin/representatives"},
                 "columnDefs": [
-                    {"visible": true, "targets": 0},
+                    {"visible": false, "targets": 0},
                     {"visible": true, "targets": 1},
-                    {"visible": true, "targets": 2}
+                    {"visible": true, "targets": 2},
+                    {"visible": false, "targets": 3},
+                    {"visible": true, "targets": 4}
                 ]
             });
 
@@ -266,18 +275,32 @@
                     }),
                     async: true,
                     success: function (data) {
-
-                        console.log(data)
+                        sponsorDatatable.ajax.reload(false);
+                        representativeDatatable.ajax.reload(false);
                     },
                     cache: false,
                     contentType: 'application/json',
                     processData: false
                 });
 
-
-
             });
 
+            $('#removeRepresentative').click(function () {
+
+                $.ajax({
+                    url: "/admin/representatives/"+Number($("#idPerson").val()),
+                    type: 'DELETE',
+                    async: true,
+                    success: function (data) {
+                        sponsorDatatable.ajax.reload(false);
+                        representativeDatatable.ajax.reload(false);
+                    },
+                    cache: false,
+                    contentType: 'application/json',
+                    processData: false
+                });
+
+            });
 
 
             function isNoError(classId) {
@@ -306,6 +329,33 @@
                     message: ""
                 }
             });
+
+
+            function activeAddRepresentative() {
+
+
+                var idPerson = $("#idPerson").val()
+                var ipdSponsor = $("#idSponsor").val()
+
+                if (!(_.isEmpty(ipdSponsor) || _.isEmpty(idPerson))) {
+
+                    $('#addRepresentative').removeAttr("disabled")
+                }
+
+            }
+
+            function activeRemoveRepresentative() {
+
+
+                var idPerson = $("#idPerson").val()
+
+
+                if (!_.isEmpty(idPerson)) {
+
+                    $('#removeRepresentative').removeAttr("disabled")
+                }
+
+            }
 
 
         })

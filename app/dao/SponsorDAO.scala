@@ -34,14 +34,32 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
 
   def all(implicit connection: Connection): Seq[Sponsor] = {
 
-    SQL"""select * from SPONSOR""".as(rowParser.*)
+    SQL"""select * from SPONSOR """.as(rowParser.*)
 
   }
 
 
   def addRepresentative(idPerson: Long, idSponsor: Long)(implicit connection: Connection): Unit = {
 
-    SQL"""insert into PERSON_SPONSOR (idperson, idsponsor) values ($idPerson, $idSponsor)"""
+    SQL"""insert into PERSON_SPONSOR (idperson, idsponsor) values ($idPerson, $idSponsor)""".execute()
 
+  }
+
+  case class PersonSponsorInfo(idPerson: Long, firstname: String, lastname: String, idSponsor: Option[Long], nameSponsor: Option[String])
+
+  val personSponsorInfo = Macro.namedParser[PersonSponsorInfo]
+
+
+  def allWithSponsor(implicit connection: Connection): Seq[PersonSponsorInfo] = {
+
+    SQL"""select p.id as idPerson,  p.firstname, p.lastname,s.id as idSponsor, s."name" as nameSponsor  from SPONSOR s inner join
+       PERSON_SPONSOR ps on s.id=ps.idSponsor
+        right join PERSON p on p.id=ps.idperson""".as(personSponsorInfo.*)
+
+  }
+
+
+  def deleteRepresentative(idPerson: Long)(implicit connection: Connection): Unit = {
+    SQL"""delete from PERSON_SPONSOR where idPerson=$idPerson""".execute
   }
 }

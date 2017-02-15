@@ -1,6 +1,7 @@
 package services
 
 import dao.SponsorDAO
+import dao.SponsorDAO.PersonSponsorInfo
 import model.Sponsor
 import play.api.db.Database
 
@@ -16,7 +17,11 @@ trait SponsorService {
 
   def modifySponsor(sponsor: Sponsor): Unit
 
-  def addRepresentative(idPerson:Long, idSpnsor:Long):Unit
+  def addRepresentative(idPerson: Long, idSpnsor: Long): Unit
+
+  def removeRepresentative(idPerson: Long): Unit
+
+  def LoadRepresentative(): Seq[PersonSponsorInfo]
 }
 
 
@@ -24,9 +29,9 @@ class SponsorServiceImpl(db: Database) extends SponsorService {
 
 
   override def addRepresentative(idPerson: Long, idSponsor: Long): Unit =
-  db.withConnection(implicit connection =>
-    SponsorDAO.addRepresentative(idPerson ,idSponsor)
-  )
+    db.withConnection(implicit connection =>
+      SponsorDAO.addRepresentative(idPerson, idSponsor)
+    )
 
   override def modifySponsor(sponsor: Sponsor): Unit = {
     db.withConnection(implicit connection =>
@@ -56,4 +61,16 @@ class SponsorServiceImpl(db: Database) extends SponsorService {
 
   }
 
+  override def LoadRepresentative(): Seq[PersonSponsorInfo] = {
+    db.withConnection(implicit connection =>
+      SponsorDAO.allWithSponsor
+    )
+  }
+
+  override def removeRepresentative(idPerson: Long): Unit = {
+    db.withConnection(implicit connection =>
+      SponsorDAO.deleteRepresentative(idPerson)
+    )
+
+  }
 }
