@@ -2,7 +2,7 @@ package dao
 
 import java.sql.Connection
 
-import anorm.SqlParser.get
+import anorm.SqlParser._
 import anorm.{NamedParameter, RowParser, _}
 import model.Person
 
@@ -67,6 +67,12 @@ object PersonDAO extends mainDBDAO[Person, Long] {
     SQL"""select * from Person""".as(rowParser.*)
 
   }
+
+  def nextId(implicit connection: Connection):Long = {
+    SQL"""select max(id)+1 as nextId from person""".as(long("nextId").single)
+  }
+
+
 
 
 

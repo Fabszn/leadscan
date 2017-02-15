@@ -1,7 +1,6 @@
 package controllers
 
 import model._
-import play.api.libs.json.{JsPath, Json, Writes}
 import play.api.mvc.{Action, Controller}
 import services.{PersonService, UpdatePerson}
 import utils.HateoasConverter._
@@ -45,6 +44,9 @@ class PersonController(ps: PersonService) extends Controller with LoggerAudit {
     Accepted(toHateoas(InfoMessage(s"Person with id $id updated")))
 
   }
+
+
+
 
 
 }

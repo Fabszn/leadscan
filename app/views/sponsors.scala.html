@@ -71,8 +71,39 @@
 
 </div>
 
-<div class="row" id="representativeVue" v-show="show">
-    <div class="col-md-12">
+
+<div class="row" >
+</div> <div class="row" >
+</div> <div class="row" >
+</div>
+<div class="row" >
+
+    <div class="col-md-3" id="formNewVue" >
+        <div class="panel panel-default" >
+
+            <div>
+                <h3><span class="label label-default" >Add Representative</span></h3>
+            </div>
+            <div class="panel-body" >
+                <div class="form-group">
+                    <input type="text" class="form-control newcheckForm" v-model="firstname" placeholder="Firstname">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control newcheckForm" v-model="lastname" placeholder="Lastname">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control newcheckForm" v-model="email" placeholder="Email">
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-default" v-on:click="add" >Save</button>
+                    <button type="button" class="btn btn-default" v-on:click="cancel" >Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-md-9" id="representativeVue" >
 
         <table id="representative" class="display">
             <thead>
@@ -108,6 +139,53 @@
             });
 
 
+            var newRepresentativeVue = new Vue({
+                el: "#formNewVue",
+                data: {
+                    firstname: "",
+                    lastname: "",
+                    email: "",
+                    show: true
+                }, methods: {
+                    cancel: function (e) {
+
+                        newRepresentativeVue.firname = "";
+                        newRepresentativeVue.lastname = "";
+                        newRepresentativeVue.email = "";
+                    },
+                    add: function (e) {
+                        if (isNoError('newcheckForm')) {
+                            $.ajax({
+                                url: "/admin/representatives/new",
+                                type: 'POST',
+                                data: JSON.stringify({
+                                    firstname: newRepresentativeVue.firstname,
+                                    lastname: newRepresentativeVue.lastname,
+                                    email: newRepresentativeVue.email
+                                }),
+                                async: true,
+                                success: function (data) {
+
+                                    representativeDatatable.ajax.reload(false);
+                                    newRepresentativeVue.firname = "";
+                                    newRepresentativeVue.lastname = "";
+                                    newRepresentativeVue.email = "";
+                                },
+                                error: function (e) {
+                                    console.error(e);
+                                },
+                                cache: false,
+                                contentType: 'application/json',
+                                processData: false
+                            });
+
+
+                        }
+                    }
+                }
+            });
+
+
             var formSponsorUpdateVue = new Vue({
                 el: "#formSponsorUpdateVue",
                 data: {
@@ -118,7 +196,7 @@
                 },
                 methods: {
                     cancel: function (e) {
-                        //console.log('cancel')
+
                         formSponsorUpdateVue.name = ""
                         formSponsorUpdateVue.level = ""
                         formSponsorUpdateVue.show = false
@@ -185,6 +263,9 @@
                                     sponsorDatatable.ajax.reload(false);
                                     formSponsorVue.name = ""
                                     formSponsorVue.level = ""
+                                },
+                                error: function (e) {
+                                    console.error(e);
                                 },
                                 cache: false,
                                 contentType: 'application/json',
@@ -263,9 +344,6 @@
 
             $('#addRepresentative').click(function () {
 
-                console.log($("#idPerson").val());
-                console.log($("#idSponsor").val());
-
                 $.ajax({
                     url: "/admin/representatives",
                     type: 'POST',
@@ -288,7 +366,7 @@
             $('#removeRepresentative').click(function () {
 
                 $.ajax({
-                    url: "/admin/representatives/"+Number($("#idPerson").val()),
+                    url: "/admin/representatives/" + Number($("#idPerson").val()),
                     type: 'DELETE',
                     async: true,
                     success: function (data) {

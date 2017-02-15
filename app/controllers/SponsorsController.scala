@@ -1,6 +1,5 @@
 package controllers
 
-import dao.SponsorDAO.PersonSponsorInfo
 import model.{ErrorMessage, InfoMessage, Sponsor}
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
@@ -72,15 +71,6 @@ class SponsorsController(ss: SponsorService) extends Controller {
   }
 
   def readAllRepr = Action { implicit Request =>
-
-    /*implicit val personSponsorInfo: Writes[PersonSponsorInfo] = {
-      ((__ \ "id").write[Long]
-        and (__ \ "firstname").write[String]
-        and (__ \ "lastname").write[String]
-        and (__ \ "idsponsor").write[Option[Long]]
-        and (__ \ "name").write[Option[String]]) (unlift(PersonSponsorInfo.unapply _))
-    }*/
-
 
     Ok(Json.toJson(Map("data" -> ss.LoadRepresentative().map(p => Seq(p.idPerson.toString, p.firstname, p.lastname, p.idSponsor.map(_.toString).getOrElse("-"), p.nameSponsor.getOrElse("-"))))))
 

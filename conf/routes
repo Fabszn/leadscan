@@ -41,6 +41,7 @@ GET           /admin                                             controllers.Adm
 GET           /admin/home                                        controllers.AdminController.home()
 GET           /admin/representatives                             controllers.SponsorsController.readAllRepr
 POST          /admin/representatives                             controllers.AdminController.linkRepreSponsor
+POST          /admin/representatives/new                         controllers.AdminController.newPerson
 DELETE        /admin/representatives/:idPerson                   controllers.AdminController.removeRepreSponsor(idPerson:Long)
 
 GET           /admin/persons                                     controllers.AdminController.person

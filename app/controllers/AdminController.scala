@@ -2,6 +2,7 @@ package controllers
 
 import model.ErrorMessage
 import play.api.libs.functional.syntax._
+import play.api.libs.json.Reads._
 import play.api.libs.json.{Json, Reads, _}
 import play.api.mvc.{Action, Controller}
 import services.{PersonService, SponsorService}
@@ -50,6 +51,24 @@ class AdminController(ps: PersonService, ss: SponsorService) extends Controller 
       case Left(errors) => BadRequest(toHateoas(ErrorMessage("Json_parsing_error", s"Json parsing throws an error ${errors}")))
     }
 
+  }
+
+
+  def newPerson = Action(parse.json) { implicit request =>
+    case class NewPerson(firstname: String, lastname: String, email: String)
+
+    implicit val newPersonReaader: Reads[NewPerson] = (
+      (__ \ "firstname").read[String] and (__ \ "lastname").read[String] and (__ \ "email").read[String]
+      ) (NewPerson.apply _)
+
+
+    request.body.validate[NewPerson].asEither match {
+      case Right(p) => {
+        ps.addRepresentative(p.firstname, p.lastname, p.email)
+        Created("representative has been created")
+      }
+      case Left(errors) => BadRequest(toHateoas(ErrorMessage("Json_parsing_error", s"Json parsing throws an error ${errors}")))
+    }
   }
 
 

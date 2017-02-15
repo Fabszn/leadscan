@@ -2,7 +2,7 @@ package dao
 
 import java.sql.Connection
 
-import anorm.SqlParser.get
+import anorm.SqlParser.{get, long}
 import anorm.{NamedParameter, RowParser, _}
 import model.PersonSensitive
 
@@ -38,5 +38,9 @@ object PersonSensitiveDAO extends mainDBDAO[PersonSensitive, Long] {
          where p.id=${idPerson}""".as(rowParser.singleOpt)
 
 
+  }
+
+  def nextId(implicit connection: Connection):Long = {
+    SQL"""select max(id)+1 as nextId from person_sensitive""".as(long("nextId").single)
   }
 }

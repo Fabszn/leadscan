@@ -29,6 +29,8 @@ trait PersonService {
 
   def allPersons(): Seq[Person]
 
+  def addRepresentative(firstname: String, lastname: String, email: String)
+
 }
 
 
@@ -87,7 +89,20 @@ class PersonServiceImpl(db: Database) extends PersonService with LoggerAudit {
     )
   }
 
+  override def addRepresentative(firstname: String, lastname: String, email: String): Unit =
 
+    db.withTransaction(implicit connection => {
+
+
+      val idPersonNext = PersonDAO.nextId
+
+
+      PersonDAO.create(Person(Some(idPersonNext), firstname, lastname, "-", "-", "-", 1, isTraining = false, showSensitive = true, 1))
+      PersonSensitiveDAO.create(PersonSensitive(Some(idPersonNext), email, "-", "-", "-", lookingForAJob = false))
+    }
+
+
+    )
 }
 
 
