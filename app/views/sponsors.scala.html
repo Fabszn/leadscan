@@ -108,7 +108,7 @@
         <table id="representative" class="display">
             <thead>
                 <tr>
-                    <th>id</th>
+                    <th>RegId</th>
                     <th>Firstname</th>
                     <th>Lastname</th>
                     <th>idSponsor</th>
@@ -167,7 +167,7 @@
                                 success: function (data) {
 
                                     representativeDatatable.ajax.reload(false);
-                                    newRepresentativeVue.firname = "";
+                                    newRepresentativeVue.firstname = "";
                                     newRepresentativeVue.lastname = "";
                                     newRepresentativeVue.email = "";
                                 },
@@ -197,10 +197,10 @@
                 methods: {
                     cancel: function (e) {
 
-                        formSponsorUpdateVue.name = ""
-                        formSponsorUpdateVue.level = ""
-                        formSponsorUpdateVue.show = false
-                        formSponsorVue.show = true
+                        formSponsorUpdateVue.name = "";
+                        formSponsorUpdateVue.level = "";
+                        formSponsorUpdateVue.show = false;
+                        formSponsorVue.show = true;
 
                     },
                     update: function (e) {
@@ -334,7 +334,7 @@
                 "bServerSide": false,
                 "ajax": {url: "/admin/representatives"},
                 "columnDefs": [
-                    {"visible": false, "targets": 0},
+                    {"visible": true, "targets": 0},
                     {"visible": true, "targets": 1},
                     {"visible": true, "targets": 2},
                     {"visible": false, "targets": 3},
