@@ -202,26 +202,80 @@ Put to person in relation
 
 + Request (application/json)
     
-        {
-            idApplicant : 1
-            idTarget : 2
-            note : "one note" //optional
-        }
+        [{"idApplicant":1,
+            "idTarget":93361479,
+            "note":"Voila une note" //Optional
+        },
+        {"idApplicant":1,
+        "idTarget":2,
+        "note":""}
+        ]
     
 + Response 201 (application/json)
         
         {
-            "info":{
-            message : "person with id 1 has been connected with person with id 2"
-            }
-        }
-
-+ Response 409 (application/json)
-        
-        {
-            "info":{
-            message : "Connetion betwwen person with id 1 and person with id 2 is already exists"
-            }
+           "leads": {
+              "person_93361479": {
+                 "profil": 1,
+                 "phoneNumber": "",
+                 "email": "roxanne@eclipse.org",
+                 "lookingForAJob": false,
+                 "firstname": "Roxanne",
+                 "lastname": "Joncas",
+                 "company": "Eclipse Foundation",
+                 "isTraining": false,
+                 "links": [
+                    {
+                       "rel": "self",
+                       "href": "http://app-f4291889-96e7-4bb6-84a2-b7558e9e3233.cleverapps.io/persons/93361479/sensitive"
+                    },
+                    {
+                       "rel": "contacts",
+                       "href": "http://app-f4291889-96e7-4bb6-84a2-b7558e9e3233.cleverapps.io/persons/93361479/contacts"
+                    },
+                    {
+                       "rel": "person",
+                       "href": "http://app-f4291889-96e7-4bb6-84a2-b7558e9e3233.cleverapps.io/persons/93361479"
+                    }
+                 ],
+                 "experience": 2,
+                 "status": "na",
+                 "showSensitive": true,
+                 "position": "_",
+                 "workLocation": "Ottawa",
+                 "gender": "_"
+              },
+              "person_2": {
+                 "profil": 2,
+                 "phoneNumber": "0504030201",
+                 "email": "antonio@gmail.com",
+                 "lookingForAJob": false,
+                 "firstname": "Antonio",
+                 "lastname": "Goncalvez",
+                 "company": "allcraft",
+                 "isTraining": false,
+                 "links": [
+                    {
+                       "rel": "self",
+                       "href": "http://app-f4291889-96e7-4bb6-84a2-b7558e9e3233.cleverapps.io/persons/2/sensitive"
+                    },
+                    {
+                       "rel": "contacts",
+                       "href": "http://app-f4291889-96e7-4bb6-84a2-b7558e9e3233.cleverapps.io/persons/2/contacts"
+                    },
+                    {
+                       "rel": "person",
+                       "href": "http://app-f4291889-96e7-4bb6-84a2-b7558e9e3233.cleverapps.io/persons/2"
+                    }
+                 ],
+                 "experience": 15,
+                 "status": "contractor",
+                 "showSensitive": true,
+                 "position": "CTO",
+                 "workLocation": "Paris",
+                 "gender": "M"
+              }
+           }
         }
 
 
