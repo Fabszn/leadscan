@@ -32,6 +32,7 @@ object HateoasConverter {
     }
   }
 
+
   implicit object PersonConverter extends Converter[Person] {
 
     override def name: String = "person"
@@ -68,18 +69,32 @@ object HateoasConverter {
   }
 
 
-  implicit object LeadsConverter extends Converter[Seq[Person]] {
+  implicit object CompletePersonConverter extends Converter[CompletePerson] {
+
+    override def name: String = "person"
+
+    override def convertMap(a: CompletePerson)(implicit request: Request[_]): Map[String, JsValue] = completePerson2Map(a)
+
+    override def links(a: CompletePerson): Seq[Links] = Seq(
+      Links(Seq(Item("rel", "self"), Item("href", s"/persons/${a.id.get}/sensitive", isHref = true))),
+      Links(Seq(Item("rel", "contacts"), Item("href", s"/persons/${a.id.get}/contacts", isHref = true))),
+      Links(Seq(Item("rel", "person"), Item("href", s"/persons/${a.id.get}", isHref = true))))
+  }
+
+
+  implicit object LeadsConverter extends Converter[Seq[CompletePerson]] {
     override def name: String = "leads"
 
-    override def convertMap(a: Seq[Person])(implicit request: Request[_]): Map[String, JsValue] = {
+    override def convertMap(a: Seq[CompletePerson])(implicit request: Request[_]): Map[String, JsValue] = {
       import play.api.libs.json._
       a.map(p => s"person_${p.id.get}" -> {
-        JsObject(person2Map(p)) ++ JsObject(Map("links" -> JsArray(PersonConverter.links(p).map(HateoasUtils.linkWrites))))
+        JsObject(completePerson2Map(p)) ++ JsObject(Map("links" -> JsArray(CompletePersonConverter.links(p).map(HateoasUtils.linkWrites))))
       }).toMap
     }
 
-    override def links(a: Seq[Person]): Seq[Links] = Seq()
+    override def links(a: Seq[CompletePerson]): Seq[Links] = Seq()
   }
+
 
   implicit object NotificationConverter extends Converter[Notification] {
 
@@ -102,6 +117,8 @@ object HateoasConverter {
       a.map(n => s"notification_${n.id.get}" -> {
         JsObject(notification2Map(n)) ++ JsObject(Map("links" -> JsArray(NotificationConverter.links(n).map(HateoasUtils.linkWrites))))
       }).toMap
+
+
     }
 
     override def links(a: Seq[Notification]): Seq[Links] = Seq()
@@ -166,6 +183,9 @@ object HateoasUtils {
     converter.convert(a)
   }
 
+
+
+
   def linkWrites(ls: Links)(implicit request: Request[_]): JsObject = {
     JsObject(ls.items.map {
       case item@Item(_, _, true) => item.k -> JsString(s"${href(request)}${item.v}")
@@ -188,6 +208,35 @@ object HateoasUtils {
       "isTraining" -> JsBoolean(person.isTraining),
       "showSensitive" -> JsBoolean(person.showSensitive),
       "profil" -> JsNumber(person.profil)
+    )
+  }
+
+  def completePerson2Map(person: CompletePerson): Map[String, JsValue] = {
+    Map(
+      "firstname" -> JsString(person.firstname),
+      "lastname" -> JsString(person.lastname),
+      "gender" -> JsString(person.gender),
+      "position" -> JsString(person.position),
+      "status" -> JsString(person.status),
+      "experience" -> JsNumber(person.experience),
+      "isTraining" -> JsBoolean(person.isTraining),
+      "showSensitive" -> JsBoolean(person.showSensitive),
+      "profil" -> JsNumber(person.profilId),
+      "email" -> JsString(person.email),
+      "company" -> JsString(person.company),
+      "phoneNumber" -> JsString(person.phoneNumber),
+      "workLocation" -> JsString(person.workLocation),
+      "lookingForAJob" -> JsBoolean(person.lookingForAJob)
+    )
+  }
+
+  def personSensitive2Map(pSensitive: PersonSensitive): Map[String, JsValue] = {
+    Map(
+      "email" -> JsString(pSensitive.email),
+      "company" -> JsString(pSensitive.company),
+      "phoneNumber" -> JsString(pSensitive.phoneNumber),
+      "workLocation" -> JsString(pSensitive.workLocation),
+      "lookingForAJob" -> JsBoolean(pSensitive.lookingForAJob)
     )
   }
 

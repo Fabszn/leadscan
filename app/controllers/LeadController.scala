@@ -2,19 +2,20 @@ package controllers
 
 import java.time.LocalDateTime
 
+import io.github.hamsters.Validation
 import model._
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.{Reads, _}
-import play.api.mvc.Controller
-import services.{LeadService, NotificationService}
+import play.api.mvc.{Action, Controller}
+import services.{LeadService, NotificationService, PersonService}
 import utils.HateoasUtils._
 import utils.{CORSAction, LoggerAudit}
 
 /**
   * Created by fsznajderman on 24/01/2017.
   */
-class LeadController(ls: LeadService, ns: NotificationService) extends Controller with LoggerAudit {
+class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService) extends Controller with LoggerAudit {
 
   case class LeadFromRequest(idApplicant: Long, idTarget: Long, note: Option[String])
 
@@ -22,30 +23,50 @@ class LeadController(ls: LeadService, ns: NotificationService) extends Controlle
     (__ \ "idApplicant").read[Long] and (__ \ "idTarget").read[Long] and (__ \ "note").readNullable[String]
     ) (LeadFromRequest.apply _)
 
+  //save the lead and eventually note
+  // for each person
+
+
   def lead = CORSAction(parse.json) { implicit request => {
 
-    request.body.validate[LeadFromRequest].asEither match {
-      case Left(errors) => BadRequest(toHateoas(ErrorMessage("Json_parsing_error", s"Json parsing throws an error ${errors}")))
-      case Right(miseEnContact) => {
-        val lead = convert2Lead(miseEnContact)
-        val leadNote = convert2LeadNote(miseEnContact)
 
-        ls.isAlreadyConnect(lead) match {
-          case Some(_) => Conflict(toHateoas(InfoMessage(s"Connection between person with id ${miseEnContact.idApplicant} and person with id ${miseEnContact.idTarget} is already exists")))
-          case None =>
-            ls.addLead(lead, leadNote)
-            ns.addNotification(Notification(id = None,
-              idRecipient = miseEnContact.idTarget,
-              idRequester = miseEnContact.idApplicant,
-              NotificationType.Connected.id.toLong,
-              NotificationStatus.READ,
-              LocalDateTime.now()))
-            Created(toHateoas(InfoMessage(s"person with id ${miseEnContact.idApplicant} has been connected with person with id ${miseEnContact.idTarget}")))
-        }
+    implicit val jsonListConverter = Reads.seq[LeadFromRequest]
+
+    request.body.validate[Seq[LeadFromRequest]].asEither match {
+      case Left(errors) => BadRequest(toHateoas(ErrorMessage("Json_parsing_error", s"Json parsing throws an error ${errors}")))
+      case Right(leads) => {
+        val tLeads = leads.map(l =>
+          (convert2Lead(l), convert2LeadNote(l)))
+
+        val v: Validation[(Lead, Option[LeadNote])] = Validation(tLeads.map(t => ls.isAlreadyConnect(t._1) match {
+          case None => Validation.OK(t)
+          case Some(_) => Validation.KO(t)
+        }): _*)
+
+
+        val validLead = tLeads.filterNot(item => v.failures.contains(item))
+
+        val persons: Seq[Option[CompletePerson]] = validLead.map(item => {
+          ls.addLead(item._1, item._2)
+          sendNotification(item)
+          ps.getCompletePerson(item._1.idTarget)
+        }) ++ v.failures.map(item => {
+          item._2.foreach(note => ls.addNote(note))
+          ps.getCompletePerson(item._1.idTarget)
+        })
+
+        Ok(toHateoas(
+          for (
+            p <- persons
+          ) yield p.get
+        ))
+
+
       }
     }
   }
   }
+
 
   def addNote = CORSAction(parse.json) { implicit request =>
 
@@ -95,6 +116,26 @@ class LeadController(ls: LeadService, ns: NotificationService) extends Controlle
 
   private def convert2LeadNote(leadFromRequest: LeadFromRequest): Option[LeadNote] = {
     leadFromRequest.note.map(n => LeadNote(None, leadFromRequest.idApplicant, leadFromRequest.idTarget, n))
+  }
+
+
+  private def sendNotification(item: (Lead, Option[LeadNote])) = {
+    ns.addNotification(Notification(id = None,
+      idRecipient = item._1.idTarget,
+      idRequester = item._1.idApplicant,
+      NotificationType.Connected.id.toLong,
+      NotificationStatus.READ,
+      LocalDateTime.now()))
+  }
+
+  def testJson = Action(parse.json) { implicit request =>
+
+
+    val re: JsResult[Seq[LeadFromRequest]] = request.body.validate[Seq[LeadFromRequest]]
+
+
+    Ok("")
+
   }
 
 }

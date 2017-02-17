@@ -39,7 +39,7 @@ GET           /assets/*file                                      controllers.Ass
 #Admin
 GET           /admin                                             controllers.AdminController.index()
 GET           /admin/home                                        controllers.AdminController.home()
-GET           /admin/stats                                        controllers.AdminController.stats()
+GET           /admin/stats                                       controllers.AdminController.stats()
 GET           /admin/representatives                             controllers.SponsorsController.readAllRepr
 POST          /admin/representatives                             controllers.AdminController.linkRepreSponsor
 POST          /admin/representatives/new                         controllers.AdminController.newPerson
@@ -56,4 +56,3 @@ GET           /admin/sponsors/:id                                controllers.Spo
 PUT           /admin/sponsors                                    controllers.SponsorsController.modify
 
 POST          /admin/sponsors                                    controllers.SponsorsController.add
-

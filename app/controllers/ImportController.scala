@@ -1,8 +1,8 @@
 package controllers
 
-import play.api.mvc.{Action, Controller}
 import batch.utils._
 import model.{Person, PersonSensitive}
+import play.api.mvc.{Action, Controller}
 import services.PersonService
 
 /**

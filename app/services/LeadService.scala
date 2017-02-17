@@ -1,7 +1,7 @@
 package services
 
 import dao.{LeadDAO, LeadNoteDAO, PersonDAO}
-import model.{Lead, LeadNote, Person}
+import model.{CompletePerson, Lead, LeadNote, Person}
 import play.api.db.Database
 
 /**
@@ -15,7 +15,7 @@ trait LeadService {
 
   def isAlreadyConnect(contact: Lead): Option[Lead]
 
-  def getLeads(id: Long): Seq[Person]
+  def getLeads(id: Long): Seq[CompletePerson]
 
   def getNotes(id: Long): Seq[LeadNote]
 
@@ -57,7 +57,7 @@ class LeadServiceImpl(db: Database) extends LeadService {
     }
   }
 
-  override def getLeads(id: Long): Seq[Person] = {
+  override def getLeads(id: Long): Seq[CompletePerson] = {
     db.withConnection { implicit c =>
       PersonDAO.findAllLeadById(id)
     }

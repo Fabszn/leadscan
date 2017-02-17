@@ -2,7 +2,7 @@ package services
 
 import anorm.NamedParameter
 import dao.{PersonDAO, PersonSensitiveDAO}
-import model.{Person, PersonSensitive}
+import model.{CompletePerson, Person, PersonSensitive}
 import play.api.db.Database
 import utils.LoggerAudit
 
@@ -18,6 +18,8 @@ case class UpdatePerson(pString: Map[String, Option[String]] = Map(),
 
 trait PersonService {
   def getPerson(id: Long): Option[Person]
+
+  def getCompletePerson(id: Long): Option[CompletePerson]
 
   def getPersonSensitive(id: Long): Option[PersonSensitive]
 
@@ -41,6 +43,15 @@ class PersonServiceImpl(db: Database) extends PersonService with LoggerAudit {
     db.withConnection { implicit c =>
       PersonDAO.all
     }
+  }
+
+
+  override def getCompletePerson(id: Long): Option[CompletePerson] = {
+
+    db.withConnection { implicit c =>
+      PersonDAO.loadCompletePerson(id)
+    }
+
   }
 
   override def getPerson(id: Long): Option[Person] = {

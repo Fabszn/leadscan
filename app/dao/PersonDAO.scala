@@ -4,7 +4,7 @@ import java.sql.Connection
 
 import anorm.SqlParser._
 import anorm.{NamedParameter, RowParser, _}
-import model.Person
+import model.{CompletePerson, Person}
 
 /**
   * Created by fsznajderman on 19/01/2017.
@@ -53,12 +53,11 @@ object PersonDAO extends mainDBDAO[Person, Long] {
         profil
       )
 
+  private val personCompleteInfo = Macro.namedParser[CompletePerson]
 
-  def findAllLeadById(id: Long)(implicit c: Connection): Seq[Person] = {
+  def findAllLeadById(id: Long)(implicit c: Connection): Seq[CompletePerson] = {
 
-    SQL"""
-         SELECT * FROM PERSON p inner join LEAD l on p.id=l.idTarget WHERE l.idApplicant=$id
-       """.as(rowParser.*)
+    SQL"""select * from PERSON p inner join person_sensitive ps on p.id=ps.id where p.id = $id;""".as(personCompleteInfo.*)
 
   }
 
@@ -68,12 +67,17 @@ object PersonDAO extends mainDBDAO[Person, Long] {
 
   }
 
-  def nextId(implicit connection: Connection):Long = {
+  def nextId(implicit connection: Connection): Long = {
     SQL"""select max(id)+1 as nextId from person""".as(long("nextId").single)
   }
 
 
+  def loadCompletePerson(id: Long)(implicit connection: Connection): Option[CompletePerson] = {
 
+    SQL"""select * from PERSON p inner join person_sensitive ps on p.id=ps.id where p.id = $id;""".as(personCompleteInfo.singleOpt)
+
+
+  }
 
 
 }

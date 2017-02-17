@@ -22,6 +22,7 @@ lazy val root = (project in file("."))
       "org.mockito" % "mockito-core" % "2.7.2",
       "com.typesafe.play" %% "anorm" % "2.5.1",
       "org.postgresql" % "postgresql" % "9.4.1212",
+      "io.github.scala-hamsters" %% "hamsters" % "1.1.1",
       cache,
       ws,
       filters,
