@@ -153,7 +153,7 @@ object HateoasConverter {
     override def convertMap(a: LeadNote)(implicit request: Request[_]): Map[String, JsValue] = leadNote2Map(a)
 
     override def links(a: LeadNote): Seq[Links] = Seq(
-      Links(Seq(Item("rel", "self"), Item("href", s"/lead_note/${a.id.get}", isHref = true))),
+      Links(Seq(Item("rel", "self"), Item("href", s"/leads/note/${a.id.get}", isHref = true))),
       Links(Seq(Item("rel", "requester"), Item("href", s"/persons/${a.idApplicant}", isHref = true))),
       Links(Seq(Item("rel", "recipient"), Item("href", s"/persons/${a.idTarget}", isHref = true)))
     )

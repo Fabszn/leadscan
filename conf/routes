@@ -12,6 +12,7 @@ GET           /persons/:id/contacts                              controllers.Lea
 POST          /leads                                             controllers.LeadController.lead
 POST          /leads/note                                        controllers.LeadController.addNote
 GET           /leads/notes/:id                                   controllers.LeadController.readNotes(id:Long)
+GET           /leads/note/:id                                    controllers.LeadController.readNote(id:Long)
 
 
 

@@ -99,6 +99,13 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
     Ok(toHateoas(ls.getNotes(idAppliquant)))
   }
 
+  def readNote(idNote: Long) = CORSAction { implicit request =>
+    ls.getNote(idNote).fold(
+      NotFound(toHateoas(ErrorMessage("Note_not_found", s"Note not found in request")))
+    )(n => Ok(toHateoas(n)))
+
+  }
+
 
   def leads(id: Long) = CORSAction { implicit request =>
 
