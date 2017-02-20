@@ -60,7 +60,9 @@ object PersonDAO extends mainDBDAO[Person, Long] {
 
   def findAllLeadById(id: Long)(implicit c: Connection): Seq[CompletePerson] = {
 
-    SQL"""select * from PERSON p inner join person_sensitive ps on p.id=ps.id where p.id = $id;""".as(personCompleteInfo.*)
+    SQL"""select * from PERSON p inner join person_sensitive ps on p.id=ps.id
+       inner join lead l on l.idtarget=p.id
+       where l.idapplicant = $id;""".as(personCompleteInfo.*)
 
   }
 
