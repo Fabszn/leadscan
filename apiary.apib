@@ -14,33 +14,33 @@ Obtain data for person with id : 1
 + Response 200 (application/json)
 
         {
-            "person": {
-            id:1
-            firstname : "Fabrice"
-            lastname : "Sznajderman"
-            gender : "male"
-            position : "developer"
-            status : "contractor"
-            technologies : ["scala", "lagom"]
-            experience : 16
-            isTraining : false
-            showSensitive : true
-            profil : "attendee"
-            links:[
-                    {
-                        "rel": "contacts",
-                        "href": "http://localhost:8080/persons/1/contacts"
-                    }, 
-                    {
-                        "rel": "self",
-                        "href": "http://localhost:8080/persons/1"
-                    },
-                    {
-                        "rel": "sensitive",
-                        "href": "http://localhost:8080/persons/1/sensitive"
-                    }
-                ]
-           }
+           "person": {
+             "city": "",
+             "email": "roxanne@eclipse.org",
+             "firstname": "Roxanne",
+             "country": "Canada",
+             "lastname": "Joncas",
+             "links": [
+                {
+                   "rel": "self",
+                   "href": "http://127.0.0.1:9000/persons/93361479/sensitive"
+                },
+                {
+                   "rel": "contacts",
+                   "href": "http://127.0.0.1:9000/persons/93361479/contacts"
+                },
+                {
+                   "rel": "person",
+                   "href": "http://127.0.0.1:9000/persons/93361479"
+                }
+             ],
+             "fax": "",
+             "address1": "",
+             "region": "",
+             "title": "Marketing and Events",
+             "codePostal": "K2G6B1",
+             "phone": ""
+          }
         }
        
 + Response 404 (application/json)
