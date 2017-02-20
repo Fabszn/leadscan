@@ -33,7 +33,7 @@ object Person {
       (__ \ "company").readNullable[String] and
       (__ \ "Address_1").readNullable[String] and
       (__ \ "Address_2").readNullable[String] and
-      (__ \ "city").readNullable[String] and
+      (__ \ "City").readNullable[String] and
       (__ \ "Region").readNullable[String] and
       (__ \ "postal_Code").readNullable[String] and
       (__ \ "Country").readNullable[String] and
@@ -52,7 +52,7 @@ object Person {
       (JsPath \ "company").writeNullable[String] and
       (JsPath \ "Address_1").writeNullable[String] and
       (JsPath \ "Address_2").writeNullable[String] and
-      (JsPath \ "city").writeNullable[String] and
+      (JsPath \ "City").writeNullable[String] and
       (JsPath \ "Region").writeNullable[String] and
       (JsPath \ "postal_Code").writeNullable[String] and
       (JsPath \ "Country").writeNullable[String] and
