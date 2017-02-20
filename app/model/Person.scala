@@ -30,7 +30,7 @@ object Person {
       (__ \ "first_Name").read[String] and
       (__ \ "last_Name").read[String] and
       (__ \ "Email_Address").read[String] and
-      (__ \ "company").readNullable[String] and
+      (__ \ "Company").readNullable[String] and
       (__ \ "Address_1").readNullable[String] and
       (__ \ "Address_2").readNullable[String] and
       (__ \ "City").readNullable[String] and
@@ -49,7 +49,7 @@ object Person {
       (JsPath \ "first_Name").write[String] and
       (JsPath \ "last_Name").write[String] and
       (JsPath \ "Email_Address").write[String] and
-      (JsPath \ "company").writeNullable[String] and
+      (JsPath \ "Company").writeNullable[String] and
       (JsPath \ "Address_1").writeNullable[String] and
       (JsPath \ "Address_2").writeNullable[String] and
       (JsPath \ "City").writeNullable[String] and

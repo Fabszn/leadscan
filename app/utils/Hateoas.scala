@@ -256,7 +256,8 @@ object HateoasUtils extends LoggerAudit {
       "phone" -> JsString(personJ.phone.getOrElse("")),
       "region" -> JsString(personJ.region.getOrElse("")),
       "title" -> JsString(personJ.title.getOrElse("")),
-      "codePostal" -> JsString(personJ.postalCode.getOrElse(""))
+      "codePostal" -> JsString(personJ.postalCode.getOrElse("")),
+      "company" -> JsString(personJ.company.getOrElse(""))
     )
   }
 
