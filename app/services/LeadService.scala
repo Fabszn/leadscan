@@ -3,6 +3,7 @@ package services
 import dao.{LeadDAO, LeadNoteDAO, PersonDAO}
 import model.{CompletePerson, Lead, LeadNote}
 import play.api.db.Database
+import utils.LoggerAudit
 
 /**
   * Created by fsznajderman on 24/01/2017.
@@ -24,7 +25,7 @@ trait LeadService {
 }
 
 
-class LeadServiceImpl(db: Database) extends LeadService {
+class LeadServiceImpl(db: Database) extends LeadService  with LoggerAudit{
 
 
   override def getNote(idNote: Long): Option[LeadNote] = {

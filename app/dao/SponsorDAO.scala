@@ -59,7 +59,20 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
   }
 
 
-  def deleteRepresentative(idPerson: Long)(implicit connection: Connection) : Unit = {
+  def deleteRepresentative(idPerson: Long)(implicit connection: Connection): Unit = {
     SQL"""delete from PERSON_SPONSOR where idPerson=$idPerson""".execute
+  }
+
+
+  def personBySponsor(idSponsor: Long): Seq[String] = {
+
+    Seq()
+
+
+    //val result: Seq[String] =
+    /* SQL"""select p1.json from lead l inner join  person p1 on l.idtarget=p1.id where l.idapplicant in (
+ select p.id from sponsor s inner join person_sponsor ps on  s.id=ps.idsponsor
+  inner join person p on ps.idperson=p.id
+  where s.id=${idSponsor})""".as(scalar[String]).**/
   }
 }
