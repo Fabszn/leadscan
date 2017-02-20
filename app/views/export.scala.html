@@ -1,0 +1,49 @@
+<div class="row" >
+
+    <div class="col-md-3" >&nbsp;</div>
+
+    <div class="col-md-6" >
+
+        <table id="exportTable" class="display">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Sponsor</th>
+                    <th>Export</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+
+    </div>
+
+    <div class="col-md-3" >&nbsp;</div>
+
+</div>
+
+
+
+    <script>
+
+
+        $(function(){
+
+            var exportDatatable = $('#exportTable').DataTable({
+                "bServerSide": false,
+                "ajax": {url: "/admin/sponsors/all"},
+                "columnDefs": [
+                    {"visible": false, "targets": 0},
+                    {"visible": true, "targets": 1},
+                    {"visible": true,
+                        "targets": 2,
+                        "render": function (data, type, full, meta) {
+                            return "<a target='_blank' href='/export/"+full[0]+"'>Export</a>";
+                        }}
+                ]
+            });
+
+
+        })
+    </script>

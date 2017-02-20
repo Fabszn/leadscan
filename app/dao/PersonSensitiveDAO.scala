@@ -9,6 +9,7 @@ import model.PersonSensitive
 /**
   * Created by fsznajderman on 23/01/2017.
   */
+@deprecated
 object PersonSensitiveDAO extends mainDBDAO[PersonSensitive, Long] {
   override def rowParser: RowParser[PersonSensitive] = for {
     id <- get[Option[Long]]("id")

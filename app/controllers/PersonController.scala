@@ -1,7 +1,7 @@
 package controllers
 
 import model._
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.Controller
 import services.{PersonService, UpdatePerson}
 import utils.HateoasConverter._
 import utils.HateoasUtils.toHateoas
@@ -20,6 +20,7 @@ class PersonController(ps: PersonService) extends Controller with LoggerAudit {
   }
   }
 
+  @deprecated
   def readSensitive(id: Long) = CORSAction { implicit request =>
     ps.getPersonSensitive(id) match {
       case Some(pSensitive) => Ok(toHateoas(pSensitive)).withHeaders(("Access-Control-Allow-Origin", "*"))
@@ -44,9 +45,6 @@ class PersonController(ps: PersonService) extends Controller with LoggerAudit {
     Accepted(toHateoas(InfoMessage(s"Person with id $id updated")))
 
   }
-
-
-
 
 
 }

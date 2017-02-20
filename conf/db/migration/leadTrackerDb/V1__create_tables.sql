@@ -18,6 +18,7 @@ CREATE TABLE PERSON (
     isTraining boolean NOT NULL,
     showSensitive boolean NOT NULL,
     profilid bigint NOT NULL REFERENCES PROFIL_TYPE(id),
+    json character varying(10000),
      CONSTRAINT id_PERSON_pkey PRIMARY KEY (id)
 );
 

@@ -2,6 +2,7 @@ package controllers
 
 import batch.utils._
 import model.{Person, PersonSensitive}
+import play.api.libs.json.Json
 import play.api.mvc.{Action, Controller}
 import services.PersonService
 
@@ -16,7 +17,6 @@ class ImportController(ps: PersonService) extends Controller {
 
       val csv = csvFile.ref
       val r: Seq[Map[String, String]] = loadCVSSourceFile(csv.file)
-
       val convertedPerson = for {
         kv <- r
       } yield Person(kv.get("\uFEFFRegId").map(_.toLong),
@@ -28,7 +28,9 @@ class ImportController(ps: PersonService) extends Controller {
         2,
         isTraining = false,
         showSensitive = true,
-        1
+        1,
+        Json.toJson(kv).toString()
+
       )
 
       val convertedPersonSensitive = for {
@@ -54,3 +56,5 @@ class ImportController(ps: PersonService) extends Controller {
     Ok(views.html.batch.batchDemo())
   }
 }
+
+

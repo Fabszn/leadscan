@@ -22,7 +22,8 @@ object PersonDAO extends mainDBDAO[Person, Long] {
     'experience -> item.experience,
     'isTraining -> item.isTraining,
     'showSensitive -> item.showSensitive,
-    'profilid -> item.profil
+    'profilid -> item.profil,
+    'json -> item.json
 
 
   )
@@ -39,6 +40,7 @@ object PersonDAO extends mainDBDAO[Person, Long] {
       isTraining <- get[Boolean]("isTraining")
       showSensitive <- get[Boolean]("showSensitive")
       profil <- get[Int]("profilid")
+      json <- get[String]("json")
     } yield
       Person(
         id,
@@ -50,7 +52,8 @@ object PersonDAO extends mainDBDAO[Person, Long] {
         experience,
         isTraining,
         showSensitive,
-        profil
+        profil,
+        json
       )
 
   private val personCompleteInfo = Macro.namedParser[CompletePerson]

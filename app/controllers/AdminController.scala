@@ -83,4 +83,14 @@ class AdminController(ps: PersonService, ss: SponsorService) extends Controller 
   }
 
 
+  def displayExport = Action {
+
+    Ok(views.html.export())
+  }
+
+
+  def exportBySponsor(id: Long) = Action {
+    Ok("")
+  }
+
 }

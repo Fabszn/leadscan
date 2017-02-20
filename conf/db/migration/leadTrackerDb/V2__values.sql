@@ -11,7 +11,7 @@ insert into notification_type (id, label, description) values (2,'request_for_up
 
 
 
-INSERT INTO public.person
+/*INSERT INTO public.person
 (id, firstname, lastname, gender, "position", status, experience, istraining, showsensitive, profilId)
 VALUES(nextval('person_id_seq'::regclass), 'Fabrice', 'Sznajderman', 'M', 'developer', 'contractor', 16, false, true, 1);
 
@@ -36,3 +36,4 @@ VALUES(2, 'antonio@gmail.com', '0504030201', 'allcraft', 'Paris', false);
 INSERT INTO public.person_sensitive
 (id, email, phonenumber, company, worklocation, lookingforajob)
 VALUES(3, 'maxime@gmail.com', '1010101010', 'notAtAll', 'Strasbourg', false);
+*/

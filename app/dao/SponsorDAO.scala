@@ -59,7 +59,7 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
   }
 
 
-  def deleteRepresentative(idPerson: Long)(implicit connection: Connection): Unit = {
+  def deleteRepresentative(idPerson: Long)(implicit connection: Connection) : Unit = {
     SQL"""delete from PERSON_SPONSOR where idPerson=$idPerson""".execute
   }
 }

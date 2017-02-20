@@ -176,14 +176,12 @@ object HateoasConverter {
 }
 
 
-object HateoasUtils {
+object HateoasUtils extends LoggerAudit {
 
 
   implicit def toHateoas[A](a: A)(implicit converter: Converter[A], request: Request[_]): JsObject = {
     converter.convert(a)
   }
-
-
 
 
   def linkWrites(ls: Links)(implicit request: Request[_]): JsObject = {
@@ -198,35 +196,67 @@ object HateoasUtils {
   }
 
   def person2Map(person: Person): Map[String, JsValue] = {
-    Map(
-      "firstname" -> JsString(person.firstname),
-      "lastname" -> JsString(person.lastname),
-      "gender" -> JsString(person.gender),
-      "position" -> JsString(person.position),
-      "status" -> JsString(person.status),
-      "experience" -> JsNumber(person.experience),
-      "isTraining" -> JsBoolean(person.isTraining),
-      "showSensitive" -> JsBoolean(person.showSensitive),
-      "profil" -> JsNumber(person.profil)
-    )
+    import model.Person.personJsonReader
+    Json.fromJson[PersonJson](Json.parse(person.json)).asEither match {
+      case Left(e) =>
+
+        logger.error("error " + e)
+        Map(
+          "firstname" -> JsString(person.firstname),
+          "lastname" -> JsString(person.lastname),
+          "gender" -> JsString(person.gender),
+          "position" -> JsString(person.position),
+          "status" -> JsString(person.status),
+          "experience" -> JsNumber(person.experience),
+          "isTraining" -> JsBoolean(person.isTraining),
+          "showSensitive" -> JsBoolean(person.showSensitive)
+        )
+      case Right(personJ) =>
+        personJson2Map(personJ)
+    }
   }
 
   def completePerson2Map(person: CompletePerson): Map[String, JsValue] = {
+    import model.Person.personJsonReader
+    Json.fromJson[PersonJson](Json.parse(person.json)).asEither match {
+      case Left(e) =>
+
+        logger.error("error " + e)
+        Map(
+          "firstname" -> JsString(person.firstname),
+          "lastname" -> JsString(person.lastname),
+          "gender" -> JsString(person.gender),
+          "position" -> JsString(person.position),
+          "status" -> JsString(person.status),
+          "experience" -> JsNumber(person.experience),
+          "isTraining" -> JsBoolean(person.isTraining),
+          "showSensitive" -> JsBoolean(person.showSensitive),
+          "profil" -> JsNumber(person.profilId),
+          "email" -> JsString(person.email),
+          "company" -> JsString(person.company),
+          "phoneNumber" -> JsString(person.phoneNumber),
+          "workLocation" -> JsString(person.workLocation),
+          "lookingForAJob" -> JsBoolean(person.lookingForAJob)
+        )
+      case Right(personJ) =>
+        personJson2Map(personJ)
+    }
+  }
+
+  private def personJson2Map(personJ: PersonJson) = {
     Map(
-      "firstname" -> JsString(person.firstname),
-      "lastname" -> JsString(person.lastname),
-      "gender" -> JsString(person.gender),
-      "position" -> JsString(person.position),
-      "status" -> JsString(person.status),
-      "experience" -> JsNumber(person.experience),
-      "isTraining" -> JsBoolean(person.isTraining),
-      "showSensitive" -> JsBoolean(person.showSensitive),
-      "profil" -> JsNumber(person.profilId),
-      "email" -> JsString(person.email),
-      "company" -> JsString(person.company),
-      "phoneNumber" -> JsString(person.phoneNumber),
-      "workLocation" -> JsString(person.workLocation),
-      "lookingForAJob" -> JsBoolean(person.lookingForAJob)
+      "firstname" -> JsString(personJ.firstname),
+      "lastname" -> JsString(personJ.lastname),
+      "email" -> JsString(personJ.email),
+      "address1" -> JsString(personJ.address1.getOrElse("")),
+      "address1" -> JsString(personJ.address2.getOrElse("")),
+      "city" -> JsString(personJ.city.getOrElse("")),
+      "country" -> JsString(personJ.country.getOrElse("")),
+      "fax" -> JsString(personJ.fax.getOrElse("")),
+      "phone" -> JsString(personJ.phone.getOrElse("")),
+      "region" -> JsString(personJ.region.getOrElse("")),
+      "title" -> JsString(personJ.title.getOrElse("")),
+      "codePostal" -> JsString(personJ.postalCode.getOrElse(""))
     )
   }
 
