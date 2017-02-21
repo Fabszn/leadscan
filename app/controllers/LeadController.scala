@@ -21,19 +21,16 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
 
   case class LeadFromRequest(idApplicant: Long, idTarget: Long, note: Option[String])
 
-  implicit val targetsreads:Reads[TargetInfo] = (
+  implicit val targetsreads: Reads[TargetInfo] = (
     (__ \ "id").read[Long] and (__ \ "note").readNullable[String]
-  )(TargetInfo.apply _)
-
-
-
+    ) (TargetInfo.apply _)
 
 
   def lead = CORSAction(parse.json) { implicit request => {
 
 
     val json = request.body
-
+    //specific request.body parser.
     (json \ "idApplicant").validate[Long].asEither match {
       case Left(erIdApplicant) => BadRequest(toHateoas(ErrorMessage("Json_parsing_error", s"Json parsing throws an error ${erIdApplicant}")))
       case Right(idApplicant) => {

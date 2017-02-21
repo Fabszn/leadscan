@@ -1,9 +1,11 @@
 package services
 
+import config.Settings
 import dao.SponsorDAO
 import dao.SponsorDAO.PersonSponsorInfo
-import model.Sponsor
+import model.{PersonJson, Sponsor}
 import play.api.db.Database
+import play.api.libs.json.Json
 
 /**
   * Created by fsznajderman on 11/02/2017.
@@ -22,6 +24,8 @@ trait SponsorService {
   def removeRepresentative(idPerson: Long): Unit
 
   def LoadRepresentative(): Seq[PersonSponsorInfo]
+
+  def export(id: Long): Seq[String]
 }
 
 
@@ -73,4 +77,26 @@ class SponsorServiceImpl(db: Database) extends SponsorService {
     )
 
   }
+
+  override def export(id: Long): Seq[String] = {
+
+    import model.Person._
+    Settings.headers :: db.withConnection(implicit connection =>
+      SponsorDAO.personBySponsor(id).map(line => {
+        Json.parse(line).validate[PersonJson].asEither match {
+          case Left(error) => s"An error occurred wiht this line -> $error"
+          case Right(pj) =>
+            s"${pj.regId}|${pj.firstname}|${pj.lastname}|${pj.email}|${pj.company.getOrElse("")}|${pj.address1.getOrElse("")}|${pj.address2.getOrElse("")}|${pj.city.getOrElse("")}|${pj.region.getOrElse("")}|${pj.postalCode.getOrElse("")}|${pj.country.getOrElse("")}|${pj.phone.getOrElse("")}|${pj.fax.getOrElse("")}|${pj.title.getOrElse("")}"
+        }
+      })
+    ).toList
+
+
+  }
+
+
 }
+
+
+
+

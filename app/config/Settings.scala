@@ -9,6 +9,7 @@ object Settings {
 
   private val config = ConfigFactory.load
 
-  val separator = config.getString("batch.separator")
+
+  val headers = config.getString("export.headers")
 
 }

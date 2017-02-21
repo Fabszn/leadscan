@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 
 import anorm.SqlParser.get
 import anorm.{NamedParameter, RowParser, _}
-import model.{Lead, Person}
+import model.Lead
 
 /**
   * Created by fsznajderman on 24/01/2017.

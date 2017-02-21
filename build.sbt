@@ -23,6 +23,7 @@ lazy val root = (project in file("."))
       "com.typesafe.play" %% "anorm" % "2.5.1",
       "org.postgresql" % "postgresql" % "9.4.1212",
       "io.github.scala-hamsters" %% "hamsters" % "1.1.1",
+      "com.github.pathikrit" %% "better-files" % "2.17.1",
       cache,
       ws,
       filters,

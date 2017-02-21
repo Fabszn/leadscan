@@ -1,5 +1,7 @@
 package controllers
 
+import java.time.LocalDateTime
+
 import model.ErrorMessage
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
@@ -90,7 +92,17 @@ class AdminController(ps: PersonService, ss: SponsorService) extends Controller 
 
 
   def exportBySponsor(id: Long) = Action {
-    Ok("")
+    import better.files._
+
+    val nameSponsor = ss.loadSponsor(id).map(s => s.name).getOrElse("NoNameFound")
+    val currentDate = LocalDateTime.now()
+
+    val csv: File = java.io.File.createTempFile(System.currentTimeMillis().toString, "").getAbsolutePath.toFile
+
+    csv.appendLines(ss.export(id): _*)
+
+
+    Ok.sendFile(csv.toJava).withHeaders((CONTENT_DISPOSITION, s"attachment; filename=$nameSponsor-$currentDate.csv"), (CONTENT_TYPE, "application/x-download"))
   }
 
 }
