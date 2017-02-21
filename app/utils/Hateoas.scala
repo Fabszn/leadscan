@@ -87,7 +87,7 @@ object HateoasConverter {
 
     override def convertMap(a: Seq[CompletePerson])(implicit request: Request[_]): Map[String, JsValue] = {
       import play.api.libs.json._
-      a.map(p => s"person_${p.id.get}" -> {
+      a.map(p => s"${p.id.get}" -> {
         JsObject(completePerson2Map(p)) ++ JsObject(Map("links" -> JsArray(CompletePersonConverter.links(p).map(HateoasUtils.linkWrites))))
       }).toMap
     }
@@ -165,7 +165,7 @@ object HateoasConverter {
 
     override def convertMap(a: Seq[LeadNote])(implicit request: Request[_]): Map[String, JsValue] = {
       import play.api.libs.json._
-      a.map(n => s"lead_note${n.id.get}" -> {
+      a.map(n => s"lead_note_${n.id.get}" -> {
         JsObject(leadNote2Map(n)) ++ JsObject(Map("links" -> JsArray(LeadNoteConverter.links(n).map(HateoasUtils.linkWrites))))
       }).toMap
     }
