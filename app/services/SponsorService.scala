@@ -1,8 +1,8 @@
 package services
 
 import config.Settings
-import dao.SponsorDAO
 import dao.SponsorDAO.PersonSponsorInfo
+import dao.{LeadNoteDAO, SponsorDAO}
 import model.{PersonJson, Sponsor}
 import play.api.db.Database
 import play.api.libs.json.Json
@@ -83,10 +83,19 @@ class SponsorServiceImpl(db: Database) extends SponsorService {
     import model.Person._
     Settings.headers :: db.withConnection(implicit connection =>
       SponsorDAO.personBySponsor(id).map(line => {
-        Json.parse(line).validate[PersonJson].asEither match {
+
+        Json.parse(line.json).validate[PersonJson].asEither match {
           case Left(error) => s"An error occurred wiht this line -> $error"
           case Right(pj) =>
-            s"${pj.regId}|${pj.firstname}|${pj.lastname}|${pj.email}|${pj.company.getOrElse("")}|${pj.address1.getOrElse("")}|${pj.address2.getOrElse("")}|${pj.city.getOrElse("")}|${pj.region.getOrElse("")}|${pj.postalCode.getOrElse("")}|${pj.country.getOrElse("")}|${pj.phone.getOrElse("")}|${pj.fax.getOrElse("")}|${pj.title.getOrElse("")}"
+            val notes = LeadNoteDAO.findNoteByApplicantAndTarget(line.idApplicant, pj.regId.toLong)
+
+            val nbNote = notes.size
+            val notesVal = notes.map(n => n.note).mkString("|")
+
+            //get number of note
+            // make makstring and concat at the end
+
+            s"""${pj.regId}|${pj.firstname}|${pj.lastname}|${pj.email}|${pj.company.getOrElse("")}|${pj.address1.getOrElse("")}|${pj.address2.getOrElse("")}|${pj.city.getOrElse("")}|${pj.region.getOrElse("")}|${pj.postalCode.getOrElse("")}|${pj.country.getOrElse("")}|${pj.phone.getOrElse("")}|${pj.fax.getOrElse("")}|${pj.title.getOrElse("")}|$nbNote| $notesVal"""
         }
       })
     ).toList

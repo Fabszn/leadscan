@@ -47,14 +47,14 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
 
   case class PersonSponsorInfo(idPerson: Long, firstname: String, lastname: String, idSponsor: Option[Long], nameSponsor: Option[String])
 
-  val personSponsorInfo = Macro.namedParser[PersonSponsorInfo]
-
 
   def allWithSponsor(implicit connection: Connection): Seq[PersonSponsorInfo] = {
 
+    val personSponsorInfoRowParser = Macro.namedParser[PersonSponsorInfo]
+
     SQL"""select p.id as idPerson,  p.firstname, p.lastname,s.id as idSponsor, s."name" as nameSponsor  from SPONSOR s inner join
        PERSON_SPONSOR ps on s.id=ps.idSponsor
-        right join PERSON p on p.id=ps.idperson""".as(personSponsorInfo.*)
+        right join PERSON p on p.id=ps.idperson""".as(personSponsorInfoRowParser.*)
 
   }
 
@@ -64,13 +64,16 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
   }
 
 
-  def personBySponsor(idSponsor: Long)(implicit connection: Connection): Seq[String] = {
+  case class LeadLine(idApplicant: Long, json: String)
 
-    import anorm.SqlParser._
 
-    SQL"""select p1.json from lead l inner join  person p1 on l.idtarget=p1.id where l.idapplicant in (
+  def personBySponsor(idSponsor: Long)(implicit connection: Connection): Seq[LeadLine] = {
+
+    val LeadLineRowParser = Macro.namedParser[LeadLine]
+
+    SQL"""select l.idapplicant,p1.json from lead l inner join  person p1 on l.idtarget=p1.id where l.idapplicant in (
  select p.id from sponsor s inner join person_sponsor ps on  s.id=ps.idsponsor
   inner join person p on ps.idperson=p.id
-  where s.id=${idSponsor})""".as(scalar[String].*)
+  where s.id=${idSponsor})""".as(LeadLineRowParser.*)
   }
 }

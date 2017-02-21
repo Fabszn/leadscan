@@ -1,10 +1,12 @@
 package dao
 
+import java.sql.Connection
 import java.time.LocalDateTime
 
 import anorm.SqlParser.get
-import anorm.{NamedParameter, RowParser}
+import anorm.{NamedParameter, RowParser, _}
 import model.LeadNote
+
 
 /**
   * Created by fsznajderman on 24/01/2017.
@@ -27,6 +29,14 @@ object LeadNoteDAO extends mainDBDAO[LeadNote, Long] {
     'note -> item.note,
     'dateTime -> item.dateTime
   )
+
+
+  def findNoteByApplicantAndTarget(idApplicatn: Long, idTarget: Long)(implicit c :Connection): Seq[LeadNote] = {
+
+    SQL"""select * from lead_note where idapplicant = $idApplicatn and idtarget=$idTarget""".as(rowParser.*)
+
+
+  }
 
 
 }
