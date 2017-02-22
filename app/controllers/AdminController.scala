@@ -2,19 +2,20 @@ package controllers
 
 import java.time.LocalDateTime
 
+import dao.LeadDAO.Item
 import model.ErrorMessage
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.{Json, Reads, _}
 import play.api.mvc.{Action, Controller}
-import services.{PersonService, SponsorService}
+import services.{PersonService, SponsorService, StatsService}
 import utils.HateoasUtils.toHateoas
 import utils.LoggerAudit
 
 /**
   * Created by fsznajderman on 10/02/2017.
   */
-class AdminController(ps: PersonService, ss: SponsorService) extends Controller with LoggerAudit {
+class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService) extends Controller with LoggerAudit {
 
 
   def index = Action {
@@ -31,6 +32,15 @@ class AdminController(ps: PersonService, ss: SponsorService) extends Controller 
 
   def stats = Action {
     Ok(views.html.stats())
+  }
+
+  def statsData = Action {
+    val points = sts.getData.leadsDateTime.map(i => JsNumber(Item.tupleFormated(i)._1))
+    val dataTime = sts.getData.leadsDateTime.map(i => JsString(Item.tupleFormated(i)._2))
+    val nbLead = sts.getData.sponsorStat.map(i => JsNumber(i._1))
+    val sponsors = sts.getData.sponsorStat.map(i => JsString(i._2))
+
+    Ok(Json.toJson(Map("points" -> points, "datetime" -> dataTime, "nbLead" -> nbLead, "sponsors" -> sponsors)))
   }
 
 
