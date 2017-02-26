@@ -48,6 +48,7 @@ object HateoasConverter {
   }
 
 
+  @deprecated
   implicit object PersonSensitiveConverter extends Converter[PersonSensitive] {
 
     override def name: String = "person_sensitive"
@@ -200,7 +201,7 @@ object HateoasUtils extends LoggerAudit {
     Json.fromJson[PersonJson](Json.parse(person.json)).asEither match {
       case Left(e) =>
 
-        logger.error("error " + e)
+        //logger.error("error " + e)
         Map(
           "firstname" -> JsString(person.firstname),
           "lastname" -> JsString(person.lastname),
@@ -221,7 +222,6 @@ object HateoasUtils extends LoggerAudit {
     Json.fromJson[PersonJson](Json.parse(person.json)).asEither match {
       case Left(e) =>
 
-        logger.error("error " + e)
         Map(
           "firstname" -> JsString(person.firstname),
           "lastname" -> JsString(person.lastname),
@@ -245,18 +245,19 @@ object HateoasUtils extends LoggerAudit {
 
   private def personJson2Map(personJ: PersonJson) = {
     Map(
+      "regId" -> JsNumber(personJ.regId.toLong),
       "firstname" -> JsString(personJ.firstname),
       "lastname" -> JsString(personJ.lastname),
       "email" -> JsString(personJ.email),
-      "address1" -> JsString(personJ.address1.getOrElse("")),
-      "address1" -> JsString(personJ.address2.getOrElse("")),
-      "city" -> JsString(personJ.city.getOrElse("")),
+      //"address1" -> JsString(personJ.address1.getOrElse("")),
+      //"address1" -> JsString(personJ.address2.getOrElse("")),
+      //"city" -> JsString(personJ.city.getOrElse("")),
       "country" -> JsString(personJ.country.getOrElse("")),
-      "fax" -> JsString(personJ.fax.getOrElse("")),
-      "phone" -> JsString(personJ.phone.getOrElse("")),
-      "region" -> JsString(personJ.region.getOrElse("")),
+      //"fax" -> JsString(personJ.fax.getOrElse("")),
+      //"phone" -> JsString(personJ.phone.getOrElse("")),
+      //"region" -> JsString(personJ.region.getOrElse("")),
       "title" -> JsString(personJ.title.getOrElse("")),
-      "codePostal" -> JsString(personJ.postalCode.getOrElse("")),
+      //"codePostal" -> JsString(personJ.postalCode.getOrElse("")),
       "company" -> JsString(personJ.company.getOrElse(""))
     )
   }
