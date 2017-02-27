@@ -1,29 +1,34 @@
 # Routes
 
 
+
+#login
+
+GET /
+
 #person
-GET           /persons/:id                                       controllers.PersonController.read(id:Long)
-GET           /persons/:id/sensitive                             controllers.PersonController.readSensitive(id:Long)
-PUT           /persons/:id                                       controllers.PersonController.maj(id:Long)
-GET           /persons/:id/contacts                              controllers.LeadController.leads(id:Long)
+GET           /api/persons/:id                                       controllers.PersonController.read(id:Long)
+GET           /api/persons/:id/sensitive                             controllers.PersonController.readSensitive(id:Long)
+PUT           /api/persons/:id                                       controllers.PersonController.maj(id:Long)
+GET           /api/persons/:id/contacts                              controllers.LeadController.leads(id:Long)
 
 
 #Leads
-POST          /leads                                             controllers.LeadController.lead
-POST          /leads/note                                        controllers.LeadController.addNote
-GET           /leads/notes/:id                                   controllers.LeadController.readNotes(id:Long)
-GET           /leads/note/:id                                    controllers.LeadController.readNote(id:Long)
+POST          /api/leads                                             controllers.LeadController.lead
+POST          /api/leads/note                                        controllers.LeadController.addNote
+GET           /api/leads/notes/:id                                   controllers.LeadController.readNotes(id:Long)
+GET           /api/leads/note/:id                                    controllers.LeadController.readNote(id:Long)
 
 
 
 
 #Notification
 
-GET           /notifications/:idRecipient/since/:dateTime        controllers.NotificationController.allNotif(idRecipient:Long, dateTime:String)
-GET           /notifications/:id                                 controllers.NotificationController.read(id:Long)
+GET           /api/notifications/:idRecipient/since/:dateTime        controllers.NotificationController.allNotif(idRecipient:Long, dateTime:String)
+GET           /api/notifications/:id                                 controllers.NotificationController.read(id:Long)
 
 #Status
-GET           /status                                            controllers.Status.status
+GET           /api/status                                            controllers.Status.status
 
 #index
 GET           /                                                  controllers.Status.index
