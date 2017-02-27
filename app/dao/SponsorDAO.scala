@@ -64,16 +64,27 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
   }
 
 
-  case class LeadLine(idApplicant: Long, json: String)
+  case class LeadLine(idApplicant: Long, sponsor: String = "", json: String)
 
+
+  val LeadLineRowParser = Macro.namedParser[LeadLine]
 
   def personBySponsor(idSponsor: Long)(implicit connection: Connection): Seq[LeadLine] = {
 
-    val LeadLineRowParser = Macro.namedParser[LeadLine]
-
-    SQL"""select l.idapplicant,p1.json from lead l inner join  person p1 on l.idtarget=p1.id where l.idapplicant in (
+    SQL"""select l.idapplicant, '' as sponsor,p1.json from lead l inner join  person p1 on l.idtarget = p1.id where l.idapplicant in (
  select p.id from sponsor s inner join person_sponsor ps on  s.id=ps.idsponsor
   inner join person p on ps.idperson=p.id
   where s.id=${idSponsor})""".as(LeadLineRowParser.*)
   }
+
+
+  def allPersonScanned(implicit connection: Connection): Seq[LeadLine] = {
+
+    SQL"""select distinct l.idapplicant, s.name as sponsor ,p1.json from lead l
+  inner join  person p1 on l.idtarget = p1.id inner join
+  lead l2 on l.idapplicant=l2.idapplicant inner join person_sponsor ps  on ps.idperson=l2.idapplicant
+  inner join sponsor s on ps.idsponsor=s.id""".as(LeadLineRowParser.*)
+  }
+
+
 }

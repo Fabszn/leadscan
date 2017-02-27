@@ -53,7 +53,7 @@ class ImportController(ps: PersonService) extends Controller {
   }
 
   def importIndex = Action {
-    Ok(views.html.batch.batchDemo())
+    Ok(views.html.importData())
   }
 }
 

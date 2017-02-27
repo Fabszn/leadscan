@@ -10,6 +10,8 @@ object Settings {
   private val config = ConfigFactory.load
 
 
-  val headers = config.getString("export.headers")
+  val headersSponsor = config.getString("export.headers.sponsor")
+  val headersEvent = config.getString("export.headers.events")
 
 }
+

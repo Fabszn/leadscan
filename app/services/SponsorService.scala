@@ -2,7 +2,7 @@ package services
 
 import config.Settings
 import dao.SponsorDAO.PersonSponsorInfo
-import dao.{LeadNoteDAO, SponsorDAO}
+import dao.{LeadNoteDAO, PersonDAO, SponsorDAO}
 import model.{PersonJson, Sponsor}
 import play.api.db.Database
 import play.api.libs.json.Json
@@ -25,7 +25,9 @@ trait SponsorService {
 
   def LoadRepresentative(): Seq[PersonSponsorInfo]
 
-  def export(id: Long): Seq[String]
+  def exportForSponsor(id: Long): Seq[String]
+
+  def exportForEvent: Seq[String]
 }
 
 
@@ -78,32 +80,58 @@ class SponsorServiceImpl(db: Database) extends SponsorService {
 
   }
 
-  override def export(id: Long): Seq[String] = {
+  override def exportForSponsor(id: Long): Seq[String] = {
+
 
     import model.Person._
-    Settings.headers :: db.withConnection(implicit connection =>
+    Settings.headersSponsor :: db.withConnection(implicit connection =>
       SponsorDAO.personBySponsor(id).map(line => {
 
         Json.parse(line.json).validate[PersonJson].asEither match {
           case Left(error) => s"An error occurred wiht this line -> $error"
           case Right(pj) =>
+
+            val applicant = PersonDAO.find(line.idApplicant).map(p => (p.firstname, p.lastname)).getOrElse(("not_found", "not_found"))
+
+
+            val notes = LeadNoteDAO.findNoteByApplicantAndTarget(line.idApplicant, pj.regId.toLong)
+
+            val nbNote = if (notes.isEmpty) 0 else 1
+            val notesVal = notes.map(n => n.note).mkString(" ")
+
+
+            s"""${applicant._1}|${applicant._2}|${pj.regId}|${pj.firstname}|${pj.lastname}|${pj.email}|${pj.country.getOrElse("")}|${pj.phone.getOrElse("")}|${pj.title.getOrElse("")}|$nbNote| $notesVal"""
+        }
+      })
+    ).toList
+
+  }
+
+  override def exportForEvent: Seq[String] = {
+
+    import model.Person._
+
+    Settings.headersEvent :: db.withConnection(implicit connection =>
+      SponsorDAO.allPersonScanned.map(line => {
+
+        Json.parse(line.json).validate[PersonJson].asEither match {
+          case Left(error) => s"An error occurred wiht this line -> $error"
+          case Right(pj) =>
+
+            val applicant = PersonDAO.find(line.idApplicant).map(p => (p.firstname, p.lastname)).getOrElse(("not_found", "not_found"))
+
+
             val notes = LeadNoteDAO.findNoteByApplicantAndTarget(line.idApplicant, pj.regId.toLong)
 
             val nbNote = notes.size
-            val notesVal = notes.map(n => n.note).mkString("|")
 
-            //get number of note
-            // make makstring and concat at the end
-
-            s"""${pj.regId}|${pj.firstname}|${pj.lastname}|${pj.email}|${pj.company.getOrElse("")}|${pj.address1.getOrElse("")}|${pj.address2.getOrElse("")}|${pj.city.getOrElse("")}|${pj.region.getOrElse("")}|${pj.postalCode.getOrElse("")}|${pj.country.getOrElse("")}|${pj.phone.getOrElse("")}|${pj.fax.getOrElse("")}|${pj.title.getOrElse("")}|$nbNote| $notesVal"""
+            s"""${applicant._1}|${applicant._2}|${line.sponsor}|${pj.regId}|${pj.firstname}|${pj.lastname}|${pj.email}|${pj.country.getOrElse("")}|${pj.phone.getOrElse("")}|${pj.title.getOrElse("")}|$nbNote"""
         }
       })
     ).toList
 
 
   }
-
-
 }
 
 

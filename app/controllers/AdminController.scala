@@ -109,10 +109,24 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService) 
 
     val csv: File = java.io.File.createTempFile(System.currentTimeMillis().toString, "").getAbsolutePath.toFile
 
-    csv.appendLines(ss.export(id): _*)
+    csv.appendLines(ss.exportForSponsor(id): _*)
 
 
     Ok.sendFile(csv.toJava).withHeaders((CONTENT_DISPOSITION, s"attachment; filename=$nameSponsor-$currentDate.csv"), (CONTENT_TYPE, "application/x-download"))
+  }
+
+
+  def exportEvent = Action {
+    import better.files._
+
+    val currentDate = LocalDateTime.now()
+
+    val csv: File = java.io.File.createTempFile(System.currentTimeMillis().toString, "").getAbsolutePath.toFile
+
+    csv.appendLines(ss.exportForEvent: _*)
+
+
+    Ok.sendFile(csv.toJava).withHeaders((CONTENT_DISPOSITION, s"attachment; filename=allLeads-$currentDate.csv"), (CONTENT_TYPE, "application/x-download"))
   }
 
 }
