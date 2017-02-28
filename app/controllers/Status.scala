@@ -14,7 +14,7 @@ class Status extends Controller {
   }
 
   def index = CORSAction {
-    Ok("Lead Tracker up! (look at /status for version details)")
+    Ok(views.html.login())
   }
 
 }

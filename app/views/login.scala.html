@@ -1,24 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Lead Tracker</title>
+        <title>Devoxx Scanning</title>
+
         <link rel="stylesheet" href="@routes.Assets.at("stylesheets/bootstrap/bootstrap.min.css")"/>
         <link rel="stylesheet" href="@routes.Assets.at("stylesheets/bootstrap/bootstrap-theme.min.css")"/>
-        <link rel="stylesheet" href="@routes.Assets.at("stylesheets/datatable/datatables.min.css")"/>
+
         <link rel="stylesheet" href="@routes.Assets.at("stylesheets/main.css")"/>
         <link href="//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700" rel="stylesheet" type="text/css">
-
         <script type="text/javascript" src="@routes.Assets.at("javascripts/jquery/jquery-2.2.3.min.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/bootstrap/bootstrap.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("/javascripts/underscore/underscore.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/vuejs/vue.min.js")"></script>
-
-        <script type="application/javascript">
-        </script>
+        <script type="text/javascript" src="@routes.Assets.at("javascripts/utils.js")"></script>
 
     </head>
     <body>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#">Devoxx Scanning</a>
+                </div>
 
+                    <!-- Collect the nav links, forms, and other content for toggling
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li class="active"><a href="#">Link <span class="sr-only">(current)</span></a></li>
+                        <li><a href="#">Link</a></li>
+
+                    </ul>
+                    <form class="navbar-form navbar-left">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search">
+                        </div>
+                        <button type="submit" class="btn btn-default">Submit</button>
+                    </form>-->
+
+            </div>
+        </nav>
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">&nbsp;</div>
@@ -60,25 +86,39 @@
 
             $("#loginForm").click(function () {
 
-                var access_token = localStorage.getItem("Authorization")
+                
 
-
-                $.ajax({
-                    url:"/api/check",
-                    type:"POST",
-                    data:"yo",
-                    headers: {
-                        "access_token" : access_token
-                    },
-                    contentType:"text/plain; charset=utf-8",
-                    dataType:"json",
-                    success: function(){
-                        console.log("yeah")
-                    }
-                })
-
-
+                if(isNoError("form-control")) {
+                    $.ajax({
+                        url: "/auth",
+                        type: "POST",
+                        data: JSON.stringify({
+                            login: String($("#lg_username").val()),
+                            password: String($("#lg_password").val())
+                        }),
+                        contentType: 'application/json',
+                        dataType: "json",
+                        success: function () {
+                            console.log("yeah")
+                        }
+                    })
+                }
             });
+
+
+            function isNoError(classId) {
+                var isError = false;
+                _.each($('.' + classId), function (r) {
+                    if ($(r).val() == "" || $(r).val() == null) {
+                        $(r).addClass('inputError');
+                        isError = true;
+                    } else {
+                        $(r).removeClass('inputError');
+                    }
+
+                });
+                return !isError
+            }
 
         });
 

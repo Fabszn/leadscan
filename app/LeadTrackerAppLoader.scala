@@ -49,9 +49,12 @@ class Components(context: Context)
     new controllers.LeadController(ls, ns, ps),
     new controllers.NotificationController(ns),
     new controllers.Status(),
+    new controllers.SecurityController,
     new controllers.ImportController(ps),
     new controllers.Assets(httpErrorHandler),
     new controllers.AdminController(ps, ss, sts),
     new controllers.SponsorsController(ss)
+
+
   )
 }

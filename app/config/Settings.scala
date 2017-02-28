@@ -13,5 +13,12 @@ object Settings {
   val headersSponsor = config.getString("export.headers.sponsor")
   val headersEvent = config.getString("export.headers.events")
 
+  object oAuth {
+
+    val adminOAuthEndpoint = ""
+    val apiOAuthEndpoint = ""
+
+  }
+
 }
 
