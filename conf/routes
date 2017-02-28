@@ -4,7 +4,7 @@
 
 #login
 
-GET /
+
 
 #person
 GET           /api/persons/:id                                       controllers.PersonController.read(id:Long)
