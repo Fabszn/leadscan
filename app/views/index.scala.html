@@ -47,13 +47,29 @@
                         </div>
                         <button type="submit" class="btn btn-default">Submit</button>
                     </form>-->
+
+
+                <div class="navbar-form navbar-left" id="loginVue" v-if="display">
+                    <label for="lg_username" class="sr-only">Username</label>
+                    <input type="text" class="form-control" id="lg_username" name="lg_username" placeholder="username">
+                    <label for="lg_password" class="sr-only">Password</label>
+                    <input type="password" class="form-control" id="lg_password" name="lg_password" placeholder="password">
+                    <button type="button" id="loginForm" class="btn btn-default">Login</button>
+                </div>
+                <div class="navbar-form navbar-left" id="connectedVue" v-if="display">
+                    <a class="navbar-brand" href="#">{{username}}</a>
+                </div>
+                <div class="navbar-form navbar-left" id="errorMessage" v-if="isError">
+                    <div class="alert alert-danger" v-model="message" role="alert">{{message}}</div>
+                </div>
+
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="#" id="homeLink">Home</a></li>
                     <li><a href="#" id="importLink">Import</a></li>
                     <li><a href="#" id="exportLink">Export</a></li>
                     <li><a href="#" id="sponsorsLink">Sponsors</a></li>
                     <li><a href="#" id="personLink">Person</a></li>
                     <li><a href="#" id="stats">Stats</a></li>
+
                         <!--<li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
                             <ul class="dropdown-menu">
@@ -71,138 +87,101 @@
         </nav>
         <div id="display"></div>
         <div class="container-fluid" id="main">
-
-            Welcome
-                <!--<div class="row">
-                <div class="col-md-6">
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <div class="form-group">
-                                <input type="text" class="form-control" id="idConf" name="idConf" placeholder="Id person">
-                                <button type="button" class="btn btn-default" id="validForm">Search</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6" id="errorMessage" v-if="isError">
-                    <div class="alert alert-danger" v-model="message" role="alert">{{message}}</div>
-                </div>
-                <div class="col-md-6" >
-                    <div class="panel panel-default" id="attendeeVue" v-if="isAttendee">
-                        <div v-if="isAlreadyLinked">
-                            <h3><span class="label label-default glyphicon glyphicon-ok" >Attendee</span></h3>
-                        </div>
-                        <div v-else>
-                            <h3><span class="label label-default" >Attendee</span></h3>
-                        </div>
-                        <div class="panel-body">
-                            <div class="form-group">
-                                <input type="text" class="form-control" id="nom" name="nom" v-model="name" placeholder="Nom conférencier">
-                            </div>
-                            <div class="form-group">
-                                <input type="text" class="form-control" id="prenom" name="prenom" v-model="lastname" placeholder="Prenom conférencier">
-                            </div>
-                            <div class="form-group">
-                                <input type="text" class="form-control" id="societe" name="societe" v-model="company" placeholder="Societe conférencier">
-                            </div>
-                            <div class="form-group">
-                                <button type="button" class="btn btn-default" id="LinkForm">Link</button>
-                                <button type="button" class="btn btn-default" id="CancleForm">Cancel</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-
-
-            </div>-->
-
-
-       <!-- <script>
-
-            $(function () {
-
-
-
-
-                $("#LinkForm").click(function () {
-
-                    // addJson("id", $("#idConf").val())
-                    $.get("/persons/" + $("#idConf").val()).fail(function () {
-                        eVue.isError = true;
-                        aVue.isAttendee = false;
-                        eVue.message = "Attendee not found for " + $("#idConf").val();
-                    }).success(function (data) {
-                        eVue.isError = false;
-                        aVue.isAttendee = true;
-                        aVue.name = data.prenom;
-                        aVue.lastname = data.nom;
-                        aVue.company = data.company;
-                        aVue.isAlreadyLinked = data.alreadyLinked;
-                    })
-                });
-
-                $("#validForm").click(function () {
-
-                    // addJson("id", $("#idConf").val())
-                    $.get("/persons/" + $("#idConf").val()).fail(function () {
-                        eVue.isError = true;
-                        aVue.isAttendee = false;
-                        eVue.message = "Attendee not found for " + $("#idConf").val();
-                    }).success(function (data) {
-                        eVue.isError = false;
-                        aVue.isAttendee = true;
-                        aVue.name = data.prenom;
-                        aVue.lastname = data.nom;
-                        aVue.company = data.company;
-                        aVue.isAlreadyLinked = data.alreadyLinked;
-                    })
-                });
-
-            });
-
-            var aVue = new Vue({
-                el: "#attendeeVue",
-                data: {
-                    isAttendee: false,
-                    attendeeName: "Fabrice ",
-                    name: "",
-                    lastname: "",
-                    company: "",
-                    isAlreadyLinked: false
-                }
-            });
-            var eVue = new Vue({
-                el: "#errorMessage",
-                data: {
-                    isError: false,
-                    message: ""
-                }
-            });
-
-
-
-
-
-
-        </script>-->
+            <div class="page-header">
+                <h1>Welcome to Devoxx Scanning App <small>vers 0.1</small></h1>
+            </div>
         </div>
 
         <script>
 
-            $(function(){
-                registerMenuItem('#sponsorsLink', '/admin/sponsors');
-                registerMenuItem('#homeLink', '/admin/home');
-                registerMenuItem('#personLink', '/admin/persons');
-                registerMenuItem('#stats', '/admin/stats');
-                registerMenuItem('#exportLink', '/admin/export');
-                registerMenuItem('#importLink', '/admin/import');
+            $(function () {
+
+                var errorVue = new Vue({
+                    el: "#errorMessage",
+                    data: {
+                        isError: false,
+                        message: ""
+                    }
+                });
+
+                var loginVue = new Vue({
+                    el: "#loginVue",
+                    data: {
+                        display: true
+
+                    }
+                });
+
+                var connectedVue = new Vue({
+                    el: "#connectedVue",
+                    data: {
+                        display: false,
+                        username: ""
+                    }
+                });
 
 
-                $("#homeLink").click();
-            })
+                registerMenuItem('#sponsorsLink', '/admin/sponsors', errorVue);
+                registerMenuItem('#personLink', '/admin/persons', errorVue);
+                registerMenuItem('#stats', '/admin/stats', errorVue);
+                registerMenuItem('#exportLink', '/admin/export', errorVue);
+                registerMenuItem('#importLink', '/admin/import', errorVue);
+
+
+                $("#loginForm").click(function () {
+                    errorVue.isError = false;
+
+                    if (isNoError("form-control")) {
+                        $.ajax({
+                            url: "/auth",
+                            type: "POST",
+                            data: JSON.stringify({
+                                login: String($("#lg_username").val()),
+                                password: String($("#lg_password").val())
+                            }),
+                            contentType: 'application/json',
+                            dataType: "json",
+                            success: function (data) {
+                                console.log()
+                                token = data['X-Auth-Token'];
+                                errorVue.isError = false;
+                                loginVue.display = false;
+                                connectedVue.display = true;
+                                connectedVue.username = data['mail']
+
+                            },
+                            error: function (data) {
+                                console.log("error")
+                                errorVue.message = "Login and password are not authorized"
+                                errorVue.isError = true;
+                                connectedVue.display = false;
+                                loginVue.display = true;
+                            }
+                        })
+                    }
+                });
+
+
+                function isNoError(classId) {
+                    var isError = false;
+                    _.each($('.' + classId), function (r) {
+                        if ($(r).val() == "" || $(r).val() == null) {
+                            $(r).addClass('inputError');
+                            isError = true;
+                        } else {
+                            $(r).removeClass('inputError');
+                        }
+
+                    });
+                    return !isError
+                }
+
+
+            });
+
+
+
+
         </script>
     </body>
 </html>

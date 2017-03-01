@@ -13,8 +13,6 @@ class Status extends Controller {
     Ok(BuildInfo.toJson)
   }
 
-  def index = CORSAction {
-    Ok(views.html.login())
-  }
+
 
 }

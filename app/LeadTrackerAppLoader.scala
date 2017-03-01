@@ -39,6 +39,7 @@ class Components(context: Context)
   val ns = new NotificationServiceImple(database)
   val ss = new SponsorServiceImpl(database)
   val sts = new StatsServiceImpl(database)
+  val auth = new AuthServiceMockImpl
 
   val flyway = new PlayInitializer(configuration, environment, webCommands)
 
@@ -49,10 +50,10 @@ class Components(context: Context)
     new controllers.LeadController(ls, ns, ps),
     new controllers.NotificationController(ns),
     new controllers.Status(),
-    new controllers.SecurityController,
+    new controllers.AdminController(ps, ss, sts),
+    new controllers.SecurityController(auth),
     new controllers.ImportController(ps),
     new controllers.Assets(httpErrorHandler),
-    new controllers.AdminController(ps, ss, sts),
     new controllers.SponsorsController(ss)
 
 

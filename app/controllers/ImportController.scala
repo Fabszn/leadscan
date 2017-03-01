@@ -3,15 +3,16 @@ package controllers
 import batch.utils._
 import model.{Person, PersonSensitive}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.Controller
 import services.PersonService
+import utils.oAuthActions.AdminAuthAction
 
 /**
   * Created by fsznajderman on 07/02/2017.
   */
 class ImportController(ps: PersonService) extends Controller {
 
-  def importData() = Action(parse.multipartFormData) { implicit request =>
+  def importData() = AdminAuthAction(parse.multipartFormData) { implicit request =>
     val body = request.body
     body.file("csvFile").map { csvFile =>
 
@@ -52,7 +53,7 @@ class ImportController(ps: PersonService) extends Controller {
     Ok("import done!")
   }
 
-  def importIndex = Action {
+  def importIndex = AdminAuthAction {
     Ok(views.html.importData())
   }
 }

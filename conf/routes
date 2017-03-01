@@ -27,7 +27,7 @@ GET           /api/notifications/:id                                 controllers
 GET           /api/status                                            controllers.Status.status
 
 #logging
-GET           /                                                      controllers.Status.index
+GET           /                                                      controllers.AdminController.index
 POST          /auth                                                  controllers.SecurityController.check
 
 
@@ -41,10 +41,9 @@ GET           /assets/*file                                          controllers
 
 #Admin
 GET           /admin                                                 controllers.AdminController.index
-GET           /admin/home                                            controllers.AdminController.home
 GET           /admin/stats                                           controllers.AdminController.stats
 GET           /admin/stats/data                                      controllers.AdminController.statsData
-GET           /admin/export                                          controllers.AdminController.displayExport
+GET           /admin/export                                          controllers.AdminController.export
 GET           /admin/export/:idSponsor                               controllers.AdminController.exportBySponsor(idSponsor:Long)
 GET           /admin/export_event                                    controllers.AdminController.exportEvent
 GET           /admin/representatives                                 controllers.SponsorsController.readAllRepr

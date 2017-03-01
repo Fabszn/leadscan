@@ -8,9 +8,13 @@ import play.api.mvc.{ActionBuilder, Request, Result, Results}
 import scala.concurrent.Future
 
 /**
-  * Created by fsznajderman on 27/02/2017.
+  * Created by fsznajderman on 01/03/2017.
   */
-object OAutActions {
+object oAuthActions {
+
+
+
+  val TOKEN_KEY = "X-Auth-Token"
 
   object ApiAuthAction extends ActionBuilder[Request] with Results with LoggerAudit {
 
@@ -30,14 +34,21 @@ object OAutActions {
 
 
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
-      request.session.get("exp").map(_.toLong) match {
-        case Some(exp) if exp > Instant.now.getEpochSecond => block(request)
-        case Some(exp) => logger.info(s"Token expired (now: ${Instant.now.getEpochSecond} / exp: $exp)")
-          Future.successful(Found(Settings.oAuth.adminOAuthEndpoint))
-        case None => Future.successful(Found(Settings.oAuth.adminOAuthEndpoint))
+      logger.info(s"SecurityCheck - Admin [${request.path}]")
+
+      request.headers.get(TOKEN_KEY) match {
+        case None => Future.successful(Unauthorized("Not Authorised"))
+        case Some(v) if v.isEmpty => Future.successful(Unauthorized("KO"))
+        case Some(v)  => block(request)
       }
+
+      /* request.session.get("exp").map(_.toLong) match {
+         case Some(exp) if exp > Instant.now.getEpochSecond => block(request)
+         case Some(exp) => logger.info(s"Token expired (now: ${Instant.now.getEpochSecond} / exp: $exp)")
+           Future.successful(Found(Settings.oAuth.adminOAuthEndpoint))
+         case None => Future.successful(Found(Settings.oAuth.adminOAuthEndpoint))
+       }*/
     }
   }
 
 }
-

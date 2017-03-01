@@ -5,12 +5,12 @@ import java.time.LocalDateTime
 import dao.LeadDAO.Item
 import model.ErrorMessage
 import play.api.libs.functional.syntax._
-import play.api.libs.json.Reads._
 import play.api.libs.json.{Json, Reads, _}
 import play.api.mvc.{Action, Controller}
 import services.{PersonService, SponsorService, StatsService}
 import utils.HateoasUtils.toHateoas
 import utils.LoggerAudit
+import utils.oAuthActions.AdminAuthAction
 
 /**
   * Created by fsznajderman on 10/02/2017.
@@ -22,19 +22,21 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService) 
     Ok(views.html.index())
   }
 
-  def home = Action {
-    Ok(views.html.home())
-  }
 
-  def person = Action {
+  def person = AdminAuthAction {
     Ok(views.html.person())
   }
 
-  def stats = Action {
+  def stats = AdminAuthAction {
     Ok(views.html.stats())
   }
 
-  def statsData = Action {
+  def export = AdminAuthAction {
+
+    Ok(views.html.export())
+  }
+
+  def statsData = AdminAuthAction {
     val points = sts.getData.leadsDateTime.map(i => JsNumber(Item.tupleFormated(i)._1))
     val dataTime = sts.getData.leadsDateTime.map(i => JsString(Item.tupleFormated(i)._2))
     val nbLead = sts.getData.sponsorStat.map(i => JsNumber(i._1))
@@ -44,13 +46,13 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService) 
   }
 
 
-  def all() = Action {
+  def all() = AdminAuthAction {
 
     Ok(Json.toJson(Map("data" -> ps.allPersons().map(p => Seq(p.id.get.toString, p.firstname, p.lastname)))))
   }
 
 
-  def linkRepreSponsor = Action(parse.json) { implicit request =>
+  def linkRepreSponsor = AdminAuthAction(parse.json) { implicit request =>
 
     case class RepresentativeSponsor(idPerson: Long, idSponsor: Long)
 
@@ -70,7 +72,7 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService) 
   }
 
 
-  def newPerson = Action(parse.json) { implicit request =>
+  def newPerson = AdminAuthAction(parse.json) { implicit request =>
     case class NewPerson(firstname: String, lastname: String, email: String)
 
     implicit val newPersonReaader: Reads[NewPerson] = (
@@ -88,17 +90,14 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService) 
   }
 
 
-  def removeRepreSponsor(idPerson: Long) = Action {
+  def removeRepreSponsor(idPerson: Long) = AdminAuthAction {
 
     ss.removeRepresentative(idPerson)
     Created("Representative has been removed")
   }
 
 
-  def displayExport = Action {
 
-    Ok(views.html.export())
-  }
 
 
   def exportBySponsor(id: Long) = Action {

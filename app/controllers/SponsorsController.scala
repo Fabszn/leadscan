@@ -4,9 +4,10 @@ import model.{ErrorMessage, InfoMessage, Sponsor}
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.{Json, Reads, _}
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.Controller
 import services.SponsorService
 import utils.HateoasUtils._
+import utils.oAuthActions.AdminAuthAction
 
 /**
   * Created by fsznajderman on 11/02/2017.
@@ -18,12 +19,12 @@ class SponsorsController(ss: SponsorService) extends Controller {
       and (__ \ "level").read[String]
     ) (Sponsor.apply _)
 
-  def view = Action {
+  def view = AdminAuthAction {
     Ok(views.html.sponsors())
   }
 
 
-  def read(id: Long) = Action { implicit request =>
+  def read(id: Long) = AdminAuthAction { implicit request =>
 
     implicit val sponsor2json: Writes[Sponsor] = (
 
@@ -38,7 +39,7 @@ class SponsorsController(ss: SponsorService) extends Controller {
 
   }
 
-  def modify = Action(parse.json) { implicit request =>
+  def modify = AdminAuthAction(parse.json) { implicit request =>
 
     request.body.validate[Sponsor].asEither match {
       case Right(s) => {
@@ -50,13 +51,13 @@ class SponsorsController(ss: SponsorService) extends Controller {
 
   }
 
-  def readAll = Action {
+  def readAll = AdminAuthAction {
 
     Ok(Json.toJson(Map("data" -> ss.loadSponsors().map(s => Seq(s.id.get.toString, s.name, s.level)))))
   }
 
 
-  def add() = Action(parse.json) { implicit request =>
+  def add() = AdminAuthAction(parse.json) { implicit request =>
 
 
     request.body.validate[Sponsor].asEither match {
@@ -70,7 +71,7 @@ class SponsorsController(ss: SponsorService) extends Controller {
 
   }
 
-  def readAllRepr = Action { implicit Request =>
+  def readAllRepr = AdminAuthAction { implicit Request =>
 
     Ok(Json.toJson(Map("data" -> ss.LoadRepresentative().map(p => Seq(p.idPerson.toString, p.firstname, p.lastname, p.idSponsor.map(_.toString).getOrElse("-"), p.nameSponsor.getOrElse("-"))))))
 
