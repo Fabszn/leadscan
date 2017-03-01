@@ -20,7 +20,7 @@ function registerMenuItem(id, uri,errorVue) {
             },
             error: function (data) {
                 console.log("error")
-                errorVue.message = "login and password are not authorized"
+                errorVue.message = "You must be authenticated "
                 errorVue.isError = true;
             }
         })
