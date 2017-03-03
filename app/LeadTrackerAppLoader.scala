@@ -39,7 +39,10 @@ class Components(context: Context)
   val ns = new NotificationServiceImple(database)
   val ss = new SponsorServiceImpl(database)
   val sts = new StatsServiceImpl(database)
-  val auth = new AuthServiceMockImpl
+  val remote = new MyDevoxxRemoteClient(wsClient)
+  val as = new AuthServiceImpl(remote)
+
+
 
   val flyway = new PlayInitializer(configuration, environment, webCommands)
 
@@ -51,11 +54,10 @@ class Components(context: Context)
     new controllers.NotificationController(ns),
     new controllers.Status(),
     new controllers.AdminController(ps, ss, sts),
-    new controllers.SecurityController(auth),
+    new controllers.SecurityController(as),
     new controllers.ImportController(ps),
     new controllers.Assets(httpErrorHandler),
     new controllers.SponsorsController(ss)
-
 
   )
 }

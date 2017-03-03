@@ -15,10 +15,17 @@ object Settings {
 
   object oAuth {
 
-    val adminOAuthEndpoint = ""
-    val apiOAuthEndpoint = ""
+
+    private val urlbase = config.getString("oAuth.url.base")
+
+    object endpoints {
+
+      val auth = urlbase + config.getString("oAuth.endpoints.auth")
+      val userinfo = urlbase + config.getString("oAuth.endpoints.userinfo")
+    }
 
   }
+
 
 }
 

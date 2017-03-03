@@ -49,7 +49,7 @@
 
             var exportDatatable = $('#exportTable').DataTable({
                 "bServerSide": false,
-                "ajax": {url: "/admin/sponsors/all",headers: { 'X-Auth-Token': token}},
+                "ajax": {url: "/admin/sponsors/all",headers: { 'X-Auth-Token': _1}},
                 "columnDefs": [
                     {"visible": false, "targets": 0},
                     {"visible": true, "targets": 1},

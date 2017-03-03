@@ -1,37 +1,35 @@
 package services
 
+
+import scala.concurrent.Future
+
+
 /**
   * Created by fsznajderman on 28/02/2017.
   */
 trait AuthService {
 
-  type JwtToken = String
-  type Error = String
 
-  def validAuthentifiaction(login: String, password: String): UserAuth
+  def validAuthentifiaction(login: String, password: String): Future[User]
 
 }
 
 
-sealed trait UserAuth
-
-case object UserNoAuthrisation extends UserAuth
-
-case class UserAuthorisation(regId: String, mail: String, jwtToken: String) extends UserAuth
+class AuthServiceImpl(remote: RemoteClient) extends AuthService {
 
 
-class AuthServiceImpl extends AuthService {
-  override def validAuthentifiaction(login: String, password: String): UserAuth = ???
-}
+  override def validAuthentifiaction(login: String, password: String): Future[User] = {
 
+    import scala.concurrent.ExecutionContext.Implicits.global
 
-class AuthServiceMockImpl extends AuthService {
-  override def validAuthentifiaction(login: String, password: String): UserAuth = {
-    if (login == "error") {
-      UserNoAuthrisation
-    } else {
-     UserAuthorisation("1234", "louis@gmail.com", "123456")
-    }
+    for {
+      jeton <- remote.getJWtToken(login, password)
+      user <- remote.getUserInfo(jeton)
+    } yield user
   }
+
 }
+
+
+
 

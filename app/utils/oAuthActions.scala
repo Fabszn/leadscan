@@ -23,8 +23,8 @@ object oAuthActions {
       request.headers.get("Authorization").map(_.toLong) match {
         case Some(exp) if exp > Instant.now.getEpochSecond => block(request)
         case Some(exp) => logger.info(s"Token expired (now: ${Instant.now.getEpochSecond} / exp: $exp)")
-          Future.successful(Unauthorized(Settings.oAuth.apiOAuthEndpoint))
-        case None => Future.successful(Unauthorized(Settings.oAuth.apiOAuthEndpoint))
+          Future.successful(Unauthorized(""))
+        case None => Future.successful(Unauthorized(""))
       }
     }
   }
@@ -42,12 +42,7 @@ object oAuthActions {
         case Some(v)  => block(request)
       }
 
-      /* request.session.get("exp").map(_.toLong) match {
-         case Some(exp) if exp > Instant.now.getEpochSecond => block(request)
-         case Some(exp) => logger.info(s"Token expired (now: ${Instant.now.getEpochSecond} / exp: $exp)")
-           Future.successful(Found(Settings.oAuth.adminOAuthEndpoint))
-         case None => Future.successful(Found(Settings.oAuth.adminOAuthEndpoint))
-       }*/
+
     }
   }
 
