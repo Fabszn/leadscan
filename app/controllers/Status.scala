@@ -1,7 +1,7 @@
 package controllers
 
 import buildinfo.BuildInfo
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.Controller
 import utils.CORSAction
 
 /**
@@ -12,6 +12,8 @@ class Status extends Controller {
   def status = CORSAction {
     Ok(BuildInfo.toJson)
   }
+
+
 
 
 

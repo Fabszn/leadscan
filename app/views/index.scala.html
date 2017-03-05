@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Devoxx Scanning</title>
+        <title>Admin Devoxx Lead-Scan</title>
         <link rel="stylesheet" href="@routes.Assets.at("stylesheets/bootstrap/bootstrap.min.css")"/>
         <link rel="stylesheet" href="@routes.Assets.at("stylesheets/bootstrap/bootstrap-theme.min.css")"/>
         <link rel="stylesheet" href="@routes.Assets.at("stylesheets/datatable/jquery.dataTables.min.css")"/>
@@ -15,7 +15,6 @@
         <script type="text/javascript" src="@routes.Assets.at("javascripts/bootstrap/bootstrap.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("/javascripts/underscore/underscore.js")"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/vuejs/vue.min.js")"></script>
-        <script type="text/javascript" src="@routes.Assets.at("javascripts/utils.js")"></script>
         <script type="application/javascript">
         </script>
 
@@ -33,45 +32,33 @@
                     </button>
                     <a class="navbar-brand" href="#">Devoxx Scanning</a>
                 </div>
+<div id="splash" style="background-color: darkred; width: 100%; height: 100%" ></div>
 
-                    <!-- Collect the nav links, forms, and other content for toggling
-                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                    <ul class="nav navbar-nav">
-                        <li class="active"><a href="#">Link <span class="sr-only">(current)</span></a></li>
-                        <li><a href="#">Link</a></li>
+                <div id="loginVue">
+                    <div class="navbar-form navbar-left" v-if="displayForm">
+                        <label for="lg_username" class="sr-only">Username</label>
+                        <input type="text" class="form-control-auth" id="lg_username" name="lg_username" placeholder="username">
+                        <label for="lg_password" class="sr-only">Password</label>
+                        <input type="password" class="form-control-auth" id="lg_password" name="lg_password" placeholder="password">
+                        <button type="button" id="loginForm" v-on:click="loginForm" class="btn btn-default">Login</button>
+                    </div>
+                    <div class="navbar-form navbar-left" v-if="displayUserName">
+                        <span class="navbar-brand" href="#">{{username}}</span>
+                        <a href="/signout" class="navbar-brand" >Sign-out</a>
+                    </div>
+                    <div class="navbar-form navbar-left" v-if="displayError">
+                        <div class="alert alert-danger" v-model="errorMessage" role="alert">{{errorMessage}}</div>
+                    </div>
+
+                    <ul class="nav navbar-nav navbar-right" v-if="displayMenu">
+                        <li><a href="#" id="importLink" v-on:click="importLink">Import</a></li>
+                        <li><a href="#" id="exportLink" v-on:click="exportLink">Export</a></li>
+                        <li><a href="#" id="sponsorsLink" v-on:click="sponsorsLink">Sponsors</a></li>
+                        <li><a href="#" id="personLink" v-on:click="personLink">Person</a></li>
+                        <li><a href="#" id="stats" v-on:click="statsLink">Stats</a></li>
 
                     </ul>
-                    <form class="navbar-form navbar-left">
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Search">
-                        </div>
-                        <button type="submit" class="btn btn-default">Submit</button>
-                    </form>-->
-
-
-                <div class="navbar-form navbar-left" id="loginVue" v-if="display">
-                    <label for="lg_username" class="sr-only">Username</label>
-                    <input type="text" class="form-control" id="lg_username" name="lg_username" placeholder="username">
-                    <label for="lg_password" class="sr-only">Password</label>
-                    <input type="password" class="form-control" id="lg_password" name="lg_password" placeholder="password">
-                    <button type="button" id="loginForm" class="btn btn-default">Login</button>
                 </div>
-                <div class="navbar-form navbar-left" id="connectedVue" v-if="display">
-                    <a class="navbar-brand" href="#">{{username}}</a>
-                </div>
-                <div class="navbar-form navbar-left" id="errorMessage" v-if="isError">
-                    <div class="alert alert-danger" v-model="message" role="alert">{{message}}</div>
-                </div>
-
-                <ul class="nav navbar-nav navbar-right" id="itemMenuVue" v-if="display">
-                    <li><a href="#" id="importLink">Import</a></li>
-                    <li><a href="#" id="exportLink">Export</a></li>
-                    <li><a href="#" id="sponsorsLink">Sponsors</a></li>
-                    <li><a href="#" id="personLink">Person</a></li>
-                    <li><a href="#" id="stats">Stats</a></li>
-
-
-                </ul>
             </div>
                 <!-- /.navbar-collapse -->
                 <!-- /.container-fluid -->
@@ -87,80 +74,73 @@
 
             $(function () {
 
-                var errorVue = new Vue({
-                    el: "#errorMessage",
-                    data: {
-                        isError: false,
-                        message: ""
-                    }
-                });
-
-                var itemMenuVue = new Vue({
-                    el: "#itemMenuVue",
-                    data: {
-                        display: true,
-
-                    }
-                });
 
                 var loginVue = new Vue({
                     el: "#loginVue",
                     data: {
-                        display: true
+                        display: true,
+                        displayForm: true,
+                        displayMenu: false,
+                        displayError: false,
+                        displayUserName: false,
+                        errorMessage: ""
 
-                    }
-                });
+                    },
+                    methods: {
+                        loginForm: function (e) {
+                            console.log("click login")
+                            this.displayError = false;
 
-                var connectedVue = new Vue({
-                    el: "#connectedVue",
-                    data: {
-                        display: false,
-                        username: ""
-                    }
-                });
+                            if (isNoError("form-control-auth")) {
+                                $.ajax({
+                                    url: "/auth",
+                                    type: "POST",
+                                    data: JSON.stringify({
+                                        login: String($("#lg_username").val()),
+                                        password: String($("#lg_password").val())
+                                    }),
+                                    contentType: 'application/json',
+                                    dataType: "json",
+                                    success: function (data) {
+                                        console.log("Ok")
+                                        loginVue.displayError = false;
+                                        loginVue.display = false;
+                                        loginVue.displayUserName = true;
+                                        loginVue.username = data['mail']
+                                        loginVue.displayMenu = true;
+                                        loginVue.displayForm = false
 
-
-
-                registerMenuItem('#sponsorsLink', '/admin/sponsors', errorVue);
-                registerMenuItem('#personLink', '/admin/persons', errorVue);
-                registerMenuItem('#stats', '/admin/stats', errorVue);
-                registerMenuItem('#exportLink', '/admin/export', errorVue);
-                registerMenuItem('#importLink', '/admin/import', errorVue);
-
-
-                $("#loginForm").click(function () {
-                    errorVue.isError = false;
-
-                    if (isNoError("form-control")) {
-                        $.ajax({
-                            url: "/auth",
-                            type: "POST",
-                            data: JSON.stringify({
-                                login: String($("#lg_username").val()),
-                                password: String($("#lg_password").val())
-                            }),
-                            contentType: 'application/json',
-                            dataType: "json",
-                            success: function (data) {
-                                console.log()
-                                token = data['X-Auth-Token'];
-                                errorVue.isError = false;
-                                loginVue.display = false;
-                                connectedVue.display = true;
-                                connectedVue.username = data['mail']
-                                itemMenuVue.display=true;
-
-                            },
-                            error: function (data) {
-                                console.log("error")
-                                errorVue.message = "Login and password are not authorized"
-                                errorVue.isError = true;
-                                connectedVue.display = false;
-                                loginVue.display = true;
-
-
+                                    },
+                                    error: function (data) {
+                                        console.log("error" + data)
+                                        loginVue.displayError = true;
+                                        loginVue.errorMessage = "Login and password are not authorized"
+                                        loginVue.displayUserName = false;
+                                        loginVue.username = ""
+                                    }
+                                })
                             }
-                        })
+                        },
+                        importLink: function (e) {
+                            console.log("importLink")
+                            menuItemEvent('/admin/import', loginVue);
+                        },
+                        exportLink: function (e) {
+                            menuItemEvent('/admin/export', loginVue);
+                        },
+                        statsLink: function (e) {
+                            menuItemEvent('/admin/stats', loginVue);
+                        },
+                        personLink: function (e) {
+                            menuItemEvent('/admin/persons', loginVue);
+                        },
+                        sponsorsLink: function (e) {
+                            menuItemEvent('/admin/sponsors', loginVue);
+                        },
+                        statsLink: function (e) {
+                            menuItemEvent('/admin/stats', loginVue);
+                        }
+
                     }
                 });
 
@@ -177,6 +157,28 @@
 
                     });
                     return !isError
+                }
+
+
+                function menuItemEvent(uri, loginVue) {
+
+                    $.ajax({
+                        url: uri,
+                        type: "GET",
+                        success: function (data) {
+                            $('#main').html(data)
+                        },
+                        error: function (data) {
+                            console.log("error")
+                            loginVue.displayError = true;
+                            loginVue.errorMessage = "You must be authenticated ";
+                            loginVue.displayUserName = false;
+                            loginVue.username = "";
+                            loginVue.displayForm = true;
+                            displayMenu: false;
+                        }
+                    })
+
                 }
 
 

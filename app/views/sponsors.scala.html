@@ -159,7 +159,6 @@
                             $.ajax({
                                 url: "/admin/representatives/new",
                                 type: 'POST',
-                                headers: { 'X-Auth-Token': token},
                                 data: JSON.stringify({
                                     firstname: newRepresentativeVue.firstname,
                                     lastname: newRepresentativeVue.lastname,
@@ -324,7 +323,7 @@
 
             var sponsorDatatable = $('#sponsors').DataTable({
                 "bServerSide": false,
-                "ajax": {url: "/admin/sponsors/all",headers: { 'X-Auth-Token': token}},
+                "ajax": {url: "/admin/sponsors/all"},
                 "columnDefs": [
                     {"visible": false, "targets": 0},
                     {"visible": true, "targets": 1},
@@ -335,7 +334,7 @@
 
             var representativeDatatable = $('#representative').DataTable({
                 "bServerSide": false,
-                "ajax": {url: "/admin/representatives",headers: { 'X-Auth-Token': token}},
+                "ajax": {url: "/admin/representatives"},
                 "columnDefs": [
                     {"visible": true, "targets": 0},
                     {"visible": true, "targets": 1},
@@ -356,7 +355,6 @@
                         idPerson: Number($("#idPerson").val()),
                         idSponsor: Number($("#idSponsor").val())
                     }),
-                    headers: { 'X-Auth-Token': token},
                     async: true,
                     success: function (data) {
                         sponsorDatatable.ajax.reload(false);
@@ -374,7 +372,6 @@
                 $.ajax({
                     url: "/admin/representatives/" + Number($("#idPerson").val()),
                     type: 'DELETE',
-                    headers: { 'X-Auth-Token': token},
                     async: true,
                     success: function (data) {
                         sponsorDatatable.ajax.reload(false);

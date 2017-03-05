@@ -97,9 +97,6 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService) 
   }
 
 
-
-
-
   def exportBySponsor(id: Long) = Action {
     import better.files._
 

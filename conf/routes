@@ -29,6 +29,7 @@ GET           /api/status                                            controllers
 #logging
 GET           /                                                      controllers.AdminController.index
 POST          /auth                                                  controllers.SecurityController.check
+GET           /signout                                               controllers.SecurityController.signout
 
 
 #Import Data
@@ -67,4 +68,6 @@ GET           /admin/sponsors/:id                                    controllers
 PUT           /admin/sponsors                                        controllers.SponsorsController.modify
 
 POST          /admin/sponsors                                        controllers.SponsorsController.add
+
+
 

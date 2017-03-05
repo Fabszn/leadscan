@@ -10,8 +10,8 @@ object Settings {
   private val config = ConfigFactory.load
 
 
-  val headersSponsor = config.getString("export.headers.sponsor")
-  val headersEvent = config.getString("export.headers.events")
+  val headersSponsor: String = config.getString("export.headers.sponsor")
+  val headersEvent: String = config.getString("export.headers.events")
 
   object oAuth {
 
@@ -20,12 +20,19 @@ object Settings {
 
     object endpoints {
 
-      val auth = urlbase + config.getString("oAuth.endpoints.auth")
-      val userinfo = urlbase + config.getString("oAuth.endpoints.userinfo")
+      val auth: String = urlbase + config.getString("oAuth.endpoints.auth")
+      val userinfo: String = urlbase + config.getString("oAuth.endpoints.userinfo")
     }
+
+
 
   }
 
+  object session {
+
+    val timeout_mn: Long = config.getLong("session.timeout.mn")
+
+  }
 
 }
 

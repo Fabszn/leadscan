@@ -19,7 +19,6 @@ $(function () {
     $.ajax({
         url: '/admin/stats/data',
         type: "GET",
-        headers: { 'X-Auth-Token': token},
         success: function (data) {
 
             var dataLeadByhour = {
