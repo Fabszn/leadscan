@@ -26,9 +26,10 @@ GET           /api/notifications/:id                                 controllers
 #Status
 GET           /api/status                                            controllers.Status.status
 
-#logging
+#Authentification
 GET           /                                                      controllers.AdminController.index
-POST          /auth                                                  controllers.SecurityController.check
+POST          /auth                                                  controllers.SecurityController.adminAuthentification
+GET           /auth_api                                              controllers.SecurityController.apiAuthentification
 GET           /signout                                               controllers.SecurityController.signout
 
 

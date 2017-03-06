@@ -1,9 +1,9 @@
 package utils
 
-import java.time.{Instant, LocalDateTime}
+import java.time.LocalDateTime
 
 import config.Settings
-import play.api.mvc.{ActionBuilder, Request, Result, Results}
+import play.api.mvc._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -14,18 +14,16 @@ import scala.concurrent.Future
 object oAuthActions extends LoggerAudit {
 
 
-  object ApiAuthAction extends ActionBuilder[Request] with Results {
-
-    val TOKEN_KEY = "X-Auth-Token"
+  object  ApiAuthAction extends ActionBuilder[Request] with Results {
 
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
-      request.headers.get("Authorization").map(_.toLong) match {
-        case Some(exp) if exp > Instant.now.getEpochSecond => block(request)
-        case Some(exp) => logger.info(s"Token expired (now: ${Instant.now.getEpochSecond} / exp: $exp)")
-          Future.successful(Unauthorized(""))
-        case None => Future.successful(Unauthorized(""))
+      request.session.get("connected") match {
+        case Some(_) => block(request)
+        case None => Future.successful(Unauthorized("Not Authorised - no session found"))
       }
     }
+
+
   }
 
 
@@ -38,7 +36,6 @@ object oAuthActions extends LoggerAudit {
       request.session.get("exp") match {
         case None => Future.successful(Unauthorized("Not Authorised - no session found"))
         case Some(v) if checkExpiration(LocalDateTime.parse(v)) => Future.successful(Unauthorized("Not Authorised - session has been expired").withNewSession)
-
         case Some(_) => {
           //update expiration date
           block(request).map(r => r.withSession(request.session.+("exp", LocalDateTime.now().plusMinutes(Settings.session.timeout_mn).toString)))

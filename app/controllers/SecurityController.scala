@@ -12,6 +12,7 @@ import utils.LoggerAudit
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import Settings.oAuth._
 
 /**
   * Created by fsznajderman on 28/02/2017.
@@ -26,8 +27,7 @@ class SecurityController(authService: AuthService) extends Controller with Logge
     Future.successful(Ok("disconnected").withNewSession)
   }
 
-  def check = Action.async(parse.json) { implicit request =>
-
+  def adminAuthentification = Action.async(parse.json) { implicit request =>
 
     implicit val readUserData: Reads[UserData] = (
       (__ \ "login").read[String] and (__ \ "password").read[String]
@@ -44,10 +44,10 @@ class SecurityController(authService: AuthService) extends Controller with Logge
           }
           case AuthenticateUser(_, _, email, _) => {
             logger.info(s"$userData authenticated")
-            Ok(Json.toJson(Map("mail" -> email))).withSession("connected" -> s"$email", "exp" -> LocalDateTime.now().plusMinutes(Settings.session.timeout_mn).toString)
+            Ok(Json.toJson(Map("mail" -> email))).withSession("connected" -> email, "exp" -> LocalDateTime.now().plusMinutes(Settings.session.timeout_mn).toString)
           }
           case _ => {
-            logger.info(s"Strange behavior :(")
+            logger.error(s"Strange behavior :(")
             Unauthorized("Strange behavior :(")
           }
 
@@ -55,4 +55,25 @@ class SecurityController(authService: AuthService) extends Controller with Logge
       }
     }
   }
+
+
+  def apiAuthentification = Action.async{ implicit request =>
+
+    request.headers.get(TOKEN_KEY).fold(
+      Future.successful(Unauthorized("Not Authorised - Header not found")))(token => {
+        authService.validJwToken(token) map {
+          case UnauthenticateUser(error) => {
+            logger.info(s"token : ${token} is no authorised - [$error]")
+            Unauthorized(s"User : ${token} is no authorised - [$error]")
+          }
+          case AuthenticateUser(_, _, email, _) => {
+            logger.info(s"$email authenticated on API")
+            Ok(Json.toJson(Map("mail" -> email))).withSession("connected" -> email)
+          }
+        }
+      }
+    )
+
+  }
+
 }

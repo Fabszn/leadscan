@@ -3,6 +3,7 @@ package services
 import config.Settings
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
+import utils.LoggerAudit
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -27,7 +28,7 @@ trait RemoteClient {
 }
 
 
-class MyDevoxxRemoteClient(ws: WSClient) extends RemoteClient {
+class MyDevoxxRemoteClient(ws: WSClient) extends RemoteClient  with LoggerAudit {
 
 
   def getJWtToken(login: String, password: String, remenberMe: Boolean): Future[String] = {
@@ -39,7 +40,9 @@ class MyDevoxxRemoteClient(ws: WSClient) extends RemoteClient {
 
   }
 
-  def getUserInfo(token: String): Future[User] =
+  def getUserInfo(token: String): Future[User] = {
+
+   logger.info("getUserInfo")
     ws.url(Settings.oAuth.endpoints.userinfo)
       .withHeaders("Content-Type" -> "application/json", "Accept" -> "application/json", "X-Auth-Token" -> token).get().map { wsR => {
       val firstName = (wsR.json \ "firstName").as[String]
@@ -53,6 +56,8 @@ class MyDevoxxRemoteClient(ws: WSClient) extends RemoteClient {
     }.recover {
       case e: Throwable => UnauthenticateUser(e.getMessage)
     }
+
+  }
 }
 
 

@@ -3,8 +3,8 @@ package controllers
 import model._
 import play.api.mvc.Controller
 import services.{PersonService, UpdatePerson}
-import utils.HateoasConverter._
 import utils.HateoasUtils.toHateoas
+import utils.oAuthActions.ApiAuthAction
 import utils.{CORSAction, LoggerAudit}
 
 /**
@@ -12,39 +12,45 @@ import utils.{CORSAction, LoggerAudit}
   */
 class PersonController(ps: PersonService) extends Controller with LoggerAudit {
 
-  def read(id: Long) = CORSAction { implicit request => {
-    ps.getPerson(id) match {
-      case Some(person) => Ok(toHateoas(person))
-      case _ => NotFound(toHateoas(ErrorMessage("Person_not_found", s"Person with id $id not found")))
+  def read(id: Long) = CORSAction {
+    ApiAuthAction(parse.json) { implicit request => {
+      ps.getPerson(id) match {
+        case Some(person) => Ok(toHateoas(person))
+        case _ => NotFound(toHateoas(ErrorMessage("Person_not_found", s"Person with id $id not found")))
+      }
     }
-  }
+    }
   }
 
   @deprecated
-  def readSensitive(id: Long) = CORSAction { implicit request =>
-    ps.getPersonSensitive(id) match {
-      case Some(pSensitive) => Ok(toHateoas(pSensitive)).withHeaders(("Access-Control-Allow-Origin", "*"))
-      case _ => NotFound(toHateoas(ErrorMessage("Person_sensitive_not_found", s"Person sensitive with id $id not found"))).withHeaders(("Access-Control-Allow-Origin", "*"))
+  def readSensitive(id: Long) = CORSAction {
+    ApiAuthAction(parse.json) { implicit request =>
+      ps.getPersonSensitive(id) match {
+        case Some(pSensitive) => Ok(toHateoas(pSensitive)).withHeaders(("Access-Control-Allow-Origin", "*"))
+        case _ => NotFound(toHateoas(ErrorMessage("Person_sensitive_not_found", s"Person sensitive with id $id not found"))).withHeaders(("Access-Control-Allow-Origin", "*"))
+      }
     }
   }
 
-  def maj(id: Long) = CORSAction(parse.json) { implicit request =>
+  def maj(id: Long) = CORSAction {
+    ApiAuthAction(parse.json) { implicit request =>
 
-    import jsonUtils._
+      import jsonUtils._
 
-    val j = request.body
-
-
-    val strFields = jsonToMapExtractor[String](List("firstname", "lastname"), j)
-    val intFields = jsonToMapExtractor[Int](List("age", "experience"), j)
-    val boolFields = jsonToMapExtractor[Boolean](List("isTraining"), j)
-
-    ps.majPerson(id, UpdatePerson(strFields, intFields, boolFields))
+      val j = request.body
 
 
-    Accepted(toHateoas(InfoMessage(s"Person with id $id updated")))
+      val strFields = jsonToMapExtractor[String](List("firstname", "lastname"), j)
+      val intFields = jsonToMapExtractor[Int](List("age", "experience"), j)
+      val boolFields = jsonToMapExtractor[Boolean](List("isTraining"), j)
+
+      ps.majPerson(id, UpdatePerson(strFields, intFields, boolFields))
+
+
+      Accepted(toHateoas(InfoMessage(s"Person with id $id updated")))
+
+    }
+
 
   }
-
-
 }

@@ -1,18 +1,24 @@
 package utils
 
-import play.api.mvc.{ActionBuilder, Request, Result, Results}
-
-import scala.concurrent.Future
+import play.api.mvc._
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 /**
   * Created by fsznajderman on 09/02/2017.
   */
-object CORSAction extends ActionBuilder[Request] with Results {
-  override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
-    block(request).map(r => r.withHeaders(("Access-Control-Allow-Origin", "*")))
+case class CORSAction[A](action: Action[A]) extends Action[A] with Results {
+
+
+  def apply(request: Request[A]): Future[Result] = {
+
+    action(request).map(r => r.withHeaders(("Access-Control-Allow-Origin", "*")))
   }
+
+
+  //block(request).map(r => r.withHeaders(("Access-Control-Allow-Origin", "*")))
+  override def parser: BodyParser[A] = action.parser
 }
 
 

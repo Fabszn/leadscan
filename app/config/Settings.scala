@@ -16,10 +16,11 @@ object Settings {
   object oAuth {
 
 
+    val TOKEN_KEY = "X-Auth-Token"
+
     private val urlbase = config.getString("oAuth.url.base")
 
     object endpoints {
-
       val auth: String = urlbase + config.getString("oAuth.endpoints.auth")
       val userinfo: String = urlbase + config.getString("oAuth.endpoints.userinfo")
     }
