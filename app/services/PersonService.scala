@@ -86,17 +86,31 @@ class PersonServiceImpl(db: Database) extends PersonService with LoggerAudit {
     }
   }
 
-  override def addPerson(p: Person): Unit = {
-    db.withConnection(implicit connexion =>
 
-      PersonDAO.create(p)
+  override def addPerson(p: Person): Unit = {
+    db.withTransaction(implicit connexion =>
+
+      PersonDAO.findBy(PersonDAO.pkField, p.id) match {
+        case None => {
+          println(s"create $p")
+          PersonDAO.create(p)
+        }
+        case Some(_) => {
+
+          println(s"update $p")
+          PersonDAO.update(p)
+        }
+      }
     )
   }
 
   override def addPersonSensitive(p: PersonSensitive): Unit = {
     db.withConnection(implicit connexion =>
 
-      PersonSensitiveDAO.create(p)
+      PersonSensitiveDAO.findBy(PersonDAO.pkField, p.id) match {
+        case None => PersonSensitiveDAO.create(p)
+        case Some(_) => PersonSensitiveDAO.update(p)
+      }
     )
   }
 

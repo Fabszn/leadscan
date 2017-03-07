@@ -20,7 +20,7 @@ class ImportController(ps: PersonService) extends Controller {
       val r: Seq[Map[String, String]] = loadCVSSourceFile(csv.file)
       val convertedPerson = for {
         kv <- r
-      } yield Person(kv.get("\uFEFFRegId").map(_.toLong),
+      } yield Person(kv.get("RegId").map(_.toLong),
         kv.getOrElse("first_Name", "notFound"),
         kv.getOrElse("last_Name", "notFound"),
         kv.getOrElse("gender", "_"),
@@ -36,7 +36,7 @@ class ImportController(ps: PersonService) extends Controller {
 
       val convertedPersonSensitive = for {
         kv <- r
-      } yield PersonSensitive(kv.get("\uFEFFRegId").map(_.toLong),
+      } yield PersonSensitive(kv.get("RegId").map(_.toLong),
         kv.getOrElse("Email_Address", "notFound"),
         kv.getOrElse("Phone", "notFound"),
         kv.getOrElse("Company", "notFound"),
