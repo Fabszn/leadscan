@@ -3,10 +3,12 @@ package utils
 import java.time.LocalDateTime
 
 import config.Settings
+import pdi.jwt.{Jwt, JwtAlgorithm}
 import play.api.mvc._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.{Failure, Success, Try}
 
 /**
   * Created by fsznajderman on 01/03/2017.
@@ -14,14 +16,21 @@ import scala.concurrent.Future
 object oAuthActions extends LoggerAudit {
 
 
-  object  ApiAuthAction extends ActionBuilder[Request] with Results {
+  object ApiAuthAction extends ActionBuilder[Request] with Results {
 
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
       block(request)
-      /*request.session.get("connected") match {
-        case Some(_) => block(request)
-        case None => Future.successful(Unauthorized("Not Authorised - no session found"))
-      }*/
+      request.headers.get(Settings.oAuth.TOKEN_KEY) match {
+        case Some(token) => {
+          Try {
+            Jwt.validate(token, Settings.oAuth.sharedSecret, Seq(JwtAlgorithm.HS256))
+          } match {
+            case Success(_) => block(request)
+            case Failure(_) => Future.successful(Unauthorized("Not Authorised - token is invalid"))
+          }
+        }
+        case None => Future.successful(Unauthorized("Not Authorised - token not found"))
+      }
     }
 
 

@@ -20,6 +20,8 @@ object Settings {
 
     private val urlbase = config.getString("oAuth.url.base")
 
+    val sharedSecret = config.getString("oAuth.jwt.sharedsecret")
+
     object endpoints {
       val auth: String = urlbase + config.getString("oAuth.endpoints.auth")
       val userinfo: String = urlbase + config.getString("oAuth.endpoints.userinfo")
