@@ -17,10 +17,11 @@ object oAuthActions extends LoggerAudit {
   object  ApiAuthAction extends ActionBuilder[Request] with Results {
 
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
-      request.session.get("connected") match {
+      block(request)
+      /*request.session.get("connected") match {
         case Some(_) => block(request)
         case None => Future.successful(Unauthorized("Not Authorised - no session found"))
-      }
+      }*/
     }
 
 

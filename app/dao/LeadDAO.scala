@@ -28,10 +28,12 @@ object LeadDAO extends mainDBDAO[Lead, Long] {
   )
 
 
-  def findByPks(idApplicant: Long, idTarget: Long)(implicit c: Connection): Option[Lead] =
+  def findByPks(idApplicant: Long, idTarget: Long)(implicit c: Connection): Option[Lead] = {
+
     SQL"""
          SELECT * from LEAD where idApplicant=${idApplicant} and idTarget=$idTarget
        """.as(rowParser.singleOpt)
+  }
 
 
   def leadBySponsor(implicit c: Connection): Seq[(Int, String)] = {

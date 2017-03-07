@@ -52,22 +52,17 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
 
               val validLead = tLeads.filterNot(item => v.failures.contains(item))
 
-              val persons: Seq[Option[CompletePerson]] = validLead.map(item => {
+              validLead.map(item => {
                 ls.addLead(item._1, item._2)
                 sendNotification(item)
-                ps.getCompletePerson(item._1.idTarget)
               }) ++ v.failures.map(item => {
                 item._2.foreach(note => ls.addNote(note))
-                ps.getCompletePerson(item._1.idTarget)
               })
-
               Ok(toHateoas(
                 for (
-                  p <- persons
-                ) yield p.get
+                  p <- ls.getCompleteLeads(idApplicant)
+                ) yield p
               ))
-
-
             }
           }
         }
@@ -118,14 +113,14 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
   }
 
   def readNotes(idAppliquant: Long) = CORSAction {
-    ApiAuthAction(parse.json) {
+    ApiAuthAction {
       implicit request =>
         Ok(toHateoas(ls.getNotes(idAppliquant)))
     }
   }
 
   def readNote(idNote: Long) = CORSAction {
-    ApiAuthAction(parse.json) {
+    ApiAuthAction {
       implicit request =>
         ls.getNote(idNote).fold(
           NotFound(toHateoas(ErrorMessage("Note_not_found", s"Note not found in request")))
@@ -136,15 +131,16 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
 
 
   def leads(id: Long) = CORSAction {
-    ApiAuthAction(parse.json) {
-      implicit request =>
+    ApiAuthAction {
+      implicit request => {
 
-        ls.getLeads(id) match {
-          case Nil => NotFound(toHateoas(ErrorMessage("leads_not_found", s"Leads for person with id ${
-            id
-          } are not found")))
+        val allNotes = ls.getNotes(id)
+
+        ls.getCompleteLeads(id) match {
+          case Nil => NotFound(toHateoas(ErrorMessage("leads_not_found", s"Leads for person with id ${id} are not found")))
           case leads => Ok(toHateoas(leads))
         }
+      }
     }
 
 

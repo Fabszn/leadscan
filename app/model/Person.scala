@@ -1,5 +1,7 @@
 package model
 
+import java.time.LocalDateTime
+
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.{Reads, _}
@@ -13,7 +15,9 @@ case class Person(id: Option[Long], firstname: String, lastname: String, gender:
 
 case class LightingPerson(id: String, firstname: String, lastname: String)
 
-case class CompletePerson(id: Option[Long], firstname: String, lastname: String, gender: String, position: String, status: String, experience: Int, isTraining: Boolean, showSensitive: Boolean, profilId: Int, email: String, phoneNumber: String, company: String, workLocation: String, lookingForAJob: Boolean, json: String = "")
+case class CompletePerson(id: Option[Long], firstname: String, lastname: String, gender: String, position: String, status: String, experience: Int, isTraining: Boolean, showSensitive: Boolean, profilId: Int, email: String, phoneNumber: String, company: String, workLocation: String, lookingForAJob: Boolean, json: String = "", datetime: Option[LocalDateTime])
+
+case class CompletePersonWithNotes(person: CompletePerson, notes: Seq[LeadNote] = Nil)
 
 
 case class PersonJson(regId: String, firstname: String, lastname: String, email: String, company: Option[String], address1: Option[String], address2: Option[String], city: Option[String], region: Option[String], postalCode: Option[String], country: Option[String], phone: Option[String], fax: Option[String], title: Option[String])

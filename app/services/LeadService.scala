@@ -1,7 +1,7 @@
 package services
 
 import dao.{LeadDAO, LeadNoteDAO, PersonDAO}
-import model.{CompletePerson, Lead, LeadNote}
+import model.{CompletePerson, CompletePersonWithNotes, Lead, LeadNote}
 import play.api.db.Database
 import utils.LoggerAudit
 
@@ -18,6 +18,8 @@ trait LeadService {
 
   def getLeads(id: Long): Seq[CompletePerson]
 
+  def getCompleteLeads(id: Long): Seq[CompletePersonWithNotes]
+
   def getNotes(idPerson: Long): Seq[LeadNote]
 
   def getNote(idNote: Long): Option[LeadNote]
@@ -25,15 +27,26 @@ trait LeadService {
 }
 
 
-class LeadServiceImpl(db: Database) extends LeadService  with LoggerAudit{
+class LeadServiceImpl(db: Database) extends LeadService with LoggerAudit {
 
+
+  override def getCompleteLeads(id: Long): Seq[CompletePersonWithNotes] = {
+
+
+
+    val allNotes = this.getNotes(id)
+
+
+    this.getLeads(id).map(cp => CompletePersonWithNotes(cp, allNotes.filter(ln => {ln.idTarget.equals(cp.id.get)})))
+
+
+  }
 
   override def getNote(idNote: Long): Option[LeadNote] = {
 
     db.withConnection { implicit c =>
       LeadNoteDAO.findBy("id", idNote)
     }
-
 
 
   }

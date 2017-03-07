@@ -1,5 +1,7 @@
 package utils
 
+import java.time.{LocalDateTime, ZoneOffset}
+
 import model._
 import play.api.libs.json._
 import play.api.mvc.Request
@@ -94,6 +96,19 @@ object HateoasConverter {
     }
 
     override def links(a: Seq[CompletePerson]): Seq[Links] = Seq()
+  }
+
+  implicit object LeadsWithNotesConverter extends Converter[Seq[CompletePersonWithNotes]] {
+    override def name: String = "leads"
+
+    override def convertMap(a: Seq[CompletePersonWithNotes])(implicit request: Request[_]): Map[String, JsValue] = {
+      import play.api.libs.json._
+      a.map(p => s"${p.person.id.get}" -> {
+        JsObject(completePerson2Map(p)) ++ JsObject(Map("links" -> JsArray(CompletePersonConverter.links(p.person).map(HateoasUtils.linkWrites))))
+      }).toMap
+    }
+
+    override def links(a: Seq[CompletePersonWithNotes]): Seq[Links] = Seq()
   }
 
 
@@ -213,7 +228,7 @@ object HateoasUtils extends LoggerAudit {
           "showSensitive" -> JsBoolean(person.showSensitive)
         )
       case Right(personJ) =>
-        personJson2Map(personJ)
+        personJson2Map(personJ, None, Seq())
     }
   }
 
@@ -239,11 +254,38 @@ object HateoasUtils extends LoggerAudit {
           "lookingForAJob" -> JsBoolean(person.lookingForAJob)
         )
       case Right(personJ) =>
-        personJson2Map(personJ)
+        personJson2Map(personJ, person.datetime, Seq())
     }
   }
 
-  private def personJson2Map(personJ: PersonJson) = {
+  def completePerson2Map(p: CompletePersonWithNotes): Map[String, JsValue] = {
+    import model.Person.personJsonReader
+    val person = p.person
+    Json.fromJson[PersonJson](Json.parse(person.json)).asEither match {
+      case Left(_) =>
+
+        Map(
+          "firstname" -> JsString(person.firstname),
+          "lastname" -> JsString(person.lastname),
+          "gender" -> JsString(person.gender),
+          "position" -> JsString(person.position),
+          "status" -> JsString(person.status),
+          "experience" -> JsNumber(person.experience),
+          "isTraining" -> JsBoolean(person.isTraining),
+          "showSensitive" -> JsBoolean(person.showSensitive),
+          "profil" -> JsNumber(person.profilId),
+          "email" -> JsString(person.email),
+          "company" -> JsString(person.company),
+          "phoneNumber" -> JsString(person.phoneNumber),
+          "workLocation" -> JsString(person.workLocation),
+          "lookingForAJob" -> JsBoolean(person.lookingForAJob)
+        )
+      case Right(personJ) =>
+        personJson2Map(personJ, person.datetime, p.notes)
+    }
+  }
+
+  private def personJson2Map(personJ: PersonJson, date: Option[LocalDateTime], notes: Seq[LeadNote]) = {
     Map(
       "regId" -> JsNumber(personJ.regId.toLong),
       "firstname" -> JsString(personJ.firstname),
@@ -258,7 +300,9 @@ object HateoasUtils extends LoggerAudit {
       //"region" -> JsString(personJ.region.getOrElse("")),
       "title" -> JsString(personJ.title.getOrElse("")),
       //"codePostal" -> JsString(personJ.postalCode.getOrElse("")),
-      "company" -> JsString(personJ.company.getOrElse(""))
+      "company" -> JsString(personJ.company.getOrElse("")),
+      "leadDateTime" -> JsString(date.fold("notFound")(d => d.toEpochSecond(ZoneOffset.UTC).toString)),
+      "notes" -> JsString(notes.map(ln => ln.note).mkString(""))
     )
   }
 
