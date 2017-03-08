@@ -125,4 +125,14 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService) 
     Ok.sendFile(csv.toJava).withHeaders((CONTENT_DISPOSITION, s"attachment; filename=allLeads-$currentDate.csv"), (CONTENT_TYPE, "application/x-download"))
   }
 
+  def checkAuth = AdminAuthAction { implicit request =>
+    request.session.get("connected").fold(
+      Unauthorized("")
+    )(
+      mail => Ok(Json.toJson(Map("mail" -> mail)))
+    )
+
+
+  }
+
 }

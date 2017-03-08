@@ -53,6 +53,8 @@ POST          /admin/representatives                                 controllers
 POST          /admin/representatives/new                             controllers.AdminController.newPerson
 DELETE        /admin/representatives/:idPerson                       controllers.AdminController.removeRepreSponsor(idPerson:Long)
 
+GET           /admin/checkAuth                                       controllers.AdminController.checkAuth
+
 
 GET           /admin/persons                                         controllers.AdminController.person
 

@@ -74,6 +74,8 @@
 
             $(function () {
 
+                checkAuth()
+
 
                 var loginVue = new Vue({
                     el: "#loginVue",
@@ -160,6 +162,33 @@
                 }
 
 
+
+
+                function checkAuth() {
+
+                    $.ajax({
+                        url: "/admin/checkAuth",
+                        type: "GET",
+                        success: function (data) {
+                            loginVue.displayError = false;
+                            loginVue.display = false;
+                            loginVue.displayUserName = true;
+                            loginVue.username = data['mail']
+                            loginVue.displayMenu = true;
+                            loginVue.displayForm = false
+                        },
+                        error: function (data) {
+                            console.log("error")
+                            loginVue.displayError = false;
+                            loginVue.errorMessage = "You must be authenticated ";
+                            loginVue.displayUserName = false;
+                            loginVue.username = "";
+                            loginVue.displayForm = true;
+                            loginVue.displayMenu = false;
+                        }
+                    })
+
+                }
                 function menuItemEvent(uri, loginVue) {
 
                     $.ajax({
@@ -175,7 +204,7 @@
                             loginVue.displayUserName = false;
                             loginVue.username = "";
                             loginVue.displayForm = true;
-                            displayMenu: false;
+                            loginVue.displayMenu = false;
                         }
                     })
 
