@@ -1,16 +1,16 @@
 package controllers
 
 import batch.utils._
-import model.{Person, PersonSensitive}
+import model.{Person, PersonJson, PersonSensitive}
 import play.api.libs.json.Json
 import play.api.mvc.Controller
-import services.PersonService
+import services.{PersonService, RemoteClient}
 import utils.oAuthActions.AdminAuthAction
 
 /**
   * Created by fsznajderman on 07/02/2017.
   */
-class ImportController(ps: PersonService) extends Controller {
+class ImportController(ps: PersonService, remote: RemoteClient) extends Controller {
 
   def importData() = AdminAuthAction(parse.multipartFormData) { implicit request =>
     val body = request.body
@@ -45,7 +45,14 @@ class ImportController(ps: PersonService) extends Controller {
       )
 
 
-      convertedPerson.foreach(ps.addPerson)
+      val currentToken = jsonUtils.tokenExtractor(request)
+      import Person._
+      convertedPerson.foreach { p =>
+
+        //notify MyDevoxx with new person
+        remote.sendPerson(Json.parse(p.json).as[PersonJson], currentToken)
+        ps.addPerson(p)
+      }
       convertedPersonSensitive.foreach(ps.addPersonSensitive)
 
     }

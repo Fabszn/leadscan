@@ -21,14 +21,13 @@ object oAuthActions extends LoggerAudit {
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
       block(request)
       request.headers.get(Settings.oAuth.TOKEN_KEY) match {
-        case Some(token) => {
+        case Some(token) =>
           Try {
             Jwt.validate(token, Settings.oAuth.sharedSecret, Seq(JwtAlgorithm.HS256))
           } match {
             case Success(_) => block(request)
             case Failure(_) => Future.successful(Unauthorized("Not Authorised - token is invalid"))
           }
-        }
         case None => Future.successful(Unauthorized("Not Authorised - token not found"))
       }
     }
@@ -46,10 +45,9 @@ object oAuthActions extends LoggerAudit {
       request.session.get("exp") match {
         case None => Future.successful(Unauthorized("Not Authorised - no session found"))
         case Some(v) if checkExpiration(LocalDateTime.parse(v)) => Future.successful(Unauthorized("Not Authorised - session has been expired").withNewSession)
-        case Some(_) => {
+        case Some(_) =>
           //update expiration date
           block(request).map(r => r.withSession(request.session.+("exp", LocalDateTime.now().plusMinutes(Settings.session.timeout_mn).toString)))
-        }
       }
     }
   }

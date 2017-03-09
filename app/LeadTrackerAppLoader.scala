@@ -34,14 +34,13 @@ class Components(context: Context)
   override lazy val httpFilters: Seq[EssentialFilter] = Seq(corsFilter)
 
   val database: Database = dbApi.database("leadTrackerDb")
+  val remote = new MyDevoxxRemoteClient(wsClient)
   val ps = new PersonServiceImpl(database)
   val ls = new LeadServiceImpl(database)
   val ns = new NotificationServiceImple(database)
   val ss = new SponsorServiceImpl(database)
   val sts = new StatsServiceImpl(database)
-  val remote = new MyDevoxxRemoteClient(wsClient)
   val as = new AuthServiceImpl(remote)
-
 
 
   val flyway = new PlayInitializer(configuration, environment, webCommands)
@@ -53,9 +52,9 @@ class Components(context: Context)
     new controllers.LeadController(ls, ns, ps),
     new controllers.NotificationController(ns),
     new controllers.Status(),
-    new controllers.AdminController(ps, ss, sts),
+    new controllers.AdminController(ps, ss, sts, remote),
     new controllers.SecurityController(as),
-    new controllers.ImportController(ps),
+    new controllers.ImportController(ps, remote),
     new controllers.Assets(httpErrorHandler),
     new controllers.SponsorsController(ss)
 

@@ -61,7 +61,7 @@
         </table>
 
         <h4><span id="selectedSponsor"></span> / <span id="selectedRepresentative"></span></h4>
-        <button type="button" class="btn btn-default" disabled id="addRepresentative" >Add representative</button>
+        <button type="button" class="btn btn-default" disabled id="addRepresentative" >Link Sponsor / representative</button>
         <button type="button" class="btn btn-default" disabled id="removeRepresentative" >remove representative</button>
 
         <input type="hidden" id="idPerson">
@@ -93,6 +93,12 @@
                 </div>
                 <div class="form-group">
                     <input type="text" class="form-control newcheckForm" v-model="email" placeholder="Email">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control newcheckForm" v-model="company" placeholder="Company">
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control newcheckForm" v-model="title" placeholder="Title">
                 </div>
                 <div class="form-group">
                     <button type="button" class="btn btn-default" v-on:click="add" >Save</button>
@@ -146,13 +152,16 @@
                     firstname: "",
                     lastname: "",
                     email: "",
+                    company: "",
+                    title: "",
                     show: true
                 }, methods: {
                     cancel: function (e) {
-
-                        newRepresentativeVue.firname = "";
+                        newRepresentativeVue.firstname = "";
                         newRepresentativeVue.lastname = "";
                         newRepresentativeVue.email = "";
+                        newRepresentativeVue.company = "";
+                        newRepresentativeVue.title = "";
                     },
                     add: function (e) {
                         if (isNoError('newcheckForm')) {
@@ -162,7 +171,9 @@
                                 data: JSON.stringify({
                                     firstname: newRepresentativeVue.firstname,
                                     lastname: newRepresentativeVue.lastname,
-                                    email: newRepresentativeVue.email
+                                    email: newRepresentativeVue.email,
+                                    company: newRepresentativeVue.company,
+                                    title: newRepresentativeVue.title
                                 }),
                                 async: true,
                                 success: function (data) {
@@ -171,6 +182,8 @@
                                     newRepresentativeVue.firstname = "";
                                     newRepresentativeVue.lastname = "";
                                     newRepresentativeVue.email = "";
+                                    newRepresentativeVue.company = "";
+                                    newRepresentativeVue.title = "";
                                 },
                                 error: function (e) {
                                     console.error(e);

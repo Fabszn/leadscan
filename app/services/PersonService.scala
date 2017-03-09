@@ -2,8 +2,9 @@ package services
 
 import anorm.NamedParameter
 import dao.{PersonDAO, PersonSensitiveDAO}
-import model.{CompletePerson, Person, PersonSensitive}
+import model.{CompletePerson, Person, PersonJson, PersonSensitive}
 import play.api.db.Database
+import play.api.libs.json.Json
 import utils.LoggerAudit
 
 /**
@@ -31,7 +32,7 @@ trait PersonService {
 
   def allPersons(): Seq[Person]
 
-  def addRepresentative(firstname: String, lastname: String, email: String)
+  def addRepresentative(firstname: String, lastname: String, email: String, company: String, title: String): PersonJson
 
 }
 
@@ -92,16 +93,18 @@ class PersonServiceImpl(db: Database) extends PersonService with LoggerAudit {
 
       PersonDAO.findBy(PersonDAO.pkField, p.id) match {
         case None => {
-          println(s"create $p")
+          logger.debug(s"create $p")
           PersonDAO.create(p)
         }
         case Some(_) => {
 
-          println(s"update $p")
+          logger.debug(s"update $p")
           PersonDAO.update(p)
         }
       }
     )
+
+
   }
 
   override def addPersonSensitive(p: PersonSensitive): Unit = {
@@ -114,20 +117,35 @@ class PersonServiceImpl(db: Database) extends PersonService with LoggerAudit {
     )
   }
 
-  override def addRepresentative(firstname: String, lastname: String, email: String): Unit =
-
+  override def addRepresentative(firstname: String, lastname: String, email: String, company: String, title: String): PersonJson =
     db.withTransaction(implicit connection => {
 
+      val id = Some(generateId(email))
+      val p = Person(id, firstname, lastname, "-", title, "-", 1, isTraining = false, showSensitive = true, 1)
+      val ps = PersonSensitive(id, email, "-", company, "-", lookingForAJob = false)
 
-      val idPersonNext = PersonDAO.nextId
+      val pj = personToJson(p, ps)
+
+      PersonDAO.create(p.copy(json = pj._2))
+      PersonSensitiveDAO.create(ps)
+      pj._1
+
+    })
 
 
-      PersonDAO.create(Person(Some(idPersonNext), firstname, lastname, "-", "-", "-", 1, isTraining = false, showSensitive = true, 1))
-      PersonSensitiveDAO.create(PersonSensitive(Some(idPersonNext), email, "-", "-", "-", lookingForAJob = false))
-    }
+  private def personToJson(p: Person, ps: PersonSensitive): (PersonJson,String) = {
+
+    import Person._
+
+    val pj = PersonJson(generateId(ps.email).toString, p.firstname, p.lastname, ps.email, Option(ps.company), None, None, None, None, None, None, None, None, Option(p.position))
+    (pj, Json.toJson(pj).toString)
+  }
+
+  private def generateId(email: String): Long = {
+    email.toLowerCase.trim.hashCode.abs
+  }
 
 
-    )
 }
 
 

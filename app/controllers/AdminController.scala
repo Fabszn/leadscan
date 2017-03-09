@@ -7,7 +7,7 @@ import model.ErrorMessage
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{Json, Reads, _}
 import play.api.mvc.{Action, Controller}
-import services.{PersonService, SponsorService, StatsService}
+import services.{PersonService, RemoteClient, SponsorService, StatsService}
 import utils.HateoasUtils.toHateoas
 import utils.LoggerAudit
 import utils.oAuthActions.AdminAuthAction
@@ -15,7 +15,7 @@ import utils.oAuthActions.AdminAuthAction
 /**
   * Created by fsznajderman on 10/02/2017.
   */
-class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService) extends Controller with LoggerAudit {
+class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, remote: RemoteClient) extends Controller with LoggerAudit {
 
 
   def index = Action {
@@ -73,16 +73,19 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService) 
 
 
   def newPerson = AdminAuthAction(parse.json) { implicit request =>
-    case class NewPerson(firstname: String, lastname: String, email: String)
+    case class NewPerson(firstname: String, lastname: String, email: String, company: String, title: String)
 
     implicit val newPersonReaader: Reads[NewPerson] = (
-      (__ \ "firstname").read[String] and (__ \ "lastname").read[String] and (__ \ "email").read[String]
+      (__ \ "firstname").read[String] and (__ \ "lastname").read[String] and (__ \ "email").read[String] and (__ \ "company").read[String] and (__ \ "title").read[String]
       ) (NewPerson.apply _)
 
 
     request.body.validate[NewPerson].asEither match {
       case Right(p) => {
-        ps.addRepresentative(p.firstname, p.lastname, p.email)
+        val pj = ps.addRepresentative(p.firstname, p.lastname, p.email, p.company, p.title)
+        //send person to Mydevoxx
+        val res = remote.sendPerson(pj, jsonUtils.tokenExtractor(request))
+
         Created("representative has been created")
       }
       case Left(errors) => BadRequest(toHateoas(ErrorMessage("Json_parsing_error", s"Json parsing throws an error ${errors}")))
@@ -131,8 +134,6 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService) 
     )(
       mail => Ok(Json.toJson(Map("mail" -> mail)))
     )
-
-
   }
 
 }

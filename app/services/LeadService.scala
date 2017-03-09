@@ -31,12 +31,7 @@ class LeadServiceImpl(db: Database) extends LeadService with LoggerAudit {
 
 
   override def getCompleteLeads(id: Long): Seq[CompletePersonWithNotes] = {
-
-
-
     val allNotes = this.getNotes(id)
-
-
     this.getLeads(id).map(cp => CompletePersonWithNotes(cp, allNotes.filter(ln => {ln.idTarget.equals(cp.id.get)})))
 
 
