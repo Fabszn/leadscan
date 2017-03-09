@@ -52,15 +52,19 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
 
               val validLead = tLeads.filterNot(item => v.failures.contains(item))
 
-              validLead.map(item => {
+              val idTargets = validLead.map(item => {
                 ls.addLead(item._1, item._2)
                 sendNotification(item)
+                item._1.idTarget
               }) ++ v.failures.map(item => {
                 item._2.foreach(note => ls.addNote(note))
+                item._1.idTarget
               })
+
+
               Ok(toHateoas(
                 for (
-                  p <- ls.getCompleteLeads(idApplicant)
+                  p <- ls.getCompleteLeads(idApplicant).filter(cpwn => idTargets.contains(cpwn.person.id.getOrElse(-1)))
                 ) yield p
               ))
             }
