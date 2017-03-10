@@ -5,7 +5,7 @@ import dao.{PersonDAO, PersonSensitiveDAO}
 import model.{CompletePerson, Person, PersonJson, PersonSensitive}
 import play.api.db.Database
 import play.api.libs.json.Json
-import utils.LoggerAudit
+import utils.{LoggerAudit, PasswordGenerator}
 
 /**
   * Created by fsznajderman on 20/01/2017.
@@ -26,18 +26,18 @@ trait PersonService {
 
   def majPerson(id: Long, up: UpdatePerson)
 
-  def addPerson(p: Person): Unit
+  def addPerson(p: Person, token: String): Unit
 
   def addPersonSensitive(p: PersonSensitive): Unit
 
   def allPersons(): Seq[Person]
 
-  def addRepresentative(firstname: String, lastname: String, email: String, company: String, title: String): PersonJson
+  def addRepresentative(firstname: String, lastname: String, email: String, company: String, title: String, token: String): PersonJson
 
 }
 
 
-class PersonServiceImpl(db: Database, ns: NotificationService) extends PersonService with LoggerAudit {
+class PersonServiceImpl(db: Database, ns: NotificationService, remote: RemoteClient) extends PersonService with LoggerAudit {
 
 
   override def allPersons(): Seq[Person] = {
@@ -88,14 +88,16 @@ class PersonServiceImpl(db: Database, ns: NotificationService) extends PersonSer
   }
 
 
-  override def addPerson(p: Person): Unit = {
+  override def addPerson(p: Person, token: String): Unit = {
     db.withTransaction(implicit connexion =>
 
       PersonDAO.findBy(PersonDAO.pkField, p.id) match {
         case None => {
           logger.debug(s"create $p")
           PersonDAO.create(p)
-          ns.sendMail(Seq("fabszn@gmail.com", "nmartignole@gmail.com"))
+          val pass = PasswordGenerator.generatePassword
+          ns.sendMail(p, Seq("fabszn@gmail.com", "nmartignole@gmail.com"), pass)
+          remote.sendPassword(p.id.get,pass, token)
         }
         case Some(_) => {
 
@@ -118,7 +120,7 @@ class PersonServiceImpl(db: Database, ns: NotificationService) extends PersonSer
     )
   }
 
-  override def addRepresentative(firstname: String, lastname: String, email: String, company: String, title: String): PersonJson =
+  override def addRepresentative(firstname: String, lastname: String, email: String, company: String, title: String, token: String): PersonJson =
     db.withTransaction(implicit connection => {
 
       val id = Some(generateId(email))
@@ -129,7 +131,10 @@ class PersonServiceImpl(db: Database, ns: NotificationService) extends PersonSer
 
       PersonDAO.create(p.copy(json = pj._2))
       PersonSensitiveDAO.create(ps)
-      ns.sendMail(Seq("fabszn@gmail.com", "nmartignole@gmail.com"))
+      val pass = PasswordGenerator.generatePassword
+      ns.sendMail(p, Seq("fabszn@gmail.com", "nmartignole@gmail.com"), pass)
+
+      remote.sendPassword(p.id.get,pass, token)
       pj._1
 
     })

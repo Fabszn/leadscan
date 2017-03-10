@@ -82,9 +82,10 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
 
     request.body.validate[NewPerson].asEither match {
       case Right(p) => {
-        val pj = ps.addRepresentative(p.firstname, p.lastname, p.email, p.company, p.title)
+        val token = jsonUtils.tokenExtractorFromSession(request)
+        val pj = ps.addRepresentative(p.firstname, p.lastname, p.email, p.company, p.title, token)
         //send person to Mydevoxx
-        val res = remote.sendPerson(pj, jsonUtils.tokenExtractorFromSession(request))
+        val res = remote.sendPerson(pj, token)
 
         Created("representative has been created")
       }

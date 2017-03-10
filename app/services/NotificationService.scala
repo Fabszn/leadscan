@@ -3,10 +3,9 @@ package services
 import java.time.LocalDateTime
 
 import dao.NotificationDAO
-import model.Notification
+import model.{Notification, Person}
 import play.api.db.Database
 import play.api.libs.mailer.{Email, MailerClient}
-import utils.PasswordGenerator
 
 
 /**
@@ -20,12 +19,12 @@ trait NotificationService {
 
   def getNotification(idNotification: Long): Option[Notification]
 
-  def sendMail(dest: Seq[String]): Unit
+  def sendMail(p: Person, dest: Seq[String], pass: String): Unit
 
 }
 
 
-class NotificationServiceImple(db: Database, mailer: MailerClient) extends NotificationService {
+class NotificationServiceImpl(db: Database, mailer: MailerClient, remote: RemoteClient) extends NotificationService {
 
   override def addNotification(notif: Notification): Unit = {
 
@@ -49,34 +48,30 @@ class NotificationServiceImple(db: Database, mailer: MailerClient) extends Notif
   }
 
 
-  override def sendMail(dest: Seq[String]): Unit = {
+  override def sendMail(p: Person, dest: Seq[String], pass: String): Unit = {
 
-val mdpTemp= PasswordGenerator.generatePassword
-    mailer.send(Email("Your password", "program@devoxx.us", dest, Some(
-      s"""
-         |Hello
-         |
-        |You are now representative for the following sponsor :
-         |
-        |below your password to connect you to the lead scan web application application : http://....
-         |
-        |
-        |your temporary password is : ${mdpTemp}
-         |
 
-      """.stripMargin), Some(
+    mailer.send(Email("Your password", "program@devoxx.us", dest, None, Some(
       s"""
-         |Hello
+       Dear ${p.firstname}<br>
+         |<br>
+         |You're recei ving this email because someone promoted your profile as a representative for company @company.<br>
          |
-        |You are now representative for the following sponsor :
+          |You can now connect to the Leadscan application and start to scan attendees.<br>
+         |Your default password is : ${pass} <br>
          |
-        |below your password to connect you to the lead scan web application application : http://....
+ |The Scan application works on Android, iPhone and in a web browser. Please open a web browser to http://mydevoxx-pwa.cleverapps.io/ <br><br>
          |
-        |
-        |your temporary password is : ${mdpTemp}
+ |If you want to change this password, please visit https://my-devoxx-us.cleverapps.io <br><br>
          |
+ |Feel free to contact the organization team if you need more help <br><br>
+         |
+ |Kind regards<br><br>
+         |
+ |The Devoxx US Team<br><br>
 
       """.stripMargin)))
 
   }
+
 }

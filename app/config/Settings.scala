@@ -26,6 +26,7 @@ object Settings {
       val auth: String = urlbase + config.getString("oAuth.endpoints.auth")
       val userinfo: String = urlbase + config.getString("oAuth.endpoints.userinfo")
       val createPerson: String = urlbase + config.getString("oAuth.endpoints.createPerson")
+      val createPassword: String = urlbase + config.getString("oAuth.endpoints.password")
     }
 
 

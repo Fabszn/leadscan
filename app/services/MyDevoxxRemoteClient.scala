@@ -28,6 +28,8 @@ trait RemoteClient {
 
   def sendPerson(person: PersonJson, token: String): Future[String]
 
+  def sendPassword(regId: Long, pass: String, token: String): Future[String]
+
 }
 
 
@@ -64,6 +66,7 @@ class MyDevoxxRemoteClient(ws: WSClient) extends RemoteClient with LoggerAudit {
 
   override def sendPerson(p: PersonJson, token: String): Future[String] = {
 
+    logger.info("Person")
     val personToSend = Json.toJson(Json.obj(
       "email" -> p.email,
       "registrantId" -> p.regId,
@@ -84,6 +87,17 @@ class MyDevoxxRemoteClient(ws: WSClient) extends RemoteClient with LoggerAudit {
     val response = ws.url(Settings.oAuth.endpoints.createPerson).withHeaders("Content-Type" -> "application/json", Settings.oAuth.TOKEN_KEY -> token).post(personToSend).map(r => r.body)
     response.onComplete(r => logger.debug(s" ${personToSend.toString} response from myDevoxx $r"))
     response
+  }
+
+  override def sendPassword(regId: Long, pass: String, token: String): Future[String] = {
+
+    logger.info("sendPassword")
+    val body = Json.toJson(Json.obj("password" -> pass))
+
+    val response = ws.url(Settings.oAuth.endpoints.createPerson).withHeaders("Content-Type" -> "application/json", Settings.oAuth.TOKEN_KEY -> token).post(body).map(r => r.body)
+    response.onComplete(r => logger.debug(s" ${r.toString} response from myDevoxx $r"))
+    response
+
   }
 }
 

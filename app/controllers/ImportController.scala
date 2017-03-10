@@ -51,7 +51,8 @@ class ImportController(ps: PersonService, remote: RemoteClient) extends Controll
 
         //notify MyDevoxx with new person
         remote.sendPerson(Json.parse(p.json).as[PersonJson], currentToken)
-        ps.addPerson(p)
+        val token = jsonUtils.tokenExtractorFromSession(request)
+        ps.addPerson(p, token)
       }
       convertedPersonSensitive.foreach(ps.addPersonSensitive)
 
