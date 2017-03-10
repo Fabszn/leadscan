@@ -5,6 +5,7 @@ import java.time.LocalDateTime
 import dao.NotificationDAO
 import model.Notification
 import play.api.db.Database
+import play.api.libs.mailer.{Email, MailerClient}
 
 
 /**
@@ -18,10 +19,12 @@ trait NotificationService {
 
   def getNotification(idNotification: Long): Option[Notification]
 
+  def sendMail():Unit
+
 }
 
 
-class NotificationServiceImple(db: Database) extends NotificationService {
+class NotificationServiceImple(db: Database, mailer: MailerClient) extends NotificationService {
 
   override def addNotification(notif: Notification): Unit = {
 
@@ -42,5 +45,18 @@ class NotificationServiceImple(db: Database) extends NotificationService {
       NotificationDAO.find(idNotification)
 
     )
+  }
+
+  override def sendMail(): Unit = {
+
+    mailer.send(Email("test", "moi@gmail.com", Seq("fabszn@gmail.com"),Some(
+      """
+        |
+        |
+        |
+
+      """.stripMargin)))
+
+
   }
 }

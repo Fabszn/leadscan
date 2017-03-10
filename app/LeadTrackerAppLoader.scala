@@ -1,10 +1,12 @@
 import org.flywaydb.play.PlayInitializer
 import play.api.ApplicationLoader.Context
 import play.api.db.{BoneCPComponents, DBComponents, Database}
+import play.api.libs.mailer.MailerComponents
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.mvc.EssentialFilter
 import play.api.{ApplicationLoader, BuiltInComponentsFromContext, LoggerConfigurator, _}
 import play.filters.cors.CORSComponents
+import play.libs.mailer.MailerClient
 import router.Routes
 import services._
 
@@ -27,7 +29,8 @@ class Components(context: Context)
     with DBComponents
     with BoneCPComponents
     with AhcWSComponents
-    with CORSComponents {
+    with CORSComponents
+    with MailerComponents {
 
   //val filter = new Filters()
 
@@ -37,10 +40,12 @@ class Components(context: Context)
   val remote = new MyDevoxxRemoteClient(wsClient)
   val ps = new PersonServiceImpl(database)
   val ls = new LeadServiceImpl(database)
-  val ns = new NotificationServiceImple(database)
+  val ns = new NotificationServiceImple(database,mailerClient)
   val ss = new SponsorServiceImpl(database)
   val sts = new StatsServiceImpl(database)
   val as = new AuthServiceImpl(remote)
+
+
 
 
   val flyway = new PlayInitializer(configuration, environment, webCommands)
@@ -51,7 +56,7 @@ class Components(context: Context)
     new controllers.PersonController(ps),
     new controllers.LeadController(ls, ns, ps),
     new controllers.NotificationController(ns),
-    new controllers.Status(),
+    new controllers.Status(ns),
     new controllers.AdminController(ps, ss, sts, remote),
     new controllers.SecurityController(as),
     new controllers.ImportController(ps, remote),

@@ -28,6 +28,8 @@ lazy val root = (project in file("."))
       ws,
       filters,
       "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
-      "com.pauldijou" %% "jwt-core" % "0.9.2"
+      "com.pauldijou" %% "jwt-core" % "0.9.2",
+      "com.typesafe.play" %% "play-mailer" % "5.0.0"
+
 
     ))
