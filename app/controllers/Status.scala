@@ -14,13 +14,7 @@ class Status(notif: NotificationService) extends Controller {
   }
 
 
-  def mail = Action {
 
-
-    notif.sendMail()
-
-    Ok(BuildInfo.toJson)
-  }
 
 
 }

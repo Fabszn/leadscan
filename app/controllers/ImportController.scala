@@ -4,7 +4,7 @@ import batch.utils._
 import model.{Person, PersonJson, PersonSensitive}
 import play.api.libs.json.Json
 import play.api.mvc.Controller
-import services.{PersonService, RemoteClient}
+import services.{NotificationService, PersonService, RemoteClient}
 import utils.oAuthActions.AdminAuthAction
 
 /**

@@ -6,6 +6,7 @@ import dao.NotificationDAO
 import model.Notification
 import play.api.db.Database
 import play.api.libs.mailer.{Email, MailerClient}
+import utils.PasswordGenerator
 
 
 /**
@@ -19,7 +20,7 @@ trait NotificationService {
 
   def getNotification(idNotification: Long): Option[Notification]
 
-  def sendMail():Unit
+  def sendMail(dest: Seq[String]): Unit
 
 }
 
@@ -47,19 +48,33 @@ class NotificationServiceImple(db: Database, mailer: MailerClient) extends Notif
     )
   }
 
- override def sendMail(): Unit = {
 
-    mailer.send(Email("test", "program@devoxx.us", Seq("fabszn@gmail.com"),Some(
-      """
-        |
-        |Helllelele TEXT
-        |
+  override def sendMail(dest: Seq[String]): Unit = {
 
-      """.stripMargin),Some(
-      """
+val mdpTemp= PasswordGenerator.generatePassword
+    mailer.send(Email("Your password", "program@devoxx.us", dest, Some(
+      s"""
+         |Hello
+         |
+        |You are now representative for the following sponsor :
+         |
+        |below your password to connect you to the lead scan web application application : http://....
+         |
         |
-        |Helllelele TEXT
+        |your temporary password is : ${mdpTemp}
+         |
+
+      """.stripMargin), Some(
+      s"""
+         |Hello
+         |
+        |You are now representative for the following sponsor :
+         |
+        |below your password to connect you to the lead scan web application application : http://....
+         |
         |
+        |your temporary password is : ${mdpTemp}
+         |
 
       """.stripMargin)))
 

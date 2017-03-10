@@ -38,12 +38,12 @@ class Components(context: Context)
 
   val database: Database = dbApi.database("leadTrackerDb")
   val remote = new MyDevoxxRemoteClient(wsClient)
-  val ps = new PersonServiceImpl(database)
   val ls = new LeadServiceImpl(database)
   val ns = new NotificationServiceImple(database,mailerClient)
   val ss = new SponsorServiceImpl(database)
   val sts = new StatsServiceImpl(database)
   val as = new AuthServiceImpl(remote)
+  val ps = new PersonServiceImpl(database,ns)
 
 
 

@@ -37,7 +37,7 @@ trait PersonService {
 }
 
 
-class PersonServiceImpl(db: Database) extends PersonService with LoggerAudit {
+class PersonServiceImpl(db: Database, ns: NotificationService) extends PersonService with LoggerAudit {
 
 
   override def allPersons(): Seq[Person] = {
@@ -95,6 +95,7 @@ class PersonServiceImpl(db: Database) extends PersonService with LoggerAudit {
         case None => {
           logger.debug(s"create $p")
           PersonDAO.create(p)
+          ns.sendMail(Seq("fabszn@gmail.com", "nmartignole@gmail.com"))
         }
         case Some(_) => {
 
@@ -128,12 +129,13 @@ class PersonServiceImpl(db: Database) extends PersonService with LoggerAudit {
 
       PersonDAO.create(p.copy(json = pj._2))
       PersonSensitiveDAO.create(ps)
+      ns.sendMail(Seq("fabszn@gmail.com", "nmartignole@gmail.com"))
       pj._1
 
     })
 
 
-  private def personToJson(p: Person, ps: PersonSensitive): (PersonJson,String) = {
+  private def personToJson(p: Person, ps: PersonSensitive): (PersonJson, String) = {
 
     import Person._
 
