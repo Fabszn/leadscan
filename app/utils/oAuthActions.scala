@@ -4,7 +4,9 @@ import java.time.LocalDateTime
 
 import config.Settings
 import pdi.jwt.{Jwt, JwtAlgorithm}
+import play.api.libs.json.Json
 import play.api.mvc._
+import utils.oAuthActions.logger
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -19,7 +21,6 @@ object oAuthActions extends LoggerAudit {
   object ApiAuthAction extends ActionBuilder[Request] with Results {
 
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
-      block(request)
       request.headers.get(Settings.oAuth.TOKEN_KEY) match {
         case Some(token) =>
           Try {
@@ -59,5 +60,5 @@ object oAuthActions extends LoggerAudit {
     now.isAfter(expDateTime)
   }
 
-
 }
+

@@ -138,9 +138,10 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
     ApiAuthAction {
       implicit request => {
 
-        //val allNotes = ls.getNotes(id)
-        ls.getCompleteLeads(id) match {
-          case Nil => NotFound(toHateoas(ErrorMessage("leads_not_found", s"Leads for person with id ${id} are not found")))
+        val regId = jsonUtils.extractRegIdFromToken(request)
+        logger.info(s"regId found $regId")
+        ls.getCompleteLeads(regId) match {
+          case Nil => NotFound(toHateoas(ErrorMessage("leads_not_found", s"Leads for person with id ${regId} are not found")))
           case leads => Ok(toHateoas(leads))
         }
       }

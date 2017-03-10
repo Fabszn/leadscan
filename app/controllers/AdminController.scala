@@ -84,7 +84,7 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
       case Right(p) => {
         val pj = ps.addRepresentative(p.firstname, p.lastname, p.email, p.company, p.title)
         //send person to Mydevoxx
-        val res = remote.sendPerson(pj, jsonUtils.tokenExtractor(request))
+        val res = remote.sendPerson(pj, jsonUtils.tokenExtractorFromSession(request))
 
         Created("representative has been created")
       }

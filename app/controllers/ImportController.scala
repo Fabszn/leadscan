@@ -45,7 +45,7 @@ class ImportController(ps: PersonService, remote: RemoteClient) extends Controll
       )
 
 
-      val currentToken = jsonUtils.tokenExtractor(request)
+      val currentToken = jsonUtils.tokenExtractorFromSession(request)
       import Person._
       convertedPerson.foreach { p =>
 
