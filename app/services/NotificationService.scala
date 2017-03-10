@@ -55,14 +55,13 @@ class NotificationServiceImple(db: Database, mailer: MailerClient) extends Notif
         |Helllelele TEXT
         |
 
-      """.stripMargin))),Some(
+      """.stripMargin),Some(
       """
         |
-        |Helllelele HTML 
+        |Helllelele TEXT
         |
 
       """.stripMargin)))
-
 
   }
 }
