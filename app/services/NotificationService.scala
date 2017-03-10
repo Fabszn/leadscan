@@ -47,12 +47,18 @@ class NotificationServiceImple(db: Database, mailer: MailerClient) extends Notif
     )
   }
 
-  override def sendMail(): Unit = {
+ override def sendMail(): Unit = {
 
-    mailer.send(Email("test", "program@devoxx.us", Seq("fabszn@gmail.com"),Some(
+    mailer.send(Email("test", "moi@gmail.com", Seq("fabszn@gmail.com"),Some(
       """
         |
+        |Helllelele TEXT
         |
+
+      """.stripMargin))),Some(
+      """
+        |
+        |Helllelele HTML 
         |
 
       """.stripMargin)))
