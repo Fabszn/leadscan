@@ -96,6 +96,7 @@ class SponsorServiceImpl(db: Database) extends SponsorService {
 
             val notes = LeadNoteDAO.findNoteByApplicantAndTarget(line.idApplicant, pj.regId.toLong)
 
+            //todo must be fixed
             val nbNote = if (notes.isEmpty) 0 else 1
             val notesVal = notes.map(n => n.note).mkString(" ")
 
@@ -123,7 +124,7 @@ class SponsorServiceImpl(db: Database) extends SponsorService {
 
             val notes = LeadNoteDAO.findNoteByApplicantAndTarget(line.idApplicant, pj.regId.toLong)
 
-            val nbNote = notes.size
+            val nbNote = notes.count(n => n.note.trim.nonEmpty)
 
             s"""${applicant._1}|${applicant._2}|${line.sponsor}|${pj.regId}|${pj.firstname}|${pj.lastname}|${pj.email}|${pj.country.getOrElse("")}|${pj.phone.getOrElse("")}|${pj.title.getOrElse("")}|$nbNote"""
         }

@@ -39,4 +39,11 @@ object LeadNoteDAO extends mainDBDAO[LeadNote, Long] {
   }
 
 
+  def updateNote(note: LeadNote)(implicit c: Connection): Unit = {
+
+    SQL"""update lead_note set note=${note.note} where idapplicant = ${note.idApplicant} and idtarget=${note.idTarget}""".executeUpdate()
+
+  }
+
+
 }

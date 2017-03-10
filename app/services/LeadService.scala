@@ -1,5 +1,7 @@
 package services
 
+import java.time.LocalDateTime
+
 import dao.{LeadDAO, LeadNoteDAO, PersonDAO}
 import model.{CompletePerson, CompletePersonWithNotes, Lead, LeadNote}
 import play.api.db.Database
@@ -32,7 +34,9 @@ class LeadServiceImpl(db: Database) extends LeadService with LoggerAudit {
 
   override def getCompleteLeads(id: Long): Seq[CompletePersonWithNotes] = {
     val allNotes = this.getNotes(id)
-    this.getLeads(id).map(cp => CompletePersonWithNotes(cp, allNotes.filter(ln => {ln.idTarget.equals(cp.id.get)})))
+    this.getLeads(id).map(cp => CompletePersonWithNotes(cp, allNotes.filter(ln => {
+      ln.idTarget.equals(cp.id.get)
+    })))
 
 
   }
@@ -56,7 +60,7 @@ class LeadServiceImpl(db: Database) extends LeadService with LoggerAudit {
 
   override def addNote(note: LeadNote): Unit = {
     db.withConnection { implicit c =>
-      LeadNoteDAO.create(note)
+      LeadNoteDAO.updateNote(note)
     }
   }
 
@@ -69,11 +73,12 @@ class LeadServiceImpl(db: Database) extends LeadService with LoggerAudit {
   override def addLead(contact: Lead, leadNote: Option[LeadNote]): Unit = {
     db.withTransaction { implicit c =>
       LeadDAO.create(contact)
-      for {
-        note <- leadNote
-      } yield {
-        LeadNoteDAO.create(note)
+      val note = leadNote match {
+        case Some(n) => n
+        case None => LeadNote(None, contact.idApplicant, contact.idTarget, "", LocalDateTime.now())
       }
+      LeadNoteDAO.create(note)
+
 
     }
   }
