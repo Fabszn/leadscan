@@ -32,13 +32,21 @@ object Settings {
 
   }
 
+  object play {
+
+    object mailer {
+      val from: String = config.getString("play.mailer.from")
+      val bcc: String = config.getString("play.mailer.bcc")
+      val committee: String = config.getString("play.mailer.committee")
+    }
+
+  }
+
   object session {
 
     val timeout_mn: Long = config.getLong("session.timeout.mn")
 
   }
-
-
 
 
 }

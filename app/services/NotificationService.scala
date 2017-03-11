@@ -2,8 +2,9 @@ package services
 
 import java.time.LocalDateTime
 
+import config.Settings
 import dao.NotificationDAO
-import model.{Notification, Person}
+import model.Notification
 import play.api.db.Database
 import play.api.libs.mailer.{Email, MailerClient}
 
@@ -19,8 +20,7 @@ trait NotificationService {
 
   def getNotification(idNotification: Long): Option[Notification]
 
-  def sendMail(p: Person, dest: Seq[String], pass: String): Unit
-
+  def sendMail(dest: Seq[String], body: String): Unit
 }
 
 
@@ -48,30 +48,9 @@ class NotificationServiceImpl(db: Database, mailer: MailerClient, remote: Remote
   }
 
 
-  override def sendMail(p: Person, dest: Seq[String], pass: String): Unit = {
+  override def sendMail(dest: Seq[String], body: String): Unit =
+    mailer.send(Email("Your password", Settings.play.mailer.from, dest, None, Some(body), bcc = Seq(Settings.play.mailer.bcc)))
 
-
-    mailer.send(Email("Your password", "program@devoxx.us", dest, None, Some(
-      s"""
-       Dear ${p.firstname}<br>
-         |<br>
-         |You're recei ving this email because someone promoted your profile as a representative for company @company.<br>
-         |
-          |You can now connect to the Leadscan application and start to scan attendees.<br>
-         |Your default password is : ${pass} <br>
-         |
- |The Scan application works on Android, iPhone and in a web browser. Please open a web browser to http://mydevoxx-pwa.cleverapps.io/ <br><br>
-         |
- |If you want to change this password, please visit https://my-devoxx-us.cleverapps.io <br><br>
-         |
- |Feel free to contact the organization team if you need more help <br><br>
-         |
- |Kind regards<br><br>
-         |
- |The Devoxx US Team<br><br>
-
-      """.stripMargin)))
-
-  }
 
 }
+

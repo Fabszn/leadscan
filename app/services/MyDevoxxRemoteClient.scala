@@ -94,7 +94,7 @@ class MyDevoxxRemoteClient(ws: WSClient) extends RemoteClient with LoggerAudit {
     logger.info("sendPassword")
     val body = Json.toJson(Json.obj("password" -> pass))
 
-    val response = ws.url(Settings.oAuth.endpoints.createPerson).withHeaders("Content-Type" -> "application/json", Settings.oAuth.TOKEN_KEY -> token).post(body).map(r => r.body)
+    val response = ws.url(s"${Settings.oAuth.endpoints.createPassword}${regId}").withHeaders("Content-Type" -> "application/json", Settings.oAuth.TOKEN_KEY -> token).post(body).map(r => r.body)
     response.onComplete(r => logger.debug(s" ${r.toString} response from myDevoxx for password $r"))
     response
 

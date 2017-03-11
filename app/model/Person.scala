@@ -65,4 +65,9 @@ object Person {
       (JsPath \ "Title").writeNullable[String]) (unlift(PersonJson.unapply))
 
 
+  def json2PersonJson(json: String): PersonJson = {
+
+    Json.parse(json).as[PersonJson]
+  }
+
 }

@@ -7,15 +7,15 @@ import model.ErrorMessage
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{Json, Reads, _}
 import play.api.mvc.{Action, Controller}
-import services.{PersonService, RemoteClient, SponsorService, StatsService}
+import services._
 import utils.HateoasUtils.toHateoas
-import utils.LoggerAudit
 import utils.oAuthActions.AdminAuthAction
+import utils.{LoggerAudit, PasswordGenerator}
 
 /**
   * Created by fsznajderman on 10/02/2017.
   */
-class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, remote: RemoteClient) extends Controller with LoggerAudit {
+class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, ns: NotificationService, remote: RemoteClient) extends Controller with LoggerAudit {
 
 
   def index = Action {
@@ -64,7 +64,20 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
     request.body.validate[RepresentativeSponsor].asEither match {
       case Right(link) => {
         ss.addRepresentative(link.idPerson, link.idSponsor)
+        val token = jsonUtils.tokenExtractorFromSession(request)
+
+        for {
+          p <- ps.getCompletePerson(link.idPerson)
+          s <- ss.loadSponsor(link.idSponsor)
+        } yield {
+          import scala.concurrent.ExecutionContext.Implicits.global
+          val pass = PasswordGenerator.generatePassword
+          remote.sendPassword(p.regId.toLong, pass, token).foreach { _ =>
+            ns.sendMail(Seq(p.email), views.html.mails.notifPassword.render(p.firstname, s.name, pass).body)
+          }
+        }
         Created("Representative and sponsor are associated")
+
       }
       case Left(errors) => BadRequest(toHateoas(ErrorMessage("Json_parsing_error", s"Json parsing throws an error ${errors}")))
     }

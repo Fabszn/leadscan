@@ -77,12 +77,5 @@ object PersonDAO extends mainDBDAO[Person, Long] {
   }
 
 
-  def loadCompletePerson(id: Long)(implicit connection: Connection): Option[CompletePerson] = {
-
-    SQL"""select * from PERSON p inner join person_sensitive ps on p.id=ps.id  where p.id = $id;""".as(personCompleteInfo.singleOpt)
-
-
-  }
-
 
 }

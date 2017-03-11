@@ -22,10 +22,7 @@ class NotificationController(ns: NotificationService) extends Controller {
         ns.getNotifications(idRecipient, LocalDateTime.parse(dateTime)) match {
           case Nil => NotFound(toHateoas(ErrorMessage("notifications_not_found", s"notifications are not found")))
           case notifs => Ok(toHateoas(notifs))
-
         }
-
-
     }
   }
 

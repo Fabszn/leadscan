@@ -2,10 +2,10 @@ package services
 
 import anorm.NamedParameter
 import dao.{PersonDAO, PersonSensitiveDAO}
-import model.{CompletePerson, Person, PersonJson, PersonSensitive}
+import model.{Person, PersonJson, PersonSensitive}
 import play.api.db.Database
 import play.api.libs.json.Json
-import utils.{LoggerAudit, PasswordGenerator}
+import utils.LoggerAudit
 
 /**
   * Created by fsznajderman on 20/01/2017.
@@ -20,7 +20,7 @@ case class UpdatePerson(pString: Map[String, Option[String]] = Map(),
 trait PersonService {
   def getPerson(id: Long): Option[Person]
 
-  def getCompletePerson(id: Long): Option[CompletePerson]
+  def getCompletePerson(id: Long): Option[PersonJson]
 
   def getPersonSensitive(id: Long): Option[PersonSensitive]
 
@@ -47,10 +47,13 @@ class PersonServiceImpl(db: Database, ns: NotificationService, remote: RemoteCli
   }
 
 
-  override def getCompletePerson(id: Long): Option[CompletePerson] = {
+  override def getCompletePerson(id: Long): Option[PersonJson] = {
 
     db.withConnection { implicit c =>
-      PersonDAO.loadCompletePerson(id)
+      logger.debug("completePersons")
+      getPerson(id).map {
+        p => Person.json2PersonJson(p.json)
+      }
     }
 
   }
@@ -95,9 +98,6 @@ class PersonServiceImpl(db: Database, ns: NotificationService, remote: RemoteCli
         case None => {
           logger.debug(s"create $p")
           PersonDAO.create(p)
-          val pass = PasswordGenerator.generatePassword
-          ns.sendMail(p, Seq("fabszn@gmail.com", "nmartignole@gmail.com"), pass)
-          remote.sendPassword(p.id.get,pass, token)
         }
         case Some(_) => {
 
@@ -131,10 +131,6 @@ class PersonServiceImpl(db: Database, ns: NotificationService, remote: RemoteCli
 
       PersonDAO.create(p.copy(json = pj._2))
       PersonSensitiveDAO.create(ps)
-      val pass = PasswordGenerator.generatePassword
-      ns.sendMail(p, Seq("fabszn@gmail.com", "nmartignole@gmail.com"), pass)
-
-      remote.sendPassword(p.id.get,pass, token)
       pj._1
 
     })
