@@ -21,7 +21,7 @@ trait NotificationService {
 
   def getNotification(idNotification: Long): Option[Notification]
 
-  def sendMail(dest: Seq[String], body: String): Unit
+  def sendMail(dest: Seq[String], bodyText: Option[String], bodyHtml: Option[String]): Unit
 }
 
 
@@ -49,12 +49,12 @@ class NotificationServiceImpl(db: Database, mailer: MailerClient, remote: Remote
   }
 
 
-  override def sendMail(dest: Seq[String], body: String): Unit = {
+  override def sendMail(dest: Seq[String], bodyText: Option[String], bodyHtml: Option[String]): Unit = {
     logger.info(s"From ${Settings.play.mailer.from}")
     logger.info(s"Bcc ${Settings.play.mailer.bcc}")
     logger.info(s"dest ${dest.mkString(",")}")
 
-    mailer.send(Email("Your password", Settings.play.mailer.from, dest, None, Some(body), bcc = Seq(Settings.play.mailer.bcc)))
+    mailer.send(Email("Your password", Settings.play.mailer.from, dest, bodyText, bodyHtml, bcc = Seq(Settings.play.mailer.bcc)))
 
   }
 }

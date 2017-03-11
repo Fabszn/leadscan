@@ -73,7 +73,7 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
           import scala.concurrent.ExecutionContext.Implicits.global
           val pass = PasswordGenerator.generatePassword
           remote.sendPassword(p.regId.toLong, pass, token).foreach { _ =>
-            ns.sendMail(Seq(p.email), views.html.mails.notifPassword.render(p.firstname, s.name, pass).body)
+            ns.sendMail(Seq(p.email), Option(views.txt.mails.notifPassword.render(p.firstname, s.name, pass).body), Option(views.html.mails.notifPassword.render(p.firstname, s.name, pass).body))
           }
         }
         Created("Representative and sponsor are associated")
