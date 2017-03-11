@@ -7,6 +7,7 @@ import dao.NotificationDAO
 import model.Notification
 import play.api.db.Database
 import play.api.libs.mailer.{Email, MailerClient}
+import utils.LoggerAudit
 
 
 /**
@@ -24,7 +25,7 @@ trait NotificationService {
 }
 
 
-class NotificationServiceImpl(db: Database, mailer: MailerClient, remote: RemoteClient) extends NotificationService {
+class NotificationServiceImpl(db: Database, mailer: MailerClient, remote: RemoteClient) extends NotificationService with LoggerAudit {
 
   override def addNotification(notif: Notification): Unit = {
 
@@ -48,9 +49,13 @@ class NotificationServiceImpl(db: Database, mailer: MailerClient, remote: Remote
   }
 
 
-  override def sendMail(dest: Seq[String], body: String): Unit =
+  override def sendMail(dest: Seq[String], body: String): Unit = {
+    logger.info(s"From ${Settings.play.mailer.from}")
+    logger.info(s"Bcc ${Settings.play.mailer.bcc}")
+    logger.info(s"dest ${dest.mkString(",")}")
+
     mailer.send(Email("Your password", Settings.play.mailer.from, dest, None, Some(body), bcc = Seq(Settings.play.mailer.bcc)))
 
-
+  }
 }
 
