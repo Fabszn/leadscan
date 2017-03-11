@@ -4,7 +4,7 @@ import batch.utils._
 import model.{Person, PersonJson, PersonSensitive}
 import play.api.libs.json.Json
 import play.api.mvc.Controller
-import services.{NotificationService, PersonService, RemoteClient}
+import services.{PersonService, RemoteClient}
 import utils.oAuthActions.AdminAuthAction
 
 /**
@@ -17,7 +17,7 @@ class ImportController(ps: PersonService, remote: RemoteClient) extends Controll
     body.file("csvFile").map { csvFile =>
 
       val csv = csvFile.ref
-      val r: Seq[Map[String, String]] = loadCVSSourceFile(csv.file)
+      val r: Seq[Map[String, String]] = loadCVSSourceFile(csv.file).map(kv => kv.updated("Email_Address", kv.getOrElse("Email_Address", "notFound").toLowerCase()))
       val convertedPerson = for {
         kv <- r
       } yield Person(kv.get("RegId").map(_.toLong),
@@ -30,7 +30,7 @@ class ImportController(ps: PersonService, remote: RemoteClient) extends Controll
         isTraining = false,
         showSensitive = true,
         1,
-        Json.toJson(kv).toString()
+        Json.toJson(kv).toString
 
       )
 
