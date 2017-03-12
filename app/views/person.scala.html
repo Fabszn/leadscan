@@ -1,32 +1,48 @@
-<!--<div class="row" id="representativeVue" v-show="show">
-    <div class="col-md-12">
-
-        <table id="representative" class="display">
-            <thead>
-                <tr>
-                    <th>id</th>
-                    <th>Firstname</th>
-                    <th>Lastname</th>
-                </tr>
-            </thead>
-            <tbody>
-
-            </tbody>
-        </table>
-
-    </div>
-
-</div>-->
-
 <div class="page-header">
-    <h1>Work in progress <small>Persons</small></h1>
+
+    <div class="row" >
+        <div class="col-md-12">
+            <table id="person" class="display">
+                <thead>
+                    <tr>
+                        <th>RegId</th>
+                        <th>Firstname</th>
+                        <th>Lastname</th>
+                        <th>email</th>
+                        <th>title</th>
+                        <th>country</th>
+                        <th>phone</th>
+                        <th>city</th>
+                        <th>company</th>
+                    </tr>
+                </thead>
+                <tbody>
+            </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
 
 <script>
 
         $(function () {
 
-            console.log("hello")
+            var sponsorDatatable = $('#person').DataTable({
+                "bServerSide": false,
+                "ajax": {url: "/admin/persons_all"},
+                "columnDefs": [
+                    {"visible": true, "targets": 0},
+                    {"visible": true, "targets": 1},
+                    {"visible": true, "targets": 2},
+                    {"visible": true, "targets": 3},
+                    {"visible": true, "targets": 4},
+                    {"visible": true, "targets": 5},
+                    {"visible": true, "targets": 6},
+                    {"visible": true, "targets": 7},
+                    {"visible": true, "targets": 8}
+                ]
+            });
 
         })
 

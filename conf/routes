@@ -62,6 +62,10 @@ GET           /admin/persons                                         controllers
 
 GET           /admin/stats                                           controllers.AdminController.statsData
 
+#persons
+
+GET           /admin/persons_all                                     controllers.AdminController.readAllPersons
+
 #Sponsor
 GET           /admin/sponsors                                        controllers.SponsorsController.view
 

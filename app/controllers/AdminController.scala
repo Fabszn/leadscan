@@ -3,7 +3,7 @@ package controllers
 import java.time.LocalDateTime
 
 import dao.LeadDAO.Item
-import model.ErrorMessage
+import model.{ErrorMessage, PersonJson}
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{Json, Reads, _}
 import play.api.mvc.{Action, Controller}
@@ -148,6 +148,16 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
     )(
       mail => Ok(Json.toJson(Map("mail" -> mail)))
     )
+  }
+
+
+  def readAllPersons = AdminAuthAction {
+    import model.Person._
+
+    val personJsons: Seq[PersonJson] = ps.allPersons().map(p => Json.parse(p.json).as[PersonJson])
+
+
+    Ok(Json.toJson(Map("data" -> personJsons.map(pj => Seq(pj.regId, pj.firstname, pj.lastname, pj.email, pj.title.getOrElse("-"), pj.country.getOrElse("-"), pj.phone.getOrElse("-"), pj.city.getOrElse("-"), pj.company.getOrElse("-"))))))
   }
 
 }
