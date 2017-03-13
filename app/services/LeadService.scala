@@ -3,7 +3,7 @@ package services
 import java.time.LocalDateTime
 
 import dao.{LeadDAO, LeadNoteDAO, PersonDAO}
-import model.{CompletePerson, CompletePersonWithNotes, Lead, LeadNote}
+import model._
 import play.api.db.Database
 import utils.LoggerAudit
 
@@ -17,6 +17,8 @@ trait LeadService {
   def addNote(note: LeadNote): Unit
 
   def isAlreadyConnect(contact: Lead): Option[Lead]
+
+  def isExists(idTarget:Long): Option[Person]
 
   def getLeads(id: Long): Seq[CompletePerson]
 
@@ -78,8 +80,6 @@ class LeadServiceImpl(db: Database) extends LeadService with LoggerAudit {
         case None => LeadNote(None, contact.idApplicant, contact.idTarget, "", LocalDateTime.now())
       }
       LeadNoteDAO.create(note)
-
-
     }
   }
 
@@ -90,4 +90,10 @@ class LeadServiceImpl(db: Database) extends LeadService with LoggerAudit {
 
   }
 
+  override def isExists(idTarget: Long): Option[Person] = {
+    db.withConnection { implicit c =>
+      PersonDAO.findBy(PersonDAO.pkField, idTarget)
+    }
+
+  }
 }
