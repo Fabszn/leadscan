@@ -1,0 +1,1 @@
+ALTER TABLE lead_note ALTER COLUMN note TYPE varchar(6000);
