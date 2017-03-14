@@ -11,6 +11,7 @@ object Settings {
 
 
   val headersSponsor: String = config.getString("export.headers.sponsor")
+  val headersRepresentative: String = config.getString("export.headers.representative")
   val headersEvent: String = config.getString("export.headers.events")
 
   object oAuth {

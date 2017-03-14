@@ -21,10 +21,39 @@
 
     <div class="col-md-3" >&nbsp;</div>
 
-
-
 </div>
 
+
+<div class="row">&nbsp;</div>
+<div class="row">&nbsp;</div>
+<div class="row">&nbsp;</div>
+<div class="row">&nbsp;</div>
+<div class="row" >
+
+    <div class="col-md-3" >&nbsp;</div>
+
+    <div class="col-md-6" >
+
+        <table id="representative" class="display">
+            <thead>
+                <tr>
+                    <th>RegId</th>
+                    <th>Representative</th>
+                    <th>idSponsor</th>
+                    <th>Sponsor</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+
+    </div>
+
+    <div class="col-md-3" >&nbsp;</div>
+
+</div>
 <div class="row">&nbsp;</div>
 <div class="row">&nbsp;</div>
 <div class="row">&nbsp;</div>
@@ -42,10 +71,10 @@
 
 
 
-    <script>
+<script>
 
 
-        $(function(){
+        $(function () {
 
             var exportDatatable = $('#exportTable').DataTable({
                 "bServerSide": false,
@@ -53,12 +82,34 @@
                 "columnDefs": [
                     {"visible": false, "targets": 0},
                     {"visible": true, "targets": 1},
-                    {"visible": true,
+                    {
+                        "visible": true,
                         "targets": 2,
                         "render": function (data, type, full, meta) {
-                            return "<a target='_blank' href='/admin/export/"+full[0]+"'>Export</a>";
-                        }}
+                            return "<a target='_blank' href='/admin/export/" + full[0] + "'>Export</a>";
+                        }
+                    }
                 ]
+            });
+
+            var representativeDatatable = $('#representative').DataTable({
+                "bServerSide": false,
+                "ajax": {url: "/admin/only_representatives"},
+                "columnDefs": [
+                    {"visible": true, "targets": 0},
+                    {"visible": true, "targets": 1},
+                    {"visible": true, "targets": 2},
+                    {"visible": false, "targets": 3},
+                    {
+                        "visible": true,
+                        "targets": 4,
+                        "render": function (data, type, full, meta) {
+                            return "<a target='_blank' href='/admin/export_representative/" + full[0] + "'>Export</a>";
+                        }
+                    }
+                ]
+            }).on('draw.dt', function () {
+
             });
 
 

@@ -23,11 +23,17 @@ trait SponsorService {
 
   def removeRepresentative(idPerson: Long): Unit
 
-  def LoadRepresentative(): Seq[PersonSponsorInfo]
+  def loadRepresentative(): Seq[PersonSponsorInfo]
+
+  def loadOnlyRepresentative(): Seq[PersonSponsorInfo]
 
   def exportForSponsor(id: Long): Seq[String]
 
   def exportForEvent: Seq[String]
+
+  def exportForRepresentative(id: Long): Seq[String]
+
+
 }
 
 
@@ -67,9 +73,15 @@ class SponsorServiceImpl(db: Database) extends SponsorService {
 
   }
 
-  override def LoadRepresentative(): Seq[PersonSponsorInfo] = {
+  override def loadRepresentative(): Seq[PersonSponsorInfo] = {
     db.withConnection(implicit connection =>
       SponsorDAO.allWithSponsor
+    )
+  }
+
+  override def loadOnlyRepresentative(): Seq[PersonSponsorInfo] = {
+    db.withConnection(implicit connection =>
+      SponsorDAO.onlyRepresentatives
     )
   }
 
@@ -100,7 +112,6 @@ class SponsorServiceImpl(db: Database) extends SponsorService {
             val nbNote = if (notes.isEmpty) 0 else 1
             val notesVal = notes.map(n => n.note).mkString(" ")
 
-
             s"""${applicant._1}|${applicant._2}|${pj.regId}|${pj.firstname}|${pj.lastname}|${pj.email}|${pj.country.getOrElse("")}|${pj.phone.getOrElse("")}|${pj.title.getOrElse("")}|$nbNote| $notesVal"""
         }
       })
@@ -127,6 +138,31 @@ class SponsorServiceImpl(db: Database) extends SponsorService {
             val nbNote = notes.count(n => n.note.trim.nonEmpty)
 
             s"""${applicant._1}|${applicant._2}|${line.sponsor}|${pj.regId}|${pj.firstname}|${pj.lastname}|${pj.email}|${pj.country.getOrElse("")}|${pj.phone.getOrElse("")}|${pj.title.getOrElse("")}|$nbNote"""
+        }
+      })
+    ).toList
+  }
+
+  override def exportForRepresentative(id: Long): Seq[String] = {
+
+    import model.Person._
+    Settings.headersRepresentative :: db.withConnection(implicit connection =>
+      SponsorDAO.personByRepresentative(id).map(line => {
+
+        Json.parse(line.json).validate[PersonJson].asEither match {
+          case Left(error) => s"An error occurred wiht this line -> $error"
+          case Right(pj) =>
+
+            //val applicant = PersonDAO.find(line.idApplicant).map(p => (p.firstname, p.lastname)).getOrElse(("not_found", "not_found"))
+
+
+            //val notes = LeadNoteDAO.findNoteByApplicantAndTarget(line.idApplicant, pj.regId.toLong)
+
+            //todo must be fixed
+            //val nbNote = if (notes.isEmpty) 0 else 1
+            //val notesVal = notes.map(n => n.note).mkString(" ")
+
+            s"""${pj.regId}|${pj.firstname}|${pj.lastname}|${pj.email}|${pj.country.getOrElse("")}|${pj.phone.getOrElse("")}|${pj.title.getOrElse("")}| ${line.note}"""
         }
       })
     ).toList

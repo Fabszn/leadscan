@@ -58,6 +58,16 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
 
   }
 
+  def onlyRepresentatives(implicit connection: Connection): Seq[PersonSponsorInfo] = {
+
+    val personSponsorInfoRowParser = Macro.namedParser[PersonSponsorInfo]
+
+    SQL"""select p.id as idPerson,  p.firstname, p.lastname,s.id as idSponsor, s."name" as nameSponsor  from SPONSOR s inner join
+       PERSON_SPONSOR ps on s.id=ps.idSponsor
+        inner join PERSON p on p.id=ps.idperson""".as(personSponsorInfoRowParser.*)
+
+  }
+
 
   def deleteRepresentative(idPerson: Long)(implicit connection: Connection): Unit = {
     SQL"""delete from PERSON_SPONSOR where idPerson=$idPerson""".execute
@@ -66,8 +76,11 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
 
   case class LeadLine(idApplicant: Long, sponsor: String = "", json: String)
 
+  case class LeadLineWithNote( name: String = "", json: String, note: String)
+
 
   val LeadLineRowParser = Macro.namedParser[LeadLine]
+  val LeadLineWithNoteRowParser = Macro.namedParser[LeadLineWithNote]
 
   def personBySponsor(idSponsor: Long)(implicit connection: Connection): Seq[LeadLine] = {
 
@@ -75,6 +88,16 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
  select p.id from sponsor s inner join person_sponsor ps on  s.id=ps.idsponsor
   inner join person p on ps.idperson=p.id
   where s.id=${idSponsor})""".as(LeadLineRowParser.*)
+  }
+
+  def personByRepresentative(idRepresentative: Long)(implicit connection: Connection): Seq[LeadLineWithNote] = {
+
+    SQL"""select s.name, p.json, ln.note from lead l
+         inner join person p on l.idtarget = p.id
+         inner join lead_note ln on (l.idtarget=ln.idtarget and l.idapplicant=ln.idapplicant)
+         inner join person_sponsor ps on ps.idperson = l.idapplicant
+         inner join sponsor s on s.id = ps.idsponsor
+         where l.idapplicant=${idRepresentative}""".as(LeadLineWithNoteRowParser.*)
   }
 
 

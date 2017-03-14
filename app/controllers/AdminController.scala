@@ -142,6 +142,19 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
     Ok.sendFile(csv.toJava).withHeaders((CONTENT_DISPOSITION, s"attachment; filename=allLeads-$currentDate.csv"), (CONTENT_TYPE, "application/x-download"))
   }
 
+  def exportRepresentative(idRepr: Long) = Action {
+    import better.files._
+
+    val currentDate = LocalDateTime.now()
+
+    val csv: File = java.io.File.createTempFile(System.currentTimeMillis().toString, "").getAbsolutePath.toFile
+
+    csv.appendLines(ss.exportForRepresentative(idRepr): _*)
+
+
+    Ok.sendFile(csv.toJava).withHeaders((CONTENT_DISPOSITION, s"attachment; filename=$idRepr-$currentDate.csv"), (CONTENT_TYPE, "application/x-download"))
+  }
+
   def checkAuth = AdminAuthAction { implicit request =>
     request.session.get("connected").fold(
       Unauthorized("")

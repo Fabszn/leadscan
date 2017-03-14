@@ -48,7 +48,9 @@ GET           /admin/stats/data                                      controllers
 GET           /admin/export                                          controllers.AdminController.export
 GET           /admin/export/:idSponsor                               controllers.AdminController.exportBySponsor(idSponsor:Long)
 GET           /admin/export_event                                    controllers.AdminController.exportEvent
+GET           /admin/export_representative/:id_repr                  controllers.AdminController.exportRepresentative(id_repr:Long)
 GET           /admin/representatives                                 controllers.SponsorsController.readAllRepr
+GET           /admin/only_representatives                            controllers.SponsorsController.readOnlyRepr
 POST          /admin/representatives                                 controllers.AdminController.linkRepreSponsor
 POST          /admin/representatives/new                             controllers.AdminController.newPerson
 DELETE        /admin/representatives/:idPerson                       controllers.AdminController.removeRepreSponsor(idPerson:Long)
