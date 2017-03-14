@@ -41,7 +41,7 @@ class Components(context: Context)
   val ns = new NotificationServiceImpl(database, mailerClient, remote)
   val ss = new SponsorServiceImpl(database)
   val sts = new StatsServiceImpl(database)
-  val as = new AuthServiceImpl(remote)
+  val as = new AuthServiceImpl(database, remote)
   val ps = new PersonServiceImpl(database, ns, remote)
 
 

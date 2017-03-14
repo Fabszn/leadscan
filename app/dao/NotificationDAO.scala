@@ -2,11 +2,9 @@ package dao
 
 import java.sql.Connection
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
-import anorm._
 import anorm.SqlParser.get
-import anorm.{NamedParameter, RowParser}
+import anorm.{NamedParameter, RowParser, _}
 import model.{Notification, NotificationStatus}
 
 
