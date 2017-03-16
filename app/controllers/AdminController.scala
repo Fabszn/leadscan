@@ -9,7 +9,7 @@ import play.api.libs.json.{Json, Reads, _}
 import play.api.mvc.{Action, Controller}
 import services._
 import utils.HateoasUtils.toHateoas
-import utils.oAuthActions.AdminAuthAction
+import utils.oAuthActions.{AdminAuthAction, AdminRootAction}
 import utils.{LoggerAudit, PasswordGenerator}
 
 /**
@@ -18,7 +18,7 @@ import utils.{LoggerAudit, PasswordGenerator}
 class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, ns: NotificationService, remote: RemoteClient) extends Controller with LoggerAudit {
 
 
-  def index = Action {
+  def index = AdminRootAction {
     Ok(views.html.index())
   }
 

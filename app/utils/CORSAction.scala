@@ -16,8 +16,6 @@ case class CORSAction[A](action: Action[A]) extends Action[A] with Results {
     action(request).map(r => r.withHeaders(("Access-Control-Allow-Origin", "*")))
   }
 
-
-  //block(request).map(r => r.withHeaders(("Access-Control-Allow-Origin", "*")))
   override def parser: BodyParser[A] = action.parser
 }
 

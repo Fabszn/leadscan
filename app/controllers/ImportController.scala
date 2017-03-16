@@ -5,12 +5,15 @@ import model.{Person, PersonJson, PersonSensitive}
 import play.api.libs.json.Json
 import play.api.mvc.Controller
 import services.{PersonService, RemoteClient}
+import utils.LoggerAudit
 import utils.oAuthActions.AdminAuthAction
+
+import scala.util.{Failure, Try}
 
 /**
   * Created by fsznajderman on 07/02/2017.
   */
-class ImportController(ps: PersonService, remote: RemoteClient) extends Controller {
+class ImportController(ps: PersonService, remote: RemoteClient) extends Controller with LoggerAudit {
 
   def importData() = AdminAuthAction(parse.multipartFormData) { implicit request =>
     val body = request.body
@@ -50,9 +53,18 @@ class ImportController(ps: PersonService, remote: RemoteClient) extends Controll
       convertedPerson.foreach { p =>
 
         //notify MyDevoxx with new person
-        remote.sendPerson(Json.parse(p.json).as[PersonJson], currentToken)
-        val token = jsonUtils.tokenExtractorFromSession(request)
-        ps.addPerson(p, token)
+
+        Try {
+          remote.sendPerson(Json.parse(p.json).as[PersonJson], currentToken)
+
+          val token = jsonUtils.tokenExtractorFromSession(request)
+          ps.addPerson(p, token)
+
+        }
+        match {
+          case Failure(e) => logger.error(p.json + "  " + e.getMessage)
+          case _ =>
+        }
       }
       convertedPersonSensitive.foreach(ps.addPersonSensitive)
 

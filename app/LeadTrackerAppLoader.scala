@@ -31,7 +31,6 @@ class Components(context: Context)
     with CORSComponents
     with MailerComponents {
 
-  //val filter = new Filters()
 
   override lazy val httpFilters: Seq[EssentialFilter] = Seq(corsFilter)
 

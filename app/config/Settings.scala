@@ -43,6 +43,10 @@ object Settings {
 
   }
 
+  object tls {
+    val https: Boolean = config.getBoolean("tls.enable.https")
+  }
+
   object session {
 
     val timeout_mn: Long = config.getLong("session.timeout.mn")
