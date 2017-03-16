@@ -19,7 +19,7 @@ object oAuthActions extends LoggerAudit {
   object ApiAuthAction extends ActionBuilder[Request] with Results {
 
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
-
+      println("info API =>" + request.uri)
 
       if (Settings.tls.enable.https  && request.headers.get("X-Forwarded-Proto").getOrElse("http") != "https") {
         logger.info("API - ssl redirect")
@@ -45,10 +45,10 @@ object oAuthActions extends LoggerAudit {
 
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
 
-      println("info " + request.uri)
+      println("info ADMIN R =>" + request.uri)
 
       if (Settings.tls.enable.https  && request.headers.get("X-Forwarded-Proto").getOrElse("http") != "https") {
-        logger.info("API - ssl redirect")
+        logger.info("Admin - ssl redirect")
         Future.successful(Results.MovedPermanently("https://" + request.host + request.uri))
       } else {
         block(request)
@@ -64,11 +64,11 @@ object oAuthActions extends LoggerAudit {
 
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
 
-      println("info " + request.rawQueryString)
+      println("info ADMIN =>" + request.uri)
 
       logger.info(s"SecurityCheck - Admin [${request.path}]")
 
-      logger.info("Admin -  ssl redirect")
+      logger.info("AdminRoot -  ssl redirect")
       if (Settings.tls.enable.https  && request.headers.get("X-Forwarded-Proto").getOrElse("http") != "https") {
         Future.successful(Results.MovedPermanently("https://" + request.host + request.uri))
       } else {
