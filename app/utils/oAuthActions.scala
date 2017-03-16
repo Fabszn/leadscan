@@ -20,7 +20,8 @@ object oAuthActions extends LoggerAudit {
 
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
 
-      if (Settings.tls.https && !request.secure) {
+
+      if (Settings.tls.enable.https  && request.headers.get("X-Forwarded-Proto").getOrElse("http") != "https") {
         logger.info("API - ssl redirect")
         Future.successful(Results.MovedPermanently("https://" + request.host + request.uri))
       } else {
@@ -44,7 +45,9 @@ object oAuthActions extends LoggerAudit {
 
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
 
-      if (Settings.tls.https && !request.secure) {
+      println("info " + request.uri)
+
+      if (Settings.tls.enable.https  && request.headers.get("X-Forwarded-Proto").getOrElse("http") != "https") {
         logger.info("API - ssl redirect")
         Future.successful(Results.MovedPermanently("https://" + request.host + request.uri))
       } else {
@@ -60,10 +63,13 @@ object oAuthActions extends LoggerAudit {
 
 
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
+
+      println("info " + request.rawQueryString)
+
       logger.info(s"SecurityCheck - Admin [${request.path}]")
 
       logger.info("Admin -  ssl redirect")
-      if (Settings.tls.https && !request.secure) {
+      if (Settings.tls.enable.https  && request.headers.get("X-Forwarded-Proto").getOrElse("http") != "https") {
         Future.successful(Results.MovedPermanently("https://" + request.host + request.uri))
       } else {
 

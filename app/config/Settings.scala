@@ -44,7 +44,12 @@ object Settings {
   }
 
   object tls {
-    val https: Boolean = config.getBoolean("tls.enable.https")
+
+    object enable {
+
+      val https: Boolean = config.getBoolean("tls.enable.https")
+    }
+
   }
 
   object session {
