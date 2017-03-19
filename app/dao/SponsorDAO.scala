@@ -45,14 +45,14 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
 
   }
 
-  case class PersonSponsorInfo(idPerson: Long, firstname: String, lastname: String, idSponsor: Option[Long], nameSponsor: Option[String])
+  case class PersonSponsorInfo(idPerson: Long, firstname: String, lastname: String, email: String = "", idSponsor: Option[Long], nameSponsor: Option[String])
 
 
   def allWithSponsor(implicit connection: Connection): Seq[PersonSponsorInfo] = {
 
     val personSponsorInfoRowParser = Macro.namedParser[PersonSponsorInfo]
 
-    SQL"""select p.id as idPerson,  p.firstname, p.lastname,s.id as idSponsor, s."name" as nameSponsor  from SPONSOR s inner join
+    SQL"""select p.id as idPerson,  p.firstname, p.lastname,'' as email, s.id as idSponsor, s."name" as nameSponsor  from SPONSOR s inner join
        PERSON_SPONSOR ps on s.id=ps.idSponsor
         right join PERSON p on p.id=ps.idperson""".as(personSponsorInfoRowParser.*)
 
@@ -62,9 +62,15 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
 
     val personSponsorInfoRowParser = Macro.namedParser[PersonSponsorInfo]
 
-    SQL"""select p.id as idPerson,  p.firstname, p.lastname,s.id as idSponsor, s."name" as nameSponsor  from SPONSOR s inner join
-       PERSON_SPONSOR ps on s.id=ps.idSponsor
-        inner join PERSON p on p.id=ps.idperson""".as(personSponsorInfoRowParser.*)
+    SQL"""select p.id as idPerson
+       ,p.firstname
+       , p.lastname
+       ,pse.email
+       ,s.id as idSponsor, s."name" as nameSponsor  from
+       SPONSOR s inner join
+       PERSON_SPONSOR ps on s.id=ps.idSponsor inner join
+       PERSON p on p.id=ps.idperson inner join
+       person_sensitive pse on pse.id=p.id""".as(personSponsorInfoRowParser.*)
 
   }
 
@@ -76,7 +82,7 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
 
   case class LeadLine(idApplicant: Long, sponsor: String = "", json: String)
 
-  case class LeadLineWithNote( name: String = "", json: String, note: String)
+  case class LeadLineWithNote(name: String = "", json: String, note: String)
 
 
   val LeadLineRowParser = Macro.namedParser[LeadLine]

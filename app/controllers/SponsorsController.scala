@@ -79,7 +79,7 @@ class SponsorsController(ss: SponsorService) extends Controller {
 
   def readOnlyRepr = AdminAuthAction { implicit Request =>
 
-    Ok(Json.toJson(Map("data" -> ss.loadOnlyRepresentative.map(p => Seq(p.idPerson.toString, s"${p.firstname} ${p.lastname}",  p.nameSponsor.getOrElse("-"),p.idSponsor.map(_.toString).getOrElse("-"),"")))))
+    Ok(Json.toJson(Map("data" -> ss.loadOnlyRepresentative.map(p => Seq(p.idPerson.toString, s"${p.firstname} ${p.lastname}",s"${p.email}",  p.nameSponsor.getOrElse("-"),p.idSponsor.map(_.toString).getOrElse("-"),"")))))
 
 
   }

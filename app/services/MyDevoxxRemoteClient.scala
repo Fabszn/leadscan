@@ -1,7 +1,7 @@
 package services
 
 import config.Settings
-import model.PersonJson
+import model.{Event, ImportRegistration, PersonJson}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import utils.LoggerAudit
@@ -33,7 +33,7 @@ trait RemoteClient {
 }
 
 
-class MyDevoxxRemoteClient(ws: WSClient) extends RemoteClient with LoggerAudit {
+class MyDevoxxRemoteClient(ws: WSClient, es: EventService) extends RemoteClient with LoggerAudit {
 
 
   override def getJWtToken(login: String, password: String, remenberMe: Boolean): Future[String] = {
@@ -85,7 +85,9 @@ class MyDevoxxRemoteClient(ws: WSClient) extends RemoteClient with LoggerAudit {
     logger.debug(s"Person sent to Mydevoxx $personToSend")
 
     val response = ws.url(Settings.oAuth.endpoints.createPerson).withHeaders("Content-Type" -> "application/json", Settings.oAuth.TOKEN_KEY -> token).post(personToSend).map(r => r.body)
-    response.onComplete(r => logger.debug(s" ${personToSend.toString} response from myDevoxx for Person $r"))
+    response.onComplete(r => {
+      es.addEvent(Event(typeEvent=ImportRegistration.typeEvent,message=s" $r as answer for ${personToSend.toString} "))
+    })
     response
   }
 

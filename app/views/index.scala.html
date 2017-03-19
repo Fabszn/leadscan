@@ -56,6 +56,7 @@
                         <li><a href="#" id="importLink" v-on:click="importLink">Import</a></li>
                         <li><a href="#" id="exportLink" v-on:click="exportLink">Export</a></li>
                         <li><a href="#" id="sponsorsLink" v-on:click="sponsorsLink">Sponsors</a></li>
+                        <li><a href="#" id="reprSponsorsLink" v-on:click="reprSponsorsLink">Representative / Sponsors</a></li>
                         <li><a href="#" id="personLink" v-on:click="personLink">Person</a></li>
                         <li><a href="#" id="stats" v-on:click="statsLink">Stats</a></li>
 
@@ -155,6 +156,9 @@
                         ,
                         sponsorsLink: function (e) {
                             menuItemEvent('/admin/sponsors', loginVue);
+                        },
+                        reprSponsorsLink: function (e) {
+                            menuItemEvent('/admin/view_only_representatives', loginVue);
                         }
                         ,
                         statsLink: function (e) {

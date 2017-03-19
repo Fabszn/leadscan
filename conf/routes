@@ -35,7 +35,8 @@ GET           /signout                                               controllers
 
 #Import Data
 GET           /admin/import                                          controllers.ImportController.importIndex()
-POST          /admin/batch                                           controllers.ImportController.importData()
+POST          /admin/batch_attendees                                 controllers.ImportController.importAllAttendees()
+POST          /admin/batch_representatives                           controllers.ImportController.importAllRepresentatives()
 
 
 GET           /assets/*file                                          controllers.Assets.at(path="/public", file)
@@ -51,6 +52,7 @@ GET           /admin/export_event                                    controllers
 GET           /admin/export_representative/:id_repr                  controllers.AdminController.exportRepresentative(id_repr:Long)
 GET           /admin/representatives                                 controllers.SponsorsController.readAllRepr
 GET           /admin/only_representatives                            controllers.SponsorsController.readOnlyRepr
+GET           /admin/view_only_representatives                       controllers.AdminController.repreSpnsor
 POST          /admin/representatives                                 controllers.AdminController.linkRepreSponsor
 POST          /admin/representatives/new                             controllers.AdminController.newPerson
 DELETE        /admin/representatives/:idPerson                       controllers.AdminController.removeRepreSponsor(idPerson:Long)
@@ -65,8 +67,10 @@ GET           /admin/persons                                         controllers
 GET           /admin/stats                                           controllers.AdminController.statsData
 
 #persons
-
 GET           /admin/persons_all                                     controllers.AdminController.readAllPersons
+
+#representative_sponsor
+GET           /admin/repr_sponsors                                   controllers.AdminController.readAllPersons
 
 #Sponsor
 GET           /admin/sponsors                                        controllers.SponsorsController.view

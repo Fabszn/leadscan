@@ -35,7 +35,8 @@ class Components(context: Context)
   override lazy val httpFilters: Seq[EssentialFilter] = Seq(corsFilter)
 
   val database: Database = dbApi.database("leadTrackerDb")
-  val remote = new MyDevoxxRemoteClient(wsClient)
+  val es = new EventServiceImpl(database)
+  val remote = new MyDevoxxRemoteClient(wsClient,es)
   val ls = new LeadServiceImpl(database)
   val ns = new NotificationServiceImpl(database, mailerClient, remote)
   val ss = new SponsorServiceImpl(database)
@@ -55,7 +56,7 @@ class Components(context: Context)
     new controllers.Status(ns),
     new controllers.AdminController(ps, ss, sts, ns, remote),
     new controllers.SecurityController(as),
-    new controllers.ImportController(ps, remote),
+    new controllers.ImportController(ps, ss, es, remote, ns),
     new controllers.Assets(httpErrorHandler),
     new controllers.SponsorsController(ss)
 

@@ -16,7 +16,7 @@ import scala.util.{Failure, Success, Try}
 object oAuthActions extends LoggerAudit {
 
 
-  object ApiAuthAction extends ActionBuilder[Request] with Results {
+  object ApiAuthAction extends ActionBuilder[Request] with Results with LoggerAudit  {
 
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
       logger.info("info API =>" + request.uri)
@@ -41,7 +41,7 @@ object oAuthActions extends LoggerAudit {
 
   }
 
-  object AdminRootAction extends ActionBuilder[Request] with Results {
+  object AdminRootAction extends ActionBuilder[Request] with Results with LoggerAudit {
 
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {
 
@@ -59,7 +59,7 @@ object oAuthActions extends LoggerAudit {
   }
 
 
-  object AdminAuthAction extends ActionBuilder[Request] with Results {
+  object AdminAuthAction extends ActionBuilder[Request] with Results with LoggerAudit {
 
 
     override def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] = {

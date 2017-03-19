@@ -17,6 +17,8 @@ trait SponsorService {
 
   def loadSponsor(id: Long): Option[Sponsor]
 
+  def loadSponsor(name: String): Option[Sponsor]
+
   def modifySponsor(sponsor: Sponsor): Unit
 
   def addRepresentative(idPerson: Long, idSpnsor: Long): Unit
@@ -88,6 +90,15 @@ class SponsorServiceImpl(db: Database) extends SponsorService {
   override def removeRepresentative(idPerson: Long): Unit = {
     db.withConnection(implicit connection =>
       SponsorDAO.deleteRepresentative(idPerson)
+    )
+
+  }
+
+
+  override def loadSponsor(sponsorName: String): Option[Sponsor] = {
+
+    db.withConnection(implicit connection =>
+      SponsorDAO.findBy("name", sponsorName)
     )
 
   }

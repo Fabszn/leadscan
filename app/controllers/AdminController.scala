@@ -36,6 +36,11 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
     Ok(views.html.export())
   }
 
+  def repreSpnsor = AdminAuthAction {
+
+    Ok(views.html.onlyReprentative())
+  }
+
   def statsData = AdminAuthAction {
     val points = sts.getData.leadsDateTime.map(i => JsNumber(Item.tupleFormated(i)._1))
     val dataTime = sts.getData.leadsDateTime.map(i => JsString(Item.tupleFormated(i)._2))
@@ -51,6 +56,8 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
     Ok(Json.toJson(Map("data" -> ps.allPersons().map(p => Seq(p.id.get.toString, p.firstname, p.lastname)))))
   }
 
+
+  //def loadRepresentative
 
   def linkRepreSponsor = AdminAuthAction(parse.json) { implicit request =>
 
