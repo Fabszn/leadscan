@@ -42,7 +42,7 @@ class Components(context: Context)
   val ss = new SponsorServiceImpl(database,es)
   val sts = new StatsServiceImpl(database)
   val as = new AuthServiceImpl(database, remote)
-  val ps = new PersonServiceImpl(database, ns, remote)
+  val ps = new PersonServiceImpl(database, ns, remote,es)
 
 
   val flyway = new PlayInitializer(configuration, environment, webCommands)

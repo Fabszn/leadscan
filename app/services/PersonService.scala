@@ -2,7 +2,7 @@ package services
 
 import anorm.NamedParameter
 import dao.{PersonDAO, PersonSensitiveDAO}
-import model.{Person, PersonJson, PersonSensitive}
+import model._
 import play.api.db.Database
 import play.api.libs.json.Json
 import utils.LoggerAudit
@@ -24,144 +24,143 @@ trait PersonService {
 
   def getAllCompletePerson: Seq[PersonJson]
 
-    def getPersonSensitive(id: Long): Option[PersonSensitive]
+  def getPersonSensitive(id: Long): Option[PersonSensitive]
 
-    def majPerson(id: Long, up: UpdatePerson)
+  def majPerson(id: Long, up: UpdatePerson)
 
-    def addPerson(p: Person, token: String): Unit
+  def addPerson(p: Person, token: String): Unit
 
-    def addPersonSensitive(p: PersonSensitive): Unit
+  def addPersonSensitive(p: PersonSensitive): Unit
 
-    def allPersons(): Seq[Person]
+  def allPersons(): Seq[Person]
 
-    def addRepresentative(firstname: String, lastname: String, email: String, company: String, title: String, token: String): PersonJson
+  def addRepresentative(firstname: String, lastname: String, email: String, company: String, title: String, token: String): PersonJson
+
+}
+
+
+class PersonServiceImpl(db: Database, ns: NotificationService, remote: RemoteClient, es: EventService) extends PersonService with LoggerAudit {
+
+
+  override def allPersons(): Seq[Person] = {
+    db.withConnection { implicit c =>
+      PersonDAO.all
+    }
+  }
+
+
+  override def getCompletePerson(id: Long): Option[PersonJson] = {
+
+    db.withConnection { implicit c =>
+      logger.debug("completePersons")
+      getPerson(id).map {
+        p => Person.json2PersonJson(p.json)
+      }
+    }
 
   }
 
 
-  class PersonServiceImpl(db: Database, ns: NotificationService, remote: RemoteClient) extends PersonService with LoggerAudit {
+  override def getAllCompletePerson: Seq[PersonJson] = {
 
-
-    override def allPersons(): Seq[Person] = {
-      db.withConnection { implicit c =>
-        PersonDAO.all
+    db.withConnection { implicit c =>
+      logger.debug("allcompletePersons")
+      allPersons.map {
+        p => Person.json2PersonJson(p.json)
       }
     }
+  }
+
+  override def getPerson(id: Long): Option[Person] = {
+    db.withConnection { implicit c =>
+      PersonDAO.find(id)
+    }
+  }
 
 
-    override def getCompletePerson(id: Long): Option[PersonJson] = {
+  override def getPersonSensitive(id: Long): Option[PersonSensitive] = {
+    db.withConnection { implicit c =>
+      //exprimer la distincion entre personne non trouvée et authorisation non donnée
+      PersonDAO.find(id).filter(p => p.showSensitive).flatMap { _ =>
+        PersonSensitiveDAO.getSensitiveDataByIdPerson(id)
+      }
+    }
+  }
 
-      db.withConnection { implicit c =>
-        logger.debug("completePersons")
-        getPerson(id).map {
-          p => Person.json2PersonJson(p.json)
+  override def majPerson(id: Long, up: UpdatePerson): Unit = {
+
+
+    val params = (up.pString.map {
+      case (k, ov) => NamedParameter(k, ov.get)
+    } ++ up.pInt.map {
+      case (k, ov) => NamedParameter(k, ov.get)
+    } ++ up.pBoolean.map {
+      case (k, ov) => NamedParameter(k, ov.get)
+    }).toList
+
+    db.withConnection { implicit c =>
+      PersonDAO.updateByNamedParameters(id)(params)
+    }
+  }
+
+
+  override def addPerson(p: Person, token: String): Unit = {
+    db.withTransaction(implicit connexion =>
+
+      PersonDAO.findBy(PersonDAO.pkField, p.id) match {
+        case None => {
+          es.addEvent(Event(typeEvent = ImportRegistration.typeEvent, message = s"Created  : ${p.id} - ${p.json}"))
+          PersonDAO.create(p)
+        }
+        case Some(_) => {
+          es.addEvent(Event(typeEvent = ImportRegistration.typeEvent, message = s"updated  : ${p.id} - ${p.json}"))
+          PersonDAO.update(p)
         }
       }
-
-    }
-
-
-    override def getAllCompletePerson: Seq[PersonJson] = {
-
-      db.withConnection { implicit c =>
-        logger.debug("allcompletePersons")
-        allPersons.map {
-          p => Person.json2PersonJson(p.json)
-        }
-      }
-    }
-
-    override def getPerson(id: Long): Option[Person] = {
-      db.withConnection { implicit c =>
-        PersonDAO.find(id)
-      }
-    }
-
-
-    override def getPersonSensitive(id: Long): Option[PersonSensitive] = {
-      db.withConnection { implicit c =>
-        //exprimer la distincion entre personne non trouvée et authorisation non donnée
-        PersonDAO.find(id).filter(p => p.showSensitive).flatMap { _ =>
-          PersonSensitiveDAO.getSensitiveDataByIdPerson(id)
-        }
-      }
-    }
-
-    override def majPerson(id: Long, up: UpdatePerson): Unit = {
-
-
-      val params = (up.pString.map {
-        case (k, ov) => NamedParameter(k, ov.get)
-      } ++ up.pInt.map {
-        case (k, ov) => NamedParameter(k, ov.get)
-      } ++ up.pBoolean.map {
-        case (k, ov) => NamedParameter(k, ov.get)
-      }).toList
-
-      db.withConnection { implicit c =>
-        PersonDAO.updateByNamedParameters(id)(params)
-      }
-    }
-
-
-    override def addPerson(p: Person, token: String): Unit = {
-      db.withTransaction(implicit connexion =>
-
-        PersonDAO.findBy(PersonDAO.pkField, p.id) match {
-          case None => {
-            logger.debug(s"create $p")
-            PersonDAO.create(p)
-          }
-          case Some(_) => {
-
-            logger.debug(s"update $p")
-            PersonDAO.update(p)
-          }
-        }
-      )
-
-
-    }
-
-    override def addPersonSensitive(p: PersonSensitive): Unit = {
-      db.withConnection(implicit connexion =>
-
-        PersonSensitiveDAO.findBy(PersonDAO.pkField, p.id) match {
-          case None => PersonSensitiveDAO.create(p)
-          case Some(_) => PersonSensitiveDAO.update(p)
-        }
-      )
-    }
-
-    override def addRepresentative(firstname: String, lastname: String, email: String, company: String, title: String, token: String): PersonJson =
-      db.withTransaction(implicit connection => {
-
-        val id = Some(generateId(email))
-        val p = Person(id, firstname, lastname, "-", title, "-", 1, isTraining = false, showSensitive = true, 1)
-        val ps = PersonSensitive(id, email, "-", company, "-", lookingForAJob = false)
-
-        val pj = personToJson(p, ps)
-
-        PersonDAO.create(p.copy(json = pj._2))
-        PersonSensitiveDAO.create(ps)
-        pj._1
-
-      })
-
-
-    private def personToJson(p: Person, ps: PersonSensitive): (PersonJson, String) = {
-
-      import Person._
-
-      val pj = PersonJson(generateId(ps.email).toString, p.firstname, p.lastname, ps.email, Option(ps.company), None, None, None, None, None, None, None, None, Option(p.position))
-      (pj, Json.toJson(pj).toString)
-    }
-
-    private def generateId(email: String): Long = {
-      email.toLowerCase.trim.hashCode.abs
-    }
+    )
 
 
   }
+
+  override def addPersonSensitive(p: PersonSensitive): Unit = {
+    db.withConnection(implicit connexion =>
+
+      PersonSensitiveDAO.findBy(PersonDAO.pkField, p.id) match {
+        case None => PersonSensitiveDAO.create(p)
+        case Some(_) => PersonSensitiveDAO.update(p)
+      }
+    )
+  }
+
+  override def addRepresentative(firstname: String, lastname: String, email: String, company: String, title: String, token: String): PersonJson =
+    db.withTransaction(implicit connection => {
+
+      val id = Some(generateId(email))
+      val p = Person(id, firstname, lastname, "-", title, "-", 1, isTraining = false, showSensitive = true, 1)
+      val ps = PersonSensitive(id, email, "-", company, "-", lookingForAJob = false)
+
+      val pj = personToJson(p, ps)
+
+      PersonDAO.create(p.copy(json = pj._2))
+      PersonSensitiveDAO.create(ps)
+      pj._1
+
+    })
+
+
+  private def personToJson(p: Person, ps: PersonSensitive): (PersonJson, String) = {
+
+    import Person._
+
+    val pj = PersonJson(generateId(ps.email).toString, p.firstname, p.lastname, ps.email, Option(ps.company), None, None, None, None, None, None, None, None, Option(p.position))
+    (pj, Json.toJson(pj).toString)
+  }
+
+  private def generateId(email: String): Long = {
+    email.toLowerCase.trim.hashCode.abs
+  }
+
+
+}
 
 
