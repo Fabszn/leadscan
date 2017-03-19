@@ -1,6 +1,31 @@
 <div class="page-header">
 
     <div class="row" >
+        <div class="col-md-12" id="sponsorSelect">
+
+            <select v-model="selected" v-on:change="updatetable">
+                <option disabled value="">Please select one</option>
+                <option v-for="option in options" v-bind:value="option.value">
+                    {{ option.text }}
+                </option>
+            </select>
+            <!--<span>Selected: {{ selected }}</span>-->
+        </div>
+    </div>
+    <div class="row" >
+        <div class="row" >
+            <div class="col-md-12">
+                    &nbsp;
+            </div>
+        </div>
+
+        <div class="col-md-12">
+
+                &nbsp;
+        </div>
+    </div>
+
+    <div class="row" >
         <div class="col-md-12">
             <table id="person" class="display">
                 <thead>
@@ -24,22 +49,70 @@
 
         $(function () {
 
+
             var sponsorDatatable = $('#person').DataTable({
                 "bServerSide": false,
-                "ajax": {url: "/admin/only_representatives"},
+                "ajax": {url: "/admin/only_representatives/-1"},
                 "columnDefs": [
                     {"visible": true, "targets": 0},
                     {"visible": true, "targets": 1},
                     {"visible": true, "targets": 2},
                     {"visible": true, "targets": 3},
                     {"visible": false, "targets": 4}
-                ], initComplete: function () {
+                ]
+            });
 
+            console.log(sponsorDatatable.columns(4).data());
+
+
+            var sponsorsList = new Vue({
+                el: '#sponsorSelect',
+                data: {
+                    selected: '',
+                    options: []
+
+                },
+                methods: {
+                    updatetable: function (e) {
+
+                        $.ajax({
+                            url: "/admin/only_representatives/" + this.selected,
+                            type: 'GET',
+                            async: true,
+                            success: function (data) {
+                                sponsorDatatable.clear().draw();
+                                sponsorDatatable.rows.add(data['data']).draw();
+                            },
+                            cache: false,
+                            contentType: 'application/json',
+                            processData: false
+                        });
+                    }
                 }
             });
 
-                console.log(sponsorDatatable.columns(4).data());
+            loadSponsors(sponsorsList);
 
+
+            function loadSponsors(sl) {
+                $.ajax({
+                    url: "/admin/sponsors/all",
+                    type: 'GET',
+                    async: true,
+                    success: function (data) {
+
+                        var spon = _.map(data['data'], function (arr) {
+                            return {text: arr[1], value: arr[0]}
+                        });
+
+                        sl.options = spon;
+
+                    },
+                    cache: false,
+                    contentType: 'application/json',
+                    processData: false
+                });
+            }
 
         })
 

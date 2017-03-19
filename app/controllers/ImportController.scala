@@ -8,7 +8,7 @@ import services._
 import utils.oAuthActions.AdminAuthAction
 import utils.{LoggerAudit, PasswordGenerator}
 
-import scala.util.{Failure, Try}
+import scala.util.{Failure, Success, Try}
 
 /**
   * Created by fsznajderman on 07/02/2017.
@@ -47,16 +47,23 @@ class ImportController(ps: PersonService, ss: SponsorService, es: EventService, 
               case None =>
                 es.addEvent(Event(typeEvent = ImportRepresentative.typeEvent, message = s"representative with email : ${repre.email} not found"))
               case Some(person) => {
-                ss.addRepresentative(person.regId.toLong, sp.id.get)
+                Try {
+                  ss.addRepresentative(person.regId.toLong, sp.id.get)
+                } match {
+                  case Success(_) => {
+                    val currentToken = jsonUtils.tokenExtractorFromSession(request)
+                    val pass = PasswordGenerator.generatePassword
 
-                val currentToken = jsonUtils.tokenExtractorFromSession(request)
-                val pass = PasswordGenerator.generatePassword
+                    remote.sendPassword(person.regId.toLong, pass, currentToken)
+                    ns.sendMail(Seq(person.email),
+                      Option(views.txt.mails.notifPassword.render(person.firstname, sp.name, pass).body),
+                      Option(views.html.mails.notifPassword.render(person.firstname, sp.name, pass).body))
+                    es.addEvent(Event(typeEvent = ImportRepresentative.typeEvent, message = s"Email sent to ${person.firstname} ${person.lastname} (${person.email}) for sponsor ${sp.name}"))
+                  }
+                  case Failure(e) =>
+                    es.addEvent(Event(typeEvent = AddRepresentative.typeEvent, message = s"An error occured when addRepresentative ${e.getMessage}"))
 
-                remote.sendPassword(person.regId.toLong, pass, currentToken)
-                ns.sendMail(Seq(person.email),
-                  Option(views.txt.mails.notifPassword.render(person.firstname, sp.name, pass).body),
-                  Option(views.html.mails.notifPassword.render(person.firstname, sp.name, pass).body))
-                es.addEvent(Event(typeEvent = ImportRepresentative.typeEvent, message = s"Email sent to ${person.firstname} ${person.lastname} (${person.email}) for sponsor ${sp.name}"))
+                }
               }
             }
           }

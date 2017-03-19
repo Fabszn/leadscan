@@ -51,7 +51,7 @@ GET           /admin/export/:idSponsor                               controllers
 GET           /admin/export_event                                    controllers.AdminController.exportEvent
 GET           /admin/export_representative/:id_repr                  controllers.AdminController.exportRepresentative(id_repr:Long)
 GET           /admin/representatives                                 controllers.SponsorsController.readAllRepr
-GET           /admin/only_representatives                            controllers.SponsorsController.readOnlyRepr
+GET           /admin/only_representatives/:idSponsor                 controllers.SponsorsController.readOnlyRepr(idSponsor:Long)
 GET           /admin/view_only_representatives                       controllers.AdminController.repreSpnsor
 POST          /admin/representatives                                 controllers.AdminController.linkRepreSponsor
 POST          /admin/representatives/new                             controllers.AdminController.newPerson
@@ -70,7 +70,7 @@ GET           /admin/stats                                           controllers
 GET           /admin/persons_all                                     controllers.AdminController.readAllPersons
 
 #representative_sponsor
-GET           /admin/repr_sponsors                                   controllers.AdminController.readAllPersons
+GET           /admin/repr_sponsors                                   controllers.AdminController.repreSpnsor
 
 #Sponsor
 GET           /admin/sponsors                                        controllers.SponsorsController.view

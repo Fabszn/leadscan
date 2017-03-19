@@ -58,7 +58,7 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
 
   }
 
-  def onlyRepresentatives(implicit connection: Connection): Seq[PersonSponsorInfo] = {
+  def onlyRepresentatives(idSponsor:Long)(implicit connection: Connection): Seq[PersonSponsorInfo] = {
 
     val personSponsorInfoRowParser = Macro.namedParser[PersonSponsorInfo]
 
@@ -70,7 +70,7 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
        SPONSOR s inner join
        PERSON_SPONSOR ps on s.id=ps.idSponsor inner join
        PERSON p on p.id=ps.idperson inner join
-       person_sensitive pse on pse.id=p.id""".as(personSponsorInfoRowParser.*)
+       person_sensitive pse on pse.id=p.id where s.id=${idSponsor}""".as(personSponsorInfoRowParser.*)
 
   }
 

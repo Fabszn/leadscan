@@ -17,6 +17,11 @@ case object ImportRepresentative extends EventType {
 
 }
 
+case object AddRepresentative extends EventType {
+  override val typeEvent: String = "add_representative"
+
+}
+
 case object ImportRegistration extends EventType {
   override val typeEvent: String = "import_registration"
 
