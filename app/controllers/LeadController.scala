@@ -1,6 +1,6 @@
 package controllers
 
-import java.time.LocalDateTime
+import java.time.{LocalDateTime, ZoneOffset}
 
 import io.github.hamsters.Validation
 import model._
@@ -145,6 +145,25 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
         val regId = jsonUtils.extractRegIdFromToken(request)
         logger.info(s"regId found $regId")
         ls.getCompleteLeads(regId) match {
+          case Nil => NotFound(toHateoas(ErrorMessage("leads_not_found", s"Leads for person with id ${regId} are not found")))
+          case leads => Ok(toHateoas(leads))
+        }
+      }
+    }
+
+
+  }
+
+  def latestLeads(datetime:Long) = CORSAction {
+    ApiAuthAction {
+      implicit request => {
+
+
+
+
+        val regId = jsonUtils.extractRegIdFromToken(request)
+        logger.info(s"regId found $regId")
+        ls.getCompleteLatestLeads(regId,LocalDateTime.ofEpochSecond(datetime, 0, ZoneOffset.UTC)) match {
           case Nil => NotFound(toHateoas(ErrorMessage("leads_not_found", s"Leads for person with id ${regId} are not found")))
           case leads => Ok(toHateoas(leads))
         }

@@ -7,6 +7,7 @@ GET           /api/persons/:id                                       controllers
 GET           /api/persons/:id/sensitive                             controllers.PersonController.readSensitive(id:Long)
 PUT           /api/persons/:id                                       controllers.PersonController.maj(id:Long)
 GET           /api/persons/:id/contacts                              controllers.LeadController.leads(id:Long)
+GET           /api/persons/last_contacts/:datetime                   controllers.LeadController.latestLeads(datetime:Long)
 
 
 #Leads

@@ -1,6 +1,8 @@
 package dao
 
 import java.sql.Connection
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 import anorm.SqlParser._
 import anorm.{NamedParameter, RowParser, _}
@@ -63,6 +65,15 @@ object PersonDAO extends mainDBDAO[Person, Long] {
     SQL"""select * from PERSON p inner join person_sensitive ps on p.id=ps.id
        inner join lead l on l.idtarget=p.id
        where l.idapplicant = $id;""".as(personCompleteInfo.*)
+
+  }
+
+  def findAllLatestLeadById(id: Long, datetime:LocalDateTime)(implicit c: Connection): Seq[CompletePerson] = {
+
+
+    SQL"""select * from PERSON p inner join person_sensitive ps on p.id=ps.id
+       inner join lead l on l.idtarget=p.id
+       where l.idapplicant = $id and l.datetime > ${datetime};""".as(personCompleteInfo.*)
 
   }
 
