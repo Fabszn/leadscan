@@ -74,6 +74,22 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
 
   }
 
+  def onlyRepresentatives(implicit connection: Connection): Seq[PersonSponsorInfo] = {
+
+    val personSponsorInfoRowParser = Macro.namedParser[PersonSponsorInfo]
+
+    SQL"""select p.id as idPerson
+       ,p.firstname
+       , p.lastname
+       ,pse.email
+       ,s.id as idSponsor, s."name" as nameSponsor  from
+       SPONSOR s inner join
+       PERSON_SPONSOR ps on s.id=ps.idSponsor inner join
+       PERSON p on p.id=ps.idperson inner join
+       person_sensitive pse on pse.id=p.id""".as(personSponsorInfoRowParser.*)
+
+  }
+
 
   def deleteRepresentative(idPerson: Long)(implicit connection: Connection): Unit = {
     SQL"""delete from PERSON_SPONSOR where idPerson=$idPerson""".execute

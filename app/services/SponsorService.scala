@@ -3,11 +3,9 @@ package services
 import config.Settings
 import dao.SponsorDAO.PersonSponsorInfo
 import dao.{LeadNoteDAO, PersonDAO, SponsorDAO}
-import model.{AddRepresentative, Event, PersonJson, Sponsor}
+import model.{PersonJson, Sponsor}
 import play.api.db.Database
 import play.api.libs.json.Json
-
-import scala.util.{Failure, Try}
 
 /**
   * Created by fsznajderman on 11/02/2017.
@@ -29,7 +27,9 @@ trait SponsorService {
 
   def loadRepresentative(): Seq[PersonSponsorInfo]
 
-  def loadOnlyRepresentative(idSponsor:Long): Seq[PersonSponsorInfo]
+  def loadOnlyRepresentative(idSponsor: Long): Seq[PersonSponsorInfo]
+
+  def loadOnlyRepresentative: Seq[PersonSponsorInfo]
 
   def exportForSponsor(id: Long): Seq[String]
 
@@ -41,12 +41,12 @@ trait SponsorService {
 }
 
 
-class SponsorServiceImpl(db: Database, es:EventService) extends SponsorService {
+class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService {
 
 
   override def addRepresentative(idPerson: Long, idSponsor: Long): Unit =
     db.withConnection(implicit connection =>
-        SponsorDAO.addRepresentative(idPerson, idSponsor)
+      SponsorDAO.addRepresentative(idPerson, idSponsor)
 
     )
 
@@ -84,9 +84,15 @@ class SponsorServiceImpl(db: Database, es:EventService) extends SponsorService {
     )
   }
 
-  override def loadOnlyRepresentative(idSponsor:Long): Seq[PersonSponsorInfo] = {
+  override def loadOnlyRepresentative(idSponsor: Long): Seq[PersonSponsorInfo] = {
     db.withConnection(implicit connection =>
       SponsorDAO.onlyRepresentatives(idSponsor)
+    )
+  }
+
+  override def loadOnlyRepresentative: Seq[PersonSponsorInfo] = {
+    db.withConnection(implicit connection =>
+      SponsorDAO.onlyRepresentatives
     )
   }
 
