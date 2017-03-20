@@ -36,14 +36,14 @@ class ImportController(ps: PersonService, ss: SponsorService, es: EventService, 
       val persons = ps.getAllCompletePerson
 
       reprs.foreach { repre =>
-        sponsors.find(s => repre.sponsor.toLowerCase == s.name.toLowerCase) match {
+        sponsors.find(s => repre.sponsor.toLowerCase.trim == s.name.toLowerCase.trim) match {
 
           case None => {
             es.addEvent(Event(typeEvent = ImportRepresentative.typeEvent, message = s"Sponsor with name : ${repre.sponsor} not found")
             )
           }
           case Some(sp) => {
-            persons.find(p => p.email.toLowerCase == repre.email.toLowerCase) match {
+            persons.find(p => p.email.toLowerCase.trim == repre.email.toLowerCase.trim) match {
               case None =>
                 es.addEvent(Event(typeEvent = ImportRepresentative.typeEvent, message = s"representative with email : ${repre.email} not found"))
               case Some(person) => {
