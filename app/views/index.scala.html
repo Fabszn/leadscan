@@ -58,6 +58,7 @@
                         <li><a href="#" id="sponsorsLink" v-on:click="sponsorsLink">Sponsors</a></li>
                         <li><a href="#" id="reprSponsorsLink" v-on:click="reprSponsorsLink">Representative / Sponsors</a></li>
                         <li><a href="#" id="personLink" v-on:click="personLink">Person</a></li>
+                        <li><a href="#" id="pass" v-on:click="passLink">Password</a></li>
                         <li><a href="#" id="stats" v-on:click="statsLink">Stats</a></li>
 
                     </ul>
@@ -159,6 +160,10 @@
                         },
                         reprSponsorsLink: function (e) {
                             menuItemEvent('/admin/view_only_representatives', loginVue);
+                        }
+                        ,
+                        passLink: function (e) {
+                            menuItemEvent('/admin/passView', loginVue);
                         }
                         ,
                         statsLink: function (e) {

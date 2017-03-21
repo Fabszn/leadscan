@@ -85,6 +85,10 @@ PUT           /admin/sponsors                                        controllers
 POST          /admin/sponsors                                        controllers.SponsorsController.add
 
 
+GET           /admin/pass                                            controllers.AdminController.pass
+GET           /admin/passView                                        controllers.AdminController.passView
+
+
 
 
 

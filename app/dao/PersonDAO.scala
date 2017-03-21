@@ -2,7 +2,6 @@ package dao
 
 import java.sql.Connection
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 import anorm.SqlParser._
 import anorm.{NamedParameter, RowParser, _}
@@ -68,8 +67,7 @@ object PersonDAO extends mainDBDAO[Person, Long] {
 
   }
 
-  def findAllLatestLeadById(id: Long, datetime:LocalDateTime)(implicit c: Connection): Seq[CompletePerson] = {
-
+  def findAllLatestLeadById(id: Long, datetime: LocalDateTime)(implicit c: Connection): Seq[CompletePerson] = {
 
     SQL"""select * from PERSON p inner join person_sensitive ps on p.id=ps.id
        inner join lead l on l.idtarget=p.id
@@ -87,6 +85,17 @@ object PersonDAO extends mainDBDAO[Person, Long] {
     SQL"""select max(id)+1 as nextId from person""".as(long("nextId").single)
   }
 
+  case class Pass(regId: String, pass: String)
+
+  private val passInfo = Macro.namedParser[Pass]
+
+  def pass(implicit connection: Connection): Seq[Pass] = {
+    SQL"""select * from pass""".as(passInfo *)
+  }
+
+  def addPass(regId: String, pass: String)(implicit connection: Connection): Unit = {
+    SQL"""insert into pass (regId, pass) values($regId, $pass)""".execute()
+  }
 
 
 }

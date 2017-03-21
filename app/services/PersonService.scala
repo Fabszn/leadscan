@@ -1,6 +1,7 @@
 package services
 
 import anorm.NamedParameter
+import dao.PersonDAO.Pass
 import dao.{PersonDAO, PersonSensitiveDAO}
 import model._
 import play.api.db.Database
@@ -35,6 +36,10 @@ trait PersonService {
   def allPersons(): Seq[Person]
 
   def addRepresentative(firstname: String, lastname: String, email: String, company: String, title: String, token: String): PersonJson
+
+  def pass: Seq[Pass]
+
+  def addpass(regId: String, pass: String): Unit
 
 }
 
@@ -161,6 +166,21 @@ class PersonServiceImpl(db: Database, ns: NotificationService, remote: RemoteCli
   }
 
 
+  override def addpass(regId: String, pass: String): Unit = {
+    db.withConnection(implicit connexion =>
+
+      PersonDAO.addPass(regId, pass)
+    )
+
+  }
+
+  override def pass: Seq[Pass] = {
+    db.withConnection(implicit connexion =>
+
+      PersonDAO.pass
+    )
+
+  }
 }
 
 

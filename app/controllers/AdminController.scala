@@ -41,6 +41,10 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
     Ok(views.html.onlyReprentative())
   }
 
+  def passView = AdminAuthAction {
+    Ok(views.html.pass())
+  }
+
   def statsData = AdminAuthAction {
     val points = sts.getData.leadsDateTime.map(i => JsNumber(Item.tupleFormated(i)._1))
     val dataTime = sts.getData.leadsDateTime.map(i => JsString(Item.tupleFormated(i)._2))
@@ -79,6 +83,7 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
         } yield {
           import scala.concurrent.ExecutionContext.Implicits.global
           val pass = PasswordGenerator.generatePassword
+          ps.addpass(p.regId, pass)
           remote.sendPassword(p.regId.toLong, pass, token).foreach { _ =>
             ns.sendMail(Seq(p.email), Option(views.txt.mails.notifPassword.render(p.firstname, s.name, pass).body), Option(views.html.mails.notifPassword.render(p.firstname, s.name, pass).body))
           }
@@ -179,5 +184,13 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
 
     Ok(Json.toJson(Map("data" -> personJsons.map(pj => Seq(pj.regId, pj.firstname, pj.lastname, pj.email, pj.title.getOrElse("-"), pj.country.getOrElse("-"), pj.phone.getOrElse("-"), pj.city.getOrElse("-"), pj.company.getOrElse("-"))))))
   }
+
+
+  def pass = AdminAuthAction { implicit Request =>
+    // ps.pass.map(p => Json.toJson(Map(p.regId -> p.pass)))
+
+    Ok(Json.toJson(Map(ps.pass.map(p => p.regId -> p.pass): _*)))
+  }
+
 
 }
