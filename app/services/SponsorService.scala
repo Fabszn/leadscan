@@ -44,7 +44,8 @@ trait SponsorService {
 class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService {
 
 
-  val SEP = ","
+  val SEP = "|"
+  val SEP_COMMA = ","
 
   override def addRepresentative(idPerson: Long, idSponsor: Long): Unit =
     db.withConnection(implicit connection =>
@@ -134,7 +135,7 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
             val nbNote = if (notes.isEmpty) 0 else 1
             val notesVal = notes.map(n => n.note).mkString(" ")
 
-            s"""${applicant._1}$SEP${applicant._2}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.country.getOrElse("")}$SEP${pj.phone.getOrElse("")}$SEP${pj.title.getOrElse("")}$SEP$nbNote$SEP $notesVal"""
+            clean(s"""${applicant._1}$SEP${applicant._2}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.country.getOrElse("")}$SEP${pj.phone.getOrElse("")}$SEP${pj.title.getOrElse("")}$SEP$nbNote$SEP $notesVal""")
         }
       })
     ).toList
@@ -159,7 +160,7 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
 
             val nbNote = notes.count(n => n.note.trim.nonEmpty)
 
-            s"""${applicant._1}$SEP${applicant._2}$SEP${line.sponsor}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.country.getOrElse("")}$SEP${pj.phone.getOrElse("")}$SEP${pj.title.getOrElse("")}$SEP$nbNote"""
+            clean(s"""${applicant._1}$SEP${applicant._2}$SEP${line.sponsor}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.country.getOrElse("")}$SEP${pj.phone.getOrElse("")}$SEP${pj.title.getOrElse("")}$SEP$nbNote""")
         }
       })
     ).toList
@@ -184,12 +185,17 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
             //val nbNote = if (notes.isEmpty) 0 else 1
             //val notesVal = notes.map(n => n.note).mkString(" ")
 
-            s"""${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.country.getOrElse("")}$SEP${pj.phone.getOrElse("")}$SEP${pj.title.getOrElse("")}$SEP ${line.note}"""
+            clean(s"""${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.country.getOrElse("")}$SEP${pj.phone.getOrElse("")}$SEP${pj.title.getOrElse("")}$SEP${line.note}""")
         }
       })
     ).toList
 
 
+  }
+
+  private def clean(chaine: String): String = {
+
+    chaine.replace(SEP_COMMA, ".").replace(SEP, SEP_COMMA)
   }
 }
 
