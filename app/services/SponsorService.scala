@@ -44,6 +44,8 @@ trait SponsorService {
 class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService {
 
 
+  val SEP = ","
+
   override def addRepresentative(idPerson: Long, idSponsor: Long): Unit =
     db.withConnection(implicit connection =>
       SponsorDAO.addRepresentative(idPerson, idSponsor)
@@ -132,7 +134,7 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
             val nbNote = if (notes.isEmpty) 0 else 1
             val notesVal = notes.map(n => n.note).mkString(" ")
 
-            s"""${applicant._1}|${applicant._2}|${pj.regId}|${pj.firstname}|${pj.lastname}|${pj.email}|${pj.country.getOrElse("")}|${pj.phone.getOrElse("")}|${pj.title.getOrElse("")}|$nbNote| $notesVal"""
+            s"""${applicant._1}$SEP${applicant._2}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.country.getOrElse("")}$SEP${pj.phone.getOrElse("")}$SEP${pj.title.getOrElse("")}$SEP$nbNote$SEP $notesVal"""
         }
       })
     ).toList
@@ -157,7 +159,7 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
 
             val nbNote = notes.count(n => n.note.trim.nonEmpty)
 
-            s"""${applicant._1}|${applicant._2}|${line.sponsor}|${pj.regId}|${pj.firstname}|${pj.lastname}|${pj.email}|${pj.country.getOrElse("")}|${pj.phone.getOrElse("")}|${pj.title.getOrElse("")}|$nbNote"""
+            s"""${applicant._1}$SEP${applicant._2}$SEP${line.sponsor}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.country.getOrElse("")}$SEP${pj.phone.getOrElse("")}$SEP${pj.title.getOrElse("")}$SEP$nbNote"""
         }
       })
     ).toList
@@ -182,7 +184,7 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
             //val nbNote = if (notes.isEmpty) 0 else 1
             //val notesVal = notes.map(n => n.note).mkString(" ")
 
-            s"""${pj.regId}|${pj.firstname}|${pj.lastname}|${pj.email}|${pj.country.getOrElse("")}|${pj.phone.getOrElse("")}|${pj.title.getOrElse("")}| ${line.note}"""
+            s"""${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.country.getOrElse("")}$SEP${pj.phone.getOrElse("")}$SEP${pj.title.getOrElse("")}$SEP ${line.note}"""
         }
       })
     ).toList
