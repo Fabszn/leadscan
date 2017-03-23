@@ -134,8 +134,8 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
             //todo must be fixed
             val nbNote = if (notes.isEmpty) 0 else 1
             val notesVal = notes.map(n => n.note).mkString(" ")
-
-            clean(s"""${applicant._1}$SEP${applicant._2}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.country.getOrElse("")}$SEP${pj.phone.getOrElse("")}$SEP${pj.title.getOrElse("")}$SEP$nbNote$SEP $notesVal""")
+            //headers.sponsor = "Rep_first_Name,Rep_last_Name,RegId,first_Name,last_Name,Email_Address,Company,Country,Title,nbNote,allNotes"
+            clean(s"""${applicant._1}$SEP${applicant._2}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.company.getOrElse("")}$SEP${pj.country.getOrElse("")}$SEP${pj.title.getOrElse("")}$SEP$nbNote$SEP $notesVal""")
         }
       })
     ).toList
