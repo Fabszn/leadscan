@@ -47,6 +47,7 @@ object LeadDAO extends mainDBDAO[Lead, String] {
 
   }
 
+
   def leadByhour(implicit c: Connection): Seq[Item] = {
 
     val rowParserStat: RowParser[Item] = for {
@@ -64,6 +65,46 @@ object LeadDAO extends mainDBDAO[Lead, String] {
             EXTRACT( HOUR from datetime) AS hour
           from lead group by hour, dday, month
        order by dday, hour
+       """.as(rowParserStat *)
+
+
+  }
+
+  def leadForOneSponsor(idSponsor: Long)(implicit c: Connection): Seq[(Int, String)] = {
+
+    val parser = for {
+      nb <- get[Int]("nb")
+      sponsor <- get[String]("sponsor")
+    } yield (nb, sponsor)
+
+    SQL""" select count(*) as nb, s.name as sponsor
+         from SPONSOR s inner join PERSON_SPONSOR ps on s.id=ps.idsponsor
+         inner join LEAD l on ps.idperson=l.idapplicant
+         where s.id=${idSponsor} group by s.name
+      """.as(parser.*)
+
+  }
+
+  def leadByhourForOneSponsor(idSponsor: Long)(implicit c: Connection): Seq[Item] = {
+
+    val rowParserStat: RowParser[Item] = for {
+      nbLead <- get[Int]("nb")
+      day <- get[Double]("dday")
+      month <- get[Double]("month")
+      hour <- get[Double]("hour")
+    } yield Item(nbLead, day.toInt, month.toInt, hour.toInt)
+
+    SQL"""
+          select
+            count(*) as nb,
+            EXTRACT(DAY from datetime) AS dday,
+            EXTRACT( month from datetime) AS month,
+            EXTRACT( HOUR from datetime) AS hour
+          from lead l
+            inner join person_sponsor ps on l.idapplicant=ps.idperson
+            inner join sponsor s on ps.idsponsor=s.id where s.id=${10}
+          group by hour, dday, month
+          order by dday, hour
        """.as(rowParserStat *)
 
 

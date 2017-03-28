@@ -37,10 +37,10 @@ class SecurityController(authService: AuthService) extends Controller with Logge
     request.body.validate[UserData].asEither match {
       case Left(e) => Future.successful(Unauthorized(e.toString()))
       case Right(userData) => {
-        authService.validAuthentifiaction(userData.login, userData.pass).map {
+        authService.validAuthentification(userData.login, userData.pass, authService.isAdmin).map {
           case UnauthenticateUser(error) => {
-            logger.info(s"User : ${userData.login} is no authorized - [$error]")
-            Unauthorized(s"User : ${userData.login} is no authorized - [$error]")
+            logger.info(s"User : ${userData.login} is no authorised - [$error]")
+            Unauthorized(s"User : ${userData.login} is no authorised - [$error]")
           }
           case AuthenticateUser(_, _, email, token) => {
             logger.info(s"$userData authenticated")
@@ -55,6 +55,7 @@ class SecurityController(authService: AuthService) extends Controller with Logge
       }
     }
   }
+
 
 
   def apiAuthentification = Action.async { implicit request =>
@@ -74,6 +75,35 @@ class SecurityController(authService: AuthService) extends Controller with Logge
     }
     )
 
+  }
+
+  def reportsAuthentification = Action.async(parse.json) { implicit request =>
+
+    implicit val readUserData: Reads[UserData] = (
+      (__ \ "login").read[String] and (__ \ "password").read[String]
+      ) (UserData.apply _)
+
+
+    request.body.validate[UserData].asEither match {
+      case Left(e) => Future.successful(Unauthorized(e.toString()))
+      case Right(userData) => {
+        authService.validReportAuthentification(userData.login, userData.pass).map {
+          case UnauthenticateUser(error) => {
+            logger.info(s"User : ${userData.login} is no authorized - [$error]")
+            Unauthorized(s"User : ${userData.login} is no authorized - [$error]")
+          }
+          case AuthenticateUser(_, _, email, token) => {
+            logger.info(s"$userData authenticated")
+            Ok(Json.toJson(Map("mail" -> email))).withSession("connected" -> email, "token" -> token, "exp" -> LocalDateTime.now().plusMinutes(Settings.session.timeout_mn).toString)
+          }
+          case _ => {
+            logger.error(s"Strange behavior :(")
+            Unauthorized("Strange behavior :(")
+          }
+
+        }
+      }
+    }
   }
 
 }

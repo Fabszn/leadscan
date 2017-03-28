@@ -15,6 +15,8 @@ trait StatsService {
 
   def getData: StatsData
 
+  def getDataBySponsor(idSponsor: Long): StatsData
+
 }
 
 
@@ -23,7 +25,14 @@ class StatsServiceImpl(db: Database) extends StatsService {
     db.withConnection { implicit c =>
       StatsData(LeadDAO.leadByhour, LeadDAO.leadBySponsor)
     }
-
-
   }
+
+
+  override def getDataBySponsor(idSponsor: Long): StatsData = {
+    db.withConnection { implicit c =>
+      StatsData(LeadDAO.leadByhourForOneSponsor(idSponsor), LeadDAO.leadForOneSponsor(idSponsor))
+    }
+  }
+
+
 }

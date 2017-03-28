@@ -3,9 +3,10 @@
 
 
 #person
+
 GET           /api/persons/:id                                       controllers.PersonController.read(id:String)
 PUT           /api/persons/:id                                       controllers.PersonController.maj(id:String)
-GET           /api/persons/:id/contacts                              controllers.LeadController.leads(id:String)
+GET           /api/persons_contacts                                  controllers.LeadController.leads
 GET           /api/persons/last_contacts/:datetime                   controllers.LeadController.latestLeads(datetime:Long)
 
 
@@ -30,7 +31,9 @@ GET           /api/status                                            controllers
 GET           /                                                      controllers.AdminController.index
 POST          /auth                                                  controllers.SecurityController.adminAuthentification
 GET           /auth_api                                              controllers.SecurityController.apiAuthentification
-GET           /signout                                               controllers.SecurityController.signout
+POST          /auth_reports                                          controllers.SecurityController.reportsAuthentification
+GET           /reports/signout                                       controllers.SecurityController.signout
+GET           /admin/signout                                         controllers.SecurityController.signout
 
 
 #Import Data
@@ -43,9 +46,11 @@ GET           /assets/*file                                          controllers
 
 
 #Admin
-GET           /admin                                                 controllers.AdminController.index
+GET           /admin                                                 controllers.AdminController.admin
 GET           /admin/stats                                           controllers.AdminController.stats
 GET           /admin/stats/data                                      controllers.AdminController.statsData
+GET           /reports/stats_by_sponsor                              controllers.AdminController.statsBySponsor
+GET           /reports/stats_by_sponsor/data                         controllers.AdminController.statsBySponsorData
 GET           /admin/export                                          controllers.AdminController.export
 GET           /admin/export/:idSponsor                               controllers.AdminController.exportBySponsor(idSponsor:Long)
 GET           /admin/export_event                                    controllers.AdminController.exportEvent
@@ -58,7 +63,8 @@ POST          /admin/representatives                                 controllers
 POST          /admin/representatives/new                             controllers.AdminController.newPerson
 DELETE        /admin/representatives/:idPerson                       controllers.AdminController.removeRepreSponsor(idPerson:String)
 
-GET           /admin/checkAuth                                       controllers.AdminController.checkAuth
+GET           /admin/checkAuth                                       controllers.AdminController.checkAdminAuth
+GET           /reports/checkAuth                                     controllers.ReportsController.checkReportsAuth
 
 
 GET           /admin/persons                                         controllers.AdminController.person
@@ -88,6 +94,8 @@ GET           /admin/pass                                            controllers
 GET           /admin/passView                                        controllers.AdminController.passView
 
 
-
+GET           /reports                                               controllers.ReportsController.reports
+GET           /reports/representatives                               controllers.ReportsController.representatives
+GET           /reports/representatives_by_sponsor                    controllers.ReportsController.representativesBySponsor
 
 

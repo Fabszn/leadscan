@@ -30,7 +30,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="#">Devoxx Scanning</a>
+                    <a class="navbar-brand" href="#">Devoxx LeadScan Admin</a>
                 </div>
                 <div id="splash" style="background-color: darkred;
                     width: 100%;
@@ -46,7 +46,7 @@
                     </div>
                     <div class="navbar-form navbar-left" v-if="displayUserName">
                         <span class="navbar-brand" href="#">{{username}}</span>
-                        <a href="#" class="navbar-brand" v-on:click="signout" id="signout" >Sign-out</a>
+                        <a href="/admin/signout" class="navbar-brand" v-on:click="signout" id="signout" >Sign-out</a>
                     </div>
                     <div class="navbar-form navbar-left" v-if="displayError">
                         <div class="alert alert-danger" v-model="errorMessage" role="alert">{{errorMessage}}</div>
@@ -70,7 +70,7 @@
         <div id="display"></div>
         <div class="container-fluid" id="main">
             <div class="page-header">
-                <h1>Welcome to Devoxx FR Scanning App <small></small></h1>
+                <h1>Welcome to Devoxx FR LeadScan Administration<small></small></h1>
             </div>
         </div>
 
@@ -237,9 +237,8 @@
                 }
 
                 $("#signout").click(function () {
-                    console.log("sfsdfdsfdsdsf")
                     $.ajax({
-                        url: "/signout",
+                        url: "/admin/signout",
                         type: "GET",
                         success: function (data) {
                             window.location = "/"

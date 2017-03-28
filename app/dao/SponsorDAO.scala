@@ -61,6 +61,7 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
 
 
   def allWithSponsor(implicit connection: Connection): Seq[PersonSponsorInfo] = {
+
     SQL"""select json
          ,s.id as idSponsor, s."name" as nameSponsor  from SPONSOR s inner join
        PERSON_SPONSOR ps on s.id=ps.idSponsor
@@ -69,6 +70,7 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
   }
 
   def onlyRepresentatives(idSponsor: Long)(implicit connection: Connection): Seq[PersonSponsorInfo] = {
+
     SQL"""select json
        ,s.id as idSponsor, s."name" as nameSponsor  from
        SPONSOR s inner join
@@ -128,6 +130,11 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
   lead l2 on l.idapplicant=l2.idapplicant inner join person_sponsor ps  on ps.idperson=l2.idapplicant
   inner join sponsor s on ps.idsponsor=s.id""".as(LeadLineRowParser.*)
   }
+
+  def isRepresentative(regID: String)(implicit connection: Connection): Option[Sponsor] = {
+    SQL"""select * from person_sponsor ps inner join sponsor s on ps.idsponsor=s.id where ps.idperson=${regID}""".as(rowParser.singleOpt)
+  }
+
 
 
 }

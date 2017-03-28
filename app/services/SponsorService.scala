@@ -38,7 +38,10 @@ trait SponsorService {
 
   def exportForRepresentative(id: String): Seq[String]
 
-  def isRepresentative(idPerson:String, idSponsor:Long):Boolean
+  def isRepresentative(idPerson: String, idSponsor: Long): Boolean
+
+  def loadSponsorFromRepresentative(id: String): Option[Sponsor]
+
 
 }
 
@@ -57,8 +60,8 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
 
 
   override def isRepresentative(idPerson: String, idSponsor: Long): Boolean = {
-    db.withConnection(implicit connection=>
-    SponsorDAO.isRepresentative(idPerson,idSponsor)
+    db.withConnection(implicit connection =>
+      SponsorDAO.isRepresentative(idPerson, idSponsor)
     )
   }
 
@@ -182,15 +185,20 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
         Json.parse(line.json).validate[PersonJson].asEither match {
           case Left(error) => s"An error occurred wiht this line -> $error"
           case Right(pj) =>
-
-
-
             clean(s"""${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.phone.getOrElse("")}$SEP${pj.title.getOrElse("")}$SEP${line.note}""")
         }
       })
     ).toList
 
 
+  }
+
+
+  override def loadSponsorFromRepresentative(idRepresentative: String): Option[Sponsor] = {
+
+    db.withConnection(implicit connection =>
+      SponsorDAO.isRepresentative(idRepresentative)
+    )
   }
 
   private def clean(chaine: String): String = {

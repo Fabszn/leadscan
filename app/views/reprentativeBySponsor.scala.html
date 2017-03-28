@@ -1,0 +1,60 @@
+<div class="page-header">
+
+
+    <div class="row" >
+        <div class="row" >
+            <div class="col-md-12">
+                    &nbsp;
+            </div>
+        </div>
+
+        <div class="col-md-12">
+
+                &nbsp;
+        </div>
+    </div>
+
+    <div class="row" >
+        <div class="col-md-12">
+            <table id="person" class="display">
+                <thead>
+                    <tr>
+                        <th>RegId</th>
+                        <th>Firstname / Lastname</th>
+                        <th>Email</th>
+                        <th>Sponsor</th>
+                        <th>IdSponsor</th>
+                    </tr>
+                </thead>
+                <tbody>
+            </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+        $(function () {
+
+
+            var sponsorDatatable = $('#person').DataTable({
+                "bServerSide": false,
+                "ajax": {url: "/reports/representatives_by_sponsor"},
+                "columnDefs": [
+                    {"visible": true, "targets": 0},
+                    {"visible": true, "targets": 1},
+                    {"visible": true, "targets": 2},
+                    {"visible": true, "targets": 3},
+                    {"visible": false, "targets": 4}
+                ]
+            });
+
+            console.log(sponsorDatatable.columns(4).data());
+
+
+
+        })
+
+</script>

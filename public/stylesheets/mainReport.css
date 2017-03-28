@@ -1,5 +1,30 @@
 
+input {
+    color:#2b2b2b;
+}
 
+.navbar-default .navbar-nav>li>a {
+    color: #ddd !important;
+}
+
+.navbar-default .navbar-brand {
+    color: #ddd !important;
+}
+
+.navbar-default {
+    background-color: #080808;
+    border-color: #080808;
+}
+
+.hleadscan {
+    background-color: rgba(255, 87, 34, 0.95);
+    color: #ddd !important;
+
+}
+
+.navbar-header a {
+    color: #ddd !important;
+}
 
 .vertical-center {
     min-height: 100%; /* Fallback for browsers do NOT support vh unit */

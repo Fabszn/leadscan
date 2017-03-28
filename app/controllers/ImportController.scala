@@ -106,6 +106,7 @@ class ImportController(personService: PersonService
         kv <- r
       } yield Person(kv.get("RegId"), Json.toJson(kv).toString)
 
+
       val currentToken = jsonUtils.tokenExtractorFromSession(request)
       import Person._
       val imported = convertedPerson.map { p =>

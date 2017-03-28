@@ -50,6 +50,8 @@ package object jsonUtils extends LoggerAudit {
   }
 
   def tokenExtractorFromSession[A](request: Request[A]): String = {
+
+    logger.info(s"${request.session.get("token")}")
     request.session.get("token").getOrElse {
       logger.error("tokenExtractor from session -> None Foken Found !! ")
       "no_token_found"
@@ -64,10 +66,16 @@ package object jsonUtils extends LoggerAudit {
   }
 
 
-  def extractRegIdFromToken[A](request: Request[A]): String = {
+  def extractRegIdFromTokenRequest[A](request: Request[A]): String = {
 
     val token = tokenExtractorFromHeader(request)
     logger.info(s"Token found $token")
+
+    regIdExtractor(token)
+  }
+
+
+  def regIdExtractor(token: String) = {
     Jwt.decode(token, Settings.oAuth.sharedSecret, Seq(JwtAlgorithm.HS256)) match {
       case Success(s) => (Json.parse(s) \ "registrantId").as[String]
       case Failure(es) => {
@@ -76,7 +84,25 @@ package object jsonUtils extends LoggerAudit {
       }
     }
   }
+  def regIdExtractorReports(token: String) = {
+    Jwt.decode(token, Settings.oAuth.localSecret, Seq(JwtAlgorithm.HS256)) match {
+      case Success(s) => (Json.parse(s) \ "registrantId").as[String]
+      case Failure(es) => {
+        logger.error(s"No RegistrantId found in token : $es")
+        "-1"
+      }
+    }
+  }
 
+  def emailExtractor(token: String) = {
+    Jwt.decode(token, Settings.oAuth.sharedSecret, Seq(JwtAlgorithm.HS256)) match {
+      case Success(s) => (Json.parse(s) \ "email").as[String]
+      case Failure(es) => {
+        logger.error(s"No email found in token : $es")
+        "email not found"
+      }
+    }
+  }
 
 }
 
