@@ -11,39 +11,44 @@ import play.api.libs.json.{Reads, _}
   * Created by fsznajderman on 19/01/2017.
   * Here we have different version on Person.. The most recent , is je PersonJson that aim to manage the DevoxxUs use case
   */
-case class Person(id: Option[Long], firstname: String, lastname: String, gender: String, position: String, status: String, experience: Int, isTraining: Boolean, showSensitive: Boolean, profil: Int, json: String = "")
+case class Person(id: Option[String], json: String = "")
 
 case class LightingPerson(id: String, firstname: String, lastname: String)
 
-case class CompletePerson(id: Option[Long], firstname: String, lastname: String, gender: String, position: String, status: String, experience: Int, isTraining: Boolean, showSensitive: Boolean, profilId: Int, email: String, phoneNumber: String, company: String, workLocation: String, lookingForAJob: Boolean, json: String = "", datetime: Option[LocalDateTime])
+case class CompletePerson(regId: String, firstname: String, lastname: String, gender: Option[String], title: Option[String], email: String, phoneNumber: Option[String], company: Option[String], json: String, datetime: Option[LocalDateTime])
 
 case class CompletePersonWithNotes(person: CompletePerson, notes: Seq[LeadNote] = Nil)
 
-
-case class PersonJson(regId: String, firstname: String, lastname: String, email: String, company: Option[String], address1: Option[String], address2: Option[String], city: Option[String], region: Option[String], postalCode: Option[String], country: Option[String], phone: Option[String], fax: Option[String], title: Option[String])
+case class PersonJson(regId: String, firstname: String, lastname: String, gender: Option[String], email: String, company: Option[String], city: Option[String], phone: Option[String], title: Option[String], isTraining: String, ticketFamily: Option[String], ticketType: Option[String], isRepresentative: String)
 
 
 object Person {
 
 
-  def lightingPerson(p: Person): LightingPerson = LightingPerson(p.id.get.toString, p.firstname, p.lastname)
+  type JsonPerson = String
+
+  def lightingPerson(p: Person): LightingPerson = LightingPerson(p.id.get.toString, "tobecompleted", "tobecompleted")
+
+  def completePerson(p: JsonPerson): CompletePerson = {
+    val pj = Json.parse(p).as[PersonJson]
+    CompletePerson(pj.regId, pj.firstname, pj.lastname, pj.gender, pj.title, pj.email, pj.phone, pj.company, p, None)
+  }
 
 
   implicit val personJsonReader: Reads[PersonJson] = (
     (__ \ "RegId").read[String] and
       (__ \ "first_Name").read[String] and
       (__ \ "last_Name").read[String] and
+      (__ \ "gender").readNullable[String] and
       (__ \ "Email_Address").read[String] and
       (__ \ "Company").readNullable[String] and
-      (__ \ "Address_1").readNullable[String] and
-      (__ \ "Address_2").readNullable[String] and
       (__ \ "City").readNullable[String] and
-      (__ \ "Region").readNullable[String] and
-      (__ \ "postal_Code").readNullable[String] and
-      (__ \ "Country").readNullable[String] and
       (__ \ "Phone").readNullable[String] and
-      (__ \ "Fax").readNullable[String] and
-      (__ \ "Title").readNullable[String]
+      (__ \ "Title").readNullable[String] and
+      (__ \ "isTraining").read[String] and
+      (__ \ "Ticket_family").readNullable[String] and
+      (__ \ "Ticket_type").readNullable[String] and
+      (__ \ "isRepresentative").read[String]
     ) (PersonJson.apply _)
 
 
@@ -52,17 +57,16 @@ object Person {
     (JsPath \ "RegId").write[String] and
       (JsPath \ "first_Name").write[String] and
       (JsPath \ "last_Name").write[String] and
+      (JsPath \ "gender").writeNullable[String] and
       (JsPath \ "Email_Address").write[String] and
       (JsPath \ "Company").writeNullable[String] and
-      (JsPath \ "Address_1").writeNullable[String] and
-      (JsPath \ "Address_2").writeNullable[String] and
       (JsPath \ "City").writeNullable[String] and
-      (JsPath \ "Region").writeNullable[String] and
-      (JsPath \ "postal_Code").writeNullable[String] and
-      (JsPath \ "Country").writeNullable[String] and
       (JsPath \ "Phone").writeNullable[String] and
-      (JsPath \ "Fax").writeNullable[String] and
-      (JsPath \ "Title").writeNullable[String]) (unlift(PersonJson.unapply))
+      (JsPath \ "Title").writeNullable[String] and
+      (JsPath \ "isTraining").write[String] and
+      (JsPath \ "Ticket_family").writeNullable[String] and
+      (JsPath \ "Ticket_type").writeNullable[String] and
+      (JsPath \ "isRepresentative").write[String]) (unlift(PersonJson.unapply))
 
 
   def json2PersonJson(json: String): PersonJson = {

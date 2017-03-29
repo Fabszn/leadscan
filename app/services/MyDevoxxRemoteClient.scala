@@ -28,7 +28,7 @@ trait RemoteClient {
 
   def sendPerson(person: PersonJson, token: String): Future[String]
 
-  def sendPassword(regId: Long, pass: String, token: String): Future[String]
+  def sendPassword(regId: String, pass: String, token: String): Future[String]
 
 }
 
@@ -74,12 +74,7 @@ class MyDevoxxRemoteClient(ws: WSClient, es: EventService) extends RemoteClient 
       "lastName" -> p.lastname,
       "company" -> p.company,
       "job" -> p.title,
-      "address1" -> p.address1,
-      "address2" -> p.address2,
-      "region" -> p.region,
       "city" -> p.city,
-      "zip" -> p.postalCode,
-      "country" -> p.country,
       "phone" -> p.phone))
 
     logger.debug(s"Person sent to Mydevoxx $personToSend")
@@ -91,7 +86,7 @@ class MyDevoxxRemoteClient(ws: WSClient, es: EventService) extends RemoteClient 
     response
   }
 
-  override def sendPassword(regId: Long, pass: String, token: String): Future[String] = {
+  override def sendPassword(regId: String, pass: String, token: String): Future[String] = {
 
     logger.info("sendPassword")
     val body = Json.toJson(Json.obj("password" -> pass))

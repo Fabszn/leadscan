@@ -12,7 +12,7 @@ import utils.{CORSAction, LoggerAudit}
   */
 class PersonController(ps: PersonService) extends Controller with LoggerAudit {
 
-  def read(id: Long) = CORSAction {
+  def read(id: String) = CORSAction {
     ApiAuthAction(parse.json) { implicit request => {
       ps.getPerson(id) match {
         case Some(person) => Ok(toHateoas(person))
@@ -22,17 +22,9 @@ class PersonController(ps: PersonService) extends Controller with LoggerAudit {
     }
   }
 
-  @deprecated
-  def readSensitive(id: Long) = CORSAction {
-    ApiAuthAction(parse.json) { implicit request =>
-      ps.getPersonSensitive(id) match {
-        case Some(pSensitive) => Ok(toHateoas(pSensitive)).withHeaders(("Access-Control-Allow-Origin", "*"))
-        case _ => NotFound(toHateoas(ErrorMessage("Person_sensitive_not_found", s"Person sensitive with id $id not found"))).withHeaders(("Access-Control-Allow-Origin", "*"))
-      }
-    }
-  }
 
-  def maj(id: Long) = CORSAction {
+
+  def maj(id: String) = CORSAction {
     ApiAuthAction(parse.json) { implicit request =>
 
       import jsonUtils._

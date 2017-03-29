@@ -18,17 +18,17 @@ trait LeadService {
 
   def isAlreadyConnect(contact: Lead): Option[Lead]
 
-  def isExists(idTarget: Long): Option[Person]
+  def isExists(idTarget: String): Option[Person]
 
-  def getLeads(id: Long): Seq[CompletePerson]
+  def getLeads(id: String): Seq[CompletePerson]
 
-  def getLatestLeads(id: Long, datetime: LocalDateTime): Seq[CompletePerson]
+  def getLatestLeads(id: String, datetime: LocalDateTime): Seq[CompletePerson]
 
-  def getCompleteLeads(id: Long): Seq[CompletePersonWithNotes]
+  def getCompleteLeads(id: String): Seq[CompletePersonWithNotes]
 
-  def getCompleteLatestLeads(id: Long, dateTime: LocalDateTime): Seq[CompletePersonWithNotes]
+  def getCompleteLatestLeads(id: String, dateTime: LocalDateTime): Seq[CompletePersonWithNotes]
 
-  def getNotes(idPerson: Long): Seq[LeadNote]
+  def getNotes(idPerson: String): Seq[LeadNote]
 
   def getNote(idNote: Long): Option[LeadNote]
 
@@ -38,19 +38,19 @@ trait LeadService {
 class LeadServiceImpl(db: Database) extends LeadService with LoggerAudit {
 
 
-  override def getCompleteLeads(id: Long): Seq[CompletePersonWithNotes] = {
+  override def getCompleteLeads(id: String): Seq[CompletePersonWithNotes] = {
     val allNotes = this.getNotes(id)
     this.getLeads(id).map(cp => CompletePersonWithNotes(cp, allNotes.filter(ln => {
-      ln.idTarget.equals(cp.id.get)
+      ln.idTarget.equals(cp.regId)
     })))
 
 
   }
 
-  override def getCompleteLatestLeads(id: Long, datetime: LocalDateTime): Seq[CompletePersonWithNotes] = {
+  override def getCompleteLatestLeads(id: String, datetime: LocalDateTime): Seq[CompletePersonWithNotes] = {
     val allNotes = this.getNotes(id)
     this.getLatestLeads(id,datetime).map(cp => CompletePersonWithNotes(cp, allNotes.filter(ln => {
-      ln.idTarget.equals(cp.id.get)
+      ln.idTarget.equals(cp.regId)
     })))
 
 
@@ -65,7 +65,7 @@ class LeadServiceImpl(db: Database) extends LeadService with LoggerAudit {
 
   }
 
-  override def getNotes(id: Long): Seq[LeadNote] = {
+  override def getNotes(id: String): Seq[LeadNote] = {
 
     db.withConnection { implicit c =>
       LeadNoteDAO.listBy("idapplicant", id)
@@ -96,21 +96,21 @@ class LeadServiceImpl(db: Database) extends LeadService with LoggerAudit {
     }
   }
 
-  override def getLeads(id: Long): Seq[CompletePerson] = {
+  override def getLeads(id: String): Seq[CompletePerson] = {
     db.withConnection { implicit c =>
       PersonDAO.findAllLeadById(id)
     }
 
   }
 
-  override def getLatestLeads(id: Long, datetime:LocalDateTime): Seq[CompletePerson] = {
+  override def getLatestLeads(id: String, datetime:LocalDateTime): Seq[CompletePerson] = {
     db.withConnection { implicit c =>
       PersonDAO.findAllLatestLeadById(id,datetime)
     }
 
   }
 
-  override def isExists(idTarget: Long): Option[Person] = {
+  override def isExists(idTarget: String): Option[Person] = {
     db.withConnection { implicit c =>
       PersonDAO.findBy(PersonDAO.pkField, idTarget)
     }

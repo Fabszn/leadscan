@@ -15,7 +15,7 @@ import utils.oAuthActions.ApiAuthAction
 class NotificationController(ns: NotificationService) extends Controller {
 
 
-  def allNotif(idRecipient: Long, dateTime: String) = CORSAction {
+  def allNotif(idRecipient: String, dateTime: String) = CORSAction {
     ApiAuthAction(parse.json) {
       implicit request =>
 

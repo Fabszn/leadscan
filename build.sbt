@@ -20,7 +20,7 @@ lazy val root = (project in file("."))
       jdbc,
       "org.flywaydb" %% "flyway-play" % "3.0.1",
       "org.mockito" % "mockito-core" % "2.7.2",
-      "com.typesafe.play" %% "anorm" % "2.5.1",
+      "com.typesafe.play" %% "anorm" % "2.5.3",
       "org.postgresql" % "postgresql" % "9.4.1212",
       "io.github.scala-hamsters" %% "hamsters" % "1.1.1",
       "com.github.pathikrit" %% "better-files" % "2.17.1",

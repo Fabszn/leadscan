@@ -21,9 +21,9 @@ trait SponsorService {
 
   def modifySponsor(sponsor: Sponsor): Unit
 
-  def addRepresentative(idPerson: Long, idSpnsor: Long): Unit
+  def addRepresentative(idPerson: String, idSpnsor: Long): Unit
 
-  def removeRepresentative(idPerson: Long): Unit
+  def removeRepresentative(idPerson: String): Unit
 
   def loadRepresentative(): Seq[PersonSponsorInfo]
 
@@ -35,7 +35,7 @@ trait SponsorService {
 
   def exportForEvent: Seq[String]
 
-  def exportForRepresentative(id: Long): Seq[String]
+  def exportForRepresentative(id: String): Seq[String]
 
 
 }
@@ -47,7 +47,7 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
   val SEP = "|"
   val SEP_COMMA = ","
 
-  override def addRepresentative(idPerson: Long, idSponsor: Long): Unit =
+  override def addRepresentative(idPerson: String, idSponsor: Long): Unit =
     db.withConnection(implicit connection =>
       SponsorDAO.addRepresentative(idPerson, idSponsor)
 
@@ -99,7 +99,7 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
     )
   }
 
-  override def removeRepresentative(idPerson: Long): Unit = {
+  override def removeRepresentative(idPerson: String): Unit = {
     db.withConnection(implicit connection =>
       SponsorDAO.deleteRepresentative(idPerson)
     )
@@ -120,13 +120,13 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
 
     import model.Person._
     Settings.headersSponsor :: db.withConnection(implicit connection =>
-      SponsorDAO.personBySponsor(id).map(line => {
+      SponsorDAO.personBySponsor(id).map((line: SponsorDAO.LeadLine) => {
 
         Json.parse(line.json).validate[PersonJson].asEither match {
           case Left(error) => s"An error occurred wiht this line -> $error"
           case Right(pj) =>
 
-            val applicant = PersonDAO.find(line.idApplicant).map(p => (p.firstname, p.lastname)).getOrElse(("not_found", "not_found"))
+            val applicant = PersonDAO.find(line.idApplicant).map(p => (pj.firstname, pj.lastname)).getOrElse(("not_found", "not_found"))
 
 
             val notes = LeadNoteDAO.findNoteByApplicantAndTarget(line.idApplicant, pj.regId.toLong)
@@ -135,7 +135,7 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
             val nbNote = if (notes.isEmpty) 0 else 1
             val notesVal = notes.map(n => n.note).mkString(" ")
             //headers.sponsor = "Rep_first_Name,Rep_last_Name,RegId,first_Name,last_Name,Email_Address,Company,Country,Title,nbNote,allNotes"
-            clean(s"""${applicant._1}$SEP${applicant._2}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.company.getOrElse("")}$SEP${pj.country.getOrElse("")}$SEP${pj.title.getOrElse("")}$SEP$nbNote$SEP $notesVal""")
+            clean(s"""${applicant._1}$SEP${applicant._2}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.company.getOrElse("")}}$SEP${pj.title.getOrElse("")}$SEP$nbNote$SEP $notesVal""")
         }
       })
     ).toList
@@ -153,20 +153,20 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
           case Left(error) => s"An error occurred wiht this line -> $error"
           case Right(pj) =>
 
-            val applicant = PersonDAO.find(line.idApplicant).map(p => (p.firstname, p.lastname)).getOrElse(("not_found", "not_found"))
+            val applicant = PersonDAO.find(line.idApplicant).map(p => (pj.firstname, pj.lastname)).getOrElse(("not_found", "not_found"))
 
 
             val notes = LeadNoteDAO.findNoteByApplicantAndTarget(line.idApplicant, pj.regId.toLong)
 
             val nbNote = notes.count(n => n.note.trim.nonEmpty)
 
-            clean(s"""${applicant._1}$SEP${applicant._2}$SEP${line.sponsor}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.country.getOrElse("")}$SEP${pj.phone.getOrElse("")}$SEP${pj.title.getOrElse("")}$SEP$nbNote""")
+            clean(s"""${applicant._1}$SEP${applicant._2}$SEP${line.sponsor}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.phone.getOrElse("")}$SEP${pj.title.getOrElse("")}$SEP$nbNote""")
         }
       })
     ).toList
   }
 
-  override def exportForRepresentative(id: Long): Seq[String] = {
+  override def exportForRepresentative(id: String): Seq[String] = {
 
     import model.Person._
     Settings.headersRepresentative :: db.withConnection(implicit connection =>
@@ -176,16 +176,9 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
           case Left(error) => s"An error occurred wiht this line -> $error"
           case Right(pj) =>
 
-            //val applicant = PersonDAO.find(line.idApplicant).map(p => (p.firstname, p.lastname)).getOrElse(("not_found", "not_found"))
 
 
-            //val notes = LeadNoteDAO.findNoteByApplicantAndTarget(line.idApplicant, pj.regId.toLong)
-
-            //todo must be fixed
-            //val nbNote = if (notes.isEmpty) 0 else 1
-            //val notesVal = notes.map(n => n.note).mkString(" ")
-
-            clean(s"""${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.country.getOrElse("")}$SEP${pj.phone.getOrElse("")}$SEP${pj.title.getOrElse("")}$SEP${line.note}""")
+            clean(s"""${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.phone.getOrElse("")}$SEP${pj.title.getOrElse("")}$SEP${line.note}""")
         }
       })
     ).toList

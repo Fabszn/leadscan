@@ -44,30 +44,8 @@ object HateoasConverter {
 
     override def links(person: Person): Seq[Links] = Seq(
       Links(Seq(Item("rel", "self"), Item("href", s"/persons/${person.id.get}", isHref = true))),
-      Links(Seq(Item("rel", "contacts"), Item("href", s"/persons/${person.id.get}/contacts", isHref = true))),
-      Links(Seq(Item("rel", "sensitive"), Item("href", s"/persons/${person.id.get}/sensitive", isHref = true)))
-    )
-  }
+      Links(Seq(Item("rel", "contacts"), Item("href", s"/persons/${person.id.get}/contacts", isHref = true)))
 
-
-  @deprecated
-  implicit object PersonSensitiveConverter extends Converter[PersonSensitive] {
-
-    override def name: String = "person_sensitive"
-
-    override def convertMap(pSensitive: PersonSensitive)(implicit request: Request[_]): Map[String, JsValue] = Map(
-      "email" -> JsString(pSensitive.email),
-      "company" -> JsString(pSensitive.company),
-      "phoneNumber" -> JsString(pSensitive.phoneNumber),
-      "workLocation" -> JsString(pSensitive.workLocation),
-      "lookingForAJob" -> JsBoolean(pSensitive.lookingForAJob)
-    )
-
-
-    override def links(pSensitive: PersonSensitive): Seq[Links] = Seq(
-      Links(Seq(Item("rel", "self"), Item("href", s"/persons/${pSensitive.id.get}/sensitive", isHref = true))),
-      Links(Seq(Item("rel", "contacts"), Item("href", s"/persons/${pSensitive.id.get}/contacts", isHref = true))),
-      Links(Seq(Item("rel", "person"), Item("href", s"/persons/${pSensitive.id.get}", isHref = true)))
     )
   }
 
@@ -79,9 +57,8 @@ object HateoasConverter {
     override def convertMap(a: CompletePerson)(implicit request: Request[_]): Map[String, JsValue] = completePerson2Map(a)
 
     override def links(a: CompletePerson): Seq[Links] = Seq(
-      Links(Seq(Item("rel", "self"), Item("href", s"/persons/${a.id.get}/sensitive", isHref = true))),
-      Links(Seq(Item("rel", "contacts"), Item("href", s"/persons/${a.id.get}/contacts", isHref = true))),
-      Links(Seq(Item("rel", "person"), Item("href", s"/persons/${a.id.get}", isHref = true))))
+      Links(Seq(Item("rel", "contacts"), Item("href", s"/persons/${a.regId}/contacts", isHref = true))),
+      Links(Seq(Item("rel", "person"), Item("href", s"/persons/${a.regId}", isHref = true))))
   }
 
 
@@ -90,7 +67,7 @@ object HateoasConverter {
 
     override def convertMap(a: Seq[CompletePerson])(implicit request: Request[_]): Map[String, JsValue] = {
       import play.api.libs.json._
-      a.map(p => s"${p.id.get}" -> {
+      a.map(p => s"${p.regId}" -> {
         JsObject(completePerson2Map(p)) ++ JsObject(Map("links" -> JsArray(CompletePersonConverter.links(p).map(HateoasUtils.linkWrites))))
       }).toMap
     }
@@ -103,7 +80,7 @@ object HateoasConverter {
 
     override def convertMap(a: Seq[CompletePersonWithNotes])(implicit request: Request[_]): Map[String, JsValue] = {
       import play.api.libs.json._
-      a.map(p => s"${p.person.id.get}" -> {
+      a.map(p => s"${p.person.regId}" -> {
         JsObject(completePerson2Map(p)) ++ JsObject(Map("links" -> JsArray(CompletePersonConverter.links(p.person).map(HateoasUtils.linkWrites))))
       }).toMap
     }
@@ -216,17 +193,7 @@ object HateoasUtils extends LoggerAudit {
     Json.fromJson[PersonJson](Json.parse(person.json)).asEither match {
       case Left(e) =>
 
-        //logger.error("error " + e)
-        Map(
-          "firstname" -> JsString(person.firstname),
-          "lastname" -> JsString(person.lastname),
-          "gender" -> JsString(person.gender),
-          "position" -> JsString(person.position),
-          "status" -> JsString(person.status),
-          "experience" -> JsNumber(person.experience),
-          "isTraining" -> JsBoolean(person.isTraining),
-          "showSensitive" -> JsBoolean(person.showSensitive)
-        )
+        Map("no mapping"-> JsString(s"${e}"))
       case Right(personJ) =>
         personJson2Map(personJ, None, Seq())
     }
@@ -237,22 +204,7 @@ object HateoasUtils extends LoggerAudit {
     Json.fromJson[PersonJson](Json.parse(person.json)).asEither match {
       case Left(e) =>
 
-        Map(
-          "firstname" -> JsString(person.firstname),
-          "lastname" -> JsString(person.lastname),
-          "gender" -> JsString(person.gender),
-          "position" -> JsString(person.position),
-          "status" -> JsString(person.status),
-          "experience" -> JsNumber(person.experience),
-          "isTraining" -> JsBoolean(person.isTraining),
-          "showSensitive" -> JsBoolean(person.showSensitive),
-          "profil" -> JsNumber(person.profilId),
-          "email" -> JsString(person.email),
-          "company" -> JsString(person.company),
-          "phoneNumber" -> JsString(person.phoneNumber),
-          "workLocation" -> JsString(person.workLocation),
-          "lookingForAJob" -> JsBoolean(person.lookingForAJob)
-        )
+        Map("no mapping"-> JsString(s"${e}"))
       case Right(personJ) =>
         personJson2Map(personJ, person.datetime, Seq())
     }
@@ -262,24 +214,9 @@ object HateoasUtils extends LoggerAudit {
     import model.Person.personJsonReader
     val person = p.person
     Json.fromJson[PersonJson](Json.parse(person.json)).asEither match {
-      case Left(_) =>
+      case Left(e) =>
+        Map("no mapping"-> JsString(s"${e}"))
 
-        Map(
-          "firstname" -> JsString(person.firstname),
-          "lastname" -> JsString(person.lastname),
-          "gender" -> JsString(person.gender),
-          "position" -> JsString(person.position),
-          "status" -> JsString(person.status),
-          "experience" -> JsNumber(person.experience),
-          "isTraining" -> JsBoolean(person.isTraining),
-          "showSensitive" -> JsBoolean(person.showSensitive),
-          "profil" -> JsNumber(person.profilId),
-          "email" -> JsString(person.email),
-          "company" -> JsString(person.company),
-          "phoneNumber" -> JsString(person.phoneNumber),
-          "workLocation" -> JsString(person.workLocation),
-          "lookingForAJob" -> JsBoolean(person.lookingForAJob)
-        )
       case Right(personJ) =>
         personJson2Map(personJ, person.datetime, p.notes)
     }
@@ -287,39 +224,22 @@ object HateoasUtils extends LoggerAudit {
 
   private def personJson2Map(personJ: PersonJson, date: Option[LocalDateTime], notes: Seq[LeadNote]) = {
     Map(
-      "regId" -> JsNumber(personJ.regId.toLong),
+      "regId" -> JsString(personJ.regId),
       "firstname" -> JsString(personJ.firstname),
       "lastname" -> JsString(personJ.lastname),
       "email" -> JsString(personJ.email),
-      //"address1" -> JsString(personJ.address1.getOrElse("")),
-      //"address1" -> JsString(personJ.address2.getOrElse("")),
-      "city" -> JsString(personJ.city.getOrElse("")),
-      "country" -> JsString(personJ.country.getOrElse("")),
-      //"fax" -> JsString(personJ.fax.getOrElse("")),
       "phone" -> JsString(personJ.phone.getOrElse("")),
-      //"region" -> JsString(personJ.region.getOrElse("")),
       "title" -> JsString(personJ.title.getOrElse("")),
-      //"codePostal" -> JsString(personJ.postalCode.getOrElse("")),
       "company" -> JsString(personJ.company.getOrElse("")),
       "leadDateTime" -> JsString(date.fold("notFound")(d => d.toEpochSecond(ZoneOffset.UTC).toString)),
       "notes" -> JsString(notes.map(ln => ln.note).mkString(" "))
     )
   }
 
-  def personSensitive2Map(pSensitive: PersonSensitive): Map[String, JsValue] = {
-    Map(
-      "email" -> JsString(pSensitive.email),
-      "company" -> JsString(pSensitive.company),
-      "phoneNumber" -> JsString(pSensitive.phoneNumber),
-      "workLocation" -> JsString(pSensitive.workLocation),
-      "lookingForAJob" -> JsBoolean(pSensitive.lookingForAJob)
-    )
-  }
-
   def notification2Map(notification: Notification): Map[String, JsValue] = {
     Map(
-      "idRecipient" -> JsNumber(notification.idRecipient),
-      "idRequester" -> JsNumber(notification.idRequester),
+      "idRecipient" -> JsString(notification.idRecipient),
+      "idRequester" -> JsString(notification.idRequester),
       "typeNotif" -> JsNumber(notification.typeNotif),
       "status" -> JsNumber(notification.status.id),
       "dateTimee" -> JsString(notification.dateTime.toString)
@@ -328,8 +248,8 @@ object HateoasUtils extends LoggerAudit {
 
   def leadNote2Map(note: LeadNote): Map[String, JsValue] = {
     Map(
-      "idApplicant" -> JsNumber(note.idApplicant),
-      "idTarget" -> JsNumber(note.idTarget),
+      "idApplicant" -> JsString(note.idApplicant),
+      "idTarget" -> JsString(note.idTarget),
       "note" -> JsString(note.note),
       "id" -> JsNumber(note.id.get),
       "dateTimee" -> JsString(note.dateTime.toString)

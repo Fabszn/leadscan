@@ -10,11 +10,11 @@ import model.Lead
 /**
   * Created by fsznajderman on 24/01/2017.
   */
-object LeadDAO extends mainDBDAO[Lead, Long] {
+object LeadDAO extends mainDBDAO[Lead, String] {
 
   override def rowParser: RowParser[Lead] = for {
-    idApplicant <- get[Long]("idApplicant")
-    idTarget <- get[Long]("idTarget")
+    idApplicant <- get[String]("idApplicant")
+    idTarget <- get[String]("idTarget")
     dateTime <- get[LocalDateTime]("dateTime")
   } yield Lead(idApplicant, idTarget, dateTime)
 
@@ -28,7 +28,7 @@ object LeadDAO extends mainDBDAO[Lead, Long] {
   )
 
 
-  def findByPks(idApplicant: Long, idTarget: Long)(implicit c: Connection): Option[Lead] = {
+  def findByPks(idApplicant: String, idTarget: String)(implicit c: Connection): Option[Lead] = {
 
     SQL"""
          SELECT * from LEAD where idApplicant=${idApplicant} and idTarget=$idTarget

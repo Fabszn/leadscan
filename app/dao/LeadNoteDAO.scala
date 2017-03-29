@@ -15,8 +15,8 @@ object LeadNoteDAO extends mainDBDAO[LeadNote, Long] {
 
   override def rowParser: RowParser[LeadNote] = for {
     id <- get[Option[Long]]("id")
-    idApplicant <- get[Long]("idApplicant")
-    idTarget <- get[Long]("idTarget")
+    idApplicant <- get[String]("idApplicant")
+    idTarget <- get[String]("idTarget")
     note <- get[String]("note")
     notedateTime <- get[LocalDateTime]("dateTime")
   } yield LeadNote(id, idApplicant, idTarget, note, notedateTime)
@@ -31,7 +31,7 @@ object LeadNoteDAO extends mainDBDAO[LeadNote, Long] {
   )
 
 
-  def findNoteByApplicantAndTarget(idApplicatn: Long, idTarget: Long)(implicit c :Connection): Seq[LeadNote] = {
+  def findNoteByApplicantAndTarget(idApplicatn: String, idTarget: Long)(implicit c :Connection): Seq[LeadNote] = {
 
     SQL"""select * from lead_note where idapplicant = $idApplicatn and idtarget=$idTarget""".as(rowParser.*)
 

@@ -5,25 +5,16 @@ import java.time.LocalDateTime
 
 import anorm.SqlParser._
 import anorm.{NamedParameter, RowParser, _}
-import model.{CompletePerson, Person}
+import model.{CompletePerson, Person, PersonJson}
 
 /**
   * Created by fsznajderman on 19/01/2017.
   */
-object PersonDAO extends mainDBDAO[Person, Long] {
+object PersonDAO extends mainDBDAO[Person, String] {
   override def table: String = "person"
 
   override def getParams(item: Person): Seq[NamedParameter] = Seq[NamedParameter](
     'id -> item.id.get,
-    'firstname -> item.firstname,
-    'lastname -> item.lastname,
-    'gender -> item.gender,
-    'position -> item.gender,
-    'status -> item.status,
-    'experience -> item.experience,
-    'isTraining -> item.isTraining,
-    'showSensitive -> item.showSensitive,
-    'profilid -> item.profil,
     'json -> item.json
 
 
@@ -31,47 +22,42 @@ object PersonDAO extends mainDBDAO[Person, Long] {
 
   override def rowParser: RowParser[Person] =
     for {
-      id <- get[Option[Long]]("id")
-      firstname <- get[String]("firstname")
-      lastname <- get[String]("lastname")
-      gender <- get[String]("gender")
-      position <- get[String]("position")
-      status <- get[String]("status")
-      experience <- get[Int]("experience")
-      isTraining <- get[Boolean]("isTraining")
-      showSensitive <- get[Boolean]("showSensitive")
-      profil <- get[Int]("profilid")
+      id <- get[Option[String]]("id")
       json <- get[String]("json")
     } yield
       Person(
         id,
-        firstname,
-        lastname,
-        gender,
-        position,
-        status,
-        experience,
-        isTraining,
-        showSensitive,
-        profil,
         json
       )
 
-  private val personCompleteInfo = Macro.namedParser[CompletePerson]
+  def rowParserCompletePerson: RowParser[(String, LocalDateTime)] =
+    for {
+      json <- get[String]("json")
+      datetime <- get[LocalDateTime]("datetime")
+    } yield
+      (
+        json,
+        datetime
+      )
 
-  def findAllLeadById(id: Long)(implicit c: Connection): Seq[CompletePerson] = {
+  //private val personInfo = Macro.namedParser[Person]
 
-    SQL"""select * from PERSON p inner join person_sensitive ps on p.id=ps.id
+  def findAllLeadById(id: String)(implicit c: Connection): Seq[CompletePerson] = {
+
+    SQL"""select * from PERSON p
        inner join lead l on l.idtarget=p.id
-       where l.idapplicant = $id;""".as(personCompleteInfo.*)
+       where l.idapplicant = $id;""".as(rowParserCompletePerson.*).map(p => {
+
+      Person.completePerson(p._1).copy(datetime = Option(p._2))
+
+    })
 
   }
 
-  def findAllLatestLeadById(id: Long, datetime: LocalDateTime)(implicit c: Connection): Seq[CompletePerson] = {
+  def findAllLatestLeadById(id: String, datetime: LocalDateTime)(implicit c: Connection): Seq[CompletePerson] = {
 
-    SQL"""select * from PERSON p inner join person_sensitive ps on p.id=ps.id
-       inner join lead l on l.idtarget=p.id
-       where l.idapplicant = $id and l.datetime > ${datetime};""".as(personCompleteInfo.*)
+    SQL"""select * from PERSON p inner join lead l on l.idtarget=p.id
+       where l.idapplicant = $id and l.datetime > ${datetime};""".as(rowParserCompletePerson.*).map(p =>  Person.completePerson(p._1).copy(datetime = Option(p._2)))
 
   }
 

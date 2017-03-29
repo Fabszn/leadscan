@@ -14,8 +14,8 @@ import model.{Notification, NotificationStatus}
 object NotificationDAO extends mainDBDAO[Notification, Long] {
   override def rowParser: RowParser[Notification] = for {
     id <- get[Option[Long]]("id")
-    idRecipient <- get[Long]("idRecipient")
-    idRequester <- get[Long]("idRequester")
+    idRecipient <- get[String]("idRecipient")
+    idRequester <- get[String]("idRequester")
     typeNotif <- get[Long]("idType")
     statusNotif <- get[Long]("idStatus")
     dateTime <- get[LocalDateTime]("dateTime")
@@ -33,7 +33,7 @@ object NotificationDAO extends mainDBDAO[Notification, Long] {
   )
 
 
-  def findNotificationByDateAndRecipient(idRecipient: Long, dateTime: LocalDateTime)(implicit c: Connection): Seq[Notification] = {
+  def findNotificationByDateAndRecipient(idRecipient: String, dateTime: LocalDateTime)(implicit c: Connection): Seq[Notification] = {
     SQL(
       s"""
          SELECT * FROM NOTIFICATION WHERE idRecipient = {idRecipient} and dateTime > {dt}

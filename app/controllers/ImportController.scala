@@ -48,13 +48,13 @@ class ImportController(ps: PersonService, ss: SponsorService, es: EventService, 
                 es.addEvent(Event(typeEvent = ImportRepresentative.typeEvent, message = s"representative with email : ${repre.email} not found"))
               case Some(person) => {
                 Try {
-                  ss.addRepresentative(person.regId.toLong, sp.id.get)
+                  ss.addRepresentative(person.regId, sp.id.get)
                 } match {
                   case Success(_) => {
                     val currentToken = jsonUtils.tokenExtractorFromSession(request)
                     val pass = PasswordGenerator.generatePassword
 
-                    remote.sendPassword(person.regId.toLong, pass, currentToken)
+                    remote.sendPassword(person.regId, pass, currentToken)
                     ns.sendMail(Seq(person.email),
                       Option(views.txt.mails.notifPassword.render(person.firstname, sp.name, pass).body),
                       Option(views.html.mails.notifPassword.render(person.firstname, sp.name, pass).body))
@@ -80,36 +80,13 @@ class ImportController(ps: PersonService, ss: SponsorService, es: EventService, 
 
   def importAllAttendees() = AdminAuthAction(parse.multipartFormData) { implicit request =>
     val body = request.body
-    body.file("csvFile").map { csvFile =>
+    body.file("csvFile").foreach { csvFile =>
 
       val csv = csvFile.ref
       val r: Seq[Map[String, String]] = loadCVSSourceFile(csv.file).map(kv => kv.updated("Email_Address", kv.getOrElse("Email_Address", "notFound").toLowerCase()))
       val convertedPerson = for {
         kv <- r
-      } yield Person(kv.get("RegId").map(_.toLong),
-        kv.getOrElse("first_Name", "notFound"),
-        kv.getOrElse("last_Name", "notFound"),
-        kv.getOrElse("gender", "_"),
-        kv.getOrElse("Title", "notFound"),
-        kv.getOrElse("status", "na"),
-        2,
-        isTraining = false,
-        showSensitive = true,
-        1,
-        Json.toJson(kv).toString
-
-      )
-
-      val convertedPersonSensitive = for {
-        kv <- r
-      } yield PersonSensitive(kv.get("RegId").map(_.toLong),
-        kv.getOrElse("Email_Address", "notFound"),
-        kv.getOrElse("Phone", "notFound"),
-        kv.getOrElse("Company", "notFound"),
-        kv.getOrElse("City", "notFound"),
-        lookingForAJob = false
-      )
-
+      } yield Person(kv.get("RegId"), Json.toJson(kv).toString)
 
       val currentToken = jsonUtils.tokenExtractorFromSession(request)
       import Person._
@@ -129,7 +106,7 @@ class ImportController(ps: PersonService, ss: SponsorService, es: EventService, 
           case _ =>
         }
       }
-      convertedPersonSensitive.foreach(ps.addPersonSensitive)
+
 
     }
 

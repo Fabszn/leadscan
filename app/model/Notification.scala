@@ -7,7 +7,7 @@ import model.NotificationStatus.NotifStatus
 /**
   * Created by fsznajderman on 19/01/2017.
   */
-case class Notification(id: Option[Long], idRecipient: Long, idRequester: Long, typeNotif: Long, status: NotifStatus, dateTime: LocalDateTime)
+case class Notification(id: Option[Long], idRecipient: String, idRequester: String, typeNotif: Long, status: NotifStatus, dateTime: LocalDateTime)
 
 
 object NotificationStatus extends Enumeration {

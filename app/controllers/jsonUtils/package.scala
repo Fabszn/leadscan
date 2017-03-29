@@ -64,15 +64,15 @@ package object jsonUtils extends LoggerAudit {
   }
 
 
-  def extractRegIdFromToken[A](request: Request[A]): Long = {
+  def extractRegIdFromToken[A](request: Request[A]): String = {
 
     val token = tokenExtractorFromHeader(request)
     logger.info(s"Token found $token")
     Jwt.decode(token, Settings.oAuth.sharedSecret, Seq(JwtAlgorithm.HS256)) match {
-      case Success(s) => (Json.parse(s) \ "registrantId").as[String] toLong
+      case Success(s) => (Json.parse(s) \ "registrantId").as[String]
       case Failure(es) => {
         logger.error(s"No RegistrantId found in token : $es")
-        -1
+        "-1"
       }
     }
   }

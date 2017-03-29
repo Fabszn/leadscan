@@ -18,12 +18,12 @@ import utils.{CORSAction, LoggerAudit}
   */
 class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService) extends Controller with LoggerAudit {
 
-  case class TargetInfo(idTarget: Long, note: Option[String])
+  case class TargetInfo(idTarget: String, note: Option[String])
 
-  case class LeadFromRequest(idApplicant: Long, idTarget: Long, note: Option[String])
+  case class LeadFromRequest(idApplicant: String, idTarget: String, note: Option[String])
 
   implicit val targetsreads: Reads[TargetInfo] = (
-    (__ \ "id").read[Long] and (__ \ "note").readNullable[String]
+    (__ \ "id").read[String] and (__ \ "note").readNullable[String]
     ) (TargetInfo.apply _)
 
 
@@ -35,7 +35,7 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
 
       val json = request.body
       //specific request.body parser.
-      (json \ "idApplicant").validate[Long].asEither match {
+      (json \ "idApplicant").validate[String].asEither match {
         case Left(erIdApplicant) => BadRequest(toHateoas(ErrorMessage("Json_parsing_error", s"Json parsing throws an error ${erIdApplicant}")))
         case Right(idApplicant) => {
 
@@ -68,7 +68,7 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
 
               Ok(toHateoas(
                 for (
-                  p <- ls.getCompleteLeads(idApplicant).filter(cpwn => idTargets.contains(cpwn.person.id.getOrElse(-1)))
+                  p <- ls.getCompleteLeads(idApplicant).filter(cpwn => idTargets.contains(cpwn.person.regId))
                 ) yield p
               ) ++ Json.obj("targetsNotFound" -> filteredTarget._2.map(t => t.idTarget.toString)))
             }
@@ -85,7 +85,7 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
       implicit request =>
 
         implicit val leadReader: Reads[LeadFromRequest] = (
-          (__ \ "idApplicant").read[Long] and (__ \ "idTarget").read[Long] and (__ \ "note").readNullable[String]
+          (__ \ "idApplicant").read[String] and (__ \ "idTarget").read[String] and (__ \ "note").readNullable[String]
           ) (LeadFromRequest.apply _)
 
         request.body.validate[LeadFromRequest].asEither match {
@@ -120,7 +120,7 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
     }
   }
 
-  def readNotes(idAppliquant: Long) = CORSAction {
+  def readNotes(idAppliquant: String) = CORSAction {
     ApiAuthAction {
       implicit request =>
         Ok(toHateoas(ls.getNotes(idAppliquant)))
@@ -138,7 +138,7 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
   }
 
 
-  def leads(id: Long) = CORSAction {
+  def leads(id: String) = CORSAction {
     ApiAuthAction {
       implicit request => {
 

@@ -1,8 +1,8 @@
 package services
 
 import anorm.NamedParameter
+import dao.PersonDAO
 import dao.PersonDAO.Pass
-import dao.{PersonDAO, PersonSensitiveDAO}
 import model._
 import play.api.db.Database
 import play.api.libs.json.Json
@@ -19,19 +19,15 @@ case class UpdatePerson(pString: Map[String, Option[String]] = Map(),
                        )
 
 trait PersonService {
-  def getPerson(id: Long): Option[Person]
+  def getPerson(id: String): Option[Person]
 
-  def getCompletePerson(id: Long): Option[PersonJson]
+  def getCompletePerson(id: String): Option[PersonJson]
 
   def getAllCompletePerson: Seq[PersonJson]
 
-  def getPersonSensitive(id: Long): Option[PersonSensitive]
-
-  def majPerson(id: Long, up: UpdatePerson)
+  def majPerson(id: String, up: UpdatePerson)
 
   def addPerson(p: Person, token: String): Unit
-
-  def addPersonSensitive(p: PersonSensitive): Unit
 
   def allPersons(): Seq[Person]
 
@@ -54,7 +50,7 @@ class PersonServiceImpl(db: Database, ns: NotificationService, remote: RemoteCli
   }
 
 
-  override def getCompletePerson(id: Long): Option[PersonJson] = {
+  override def getCompletePerson(id: String): Option[PersonJson] = {
 
     db.withConnection { implicit c =>
       logger.debug("completePersons")
@@ -76,23 +72,14 @@ class PersonServiceImpl(db: Database, ns: NotificationService, remote: RemoteCli
     }
   }
 
-  override def getPerson(id: Long): Option[Person] = {
+  override def getPerson(id: String): Option[Person] = {
     db.withConnection { implicit c =>
       PersonDAO.find(id)
     }
   }
 
 
-  override def getPersonSensitive(id: Long): Option[PersonSensitive] = {
-    db.withConnection { implicit c =>
-      //exprimer la distincion entre personne non trouvée et authorisation non donnée
-      PersonDAO.find(id).filter(p => p.showSensitive).flatMap { _ =>
-        PersonSensitiveDAO.getSensitiveDataByIdPerson(id)
-      }
-    }
-  }
-
-  override def majPerson(id: Long, up: UpdatePerson): Unit = {
+  override def majPerson(id: String, up: UpdatePerson): Unit = {
 
 
     val params = (up.pString.map {
@@ -127,42 +114,28 @@ class PersonServiceImpl(db: Database, ns: NotificationService, remote: RemoteCli
 
   }
 
-  override def addPersonSensitive(p: PersonSensitive): Unit = {
-    db.withConnection(implicit connexion =>
-
-      PersonSensitiveDAO.findBy(PersonDAO.pkField, p.id) match {
-        case None => PersonSensitiveDAO.create(p)
-        case Some(_) => PersonSensitiveDAO.update(p)
-      }
-    )
-  }
 
   override def addRepresentative(firstname: String, lastname: String, email: String, company: String, title: String, token: String): PersonJson =
     db.withTransaction(implicit connection => {
 
+
+      import Person._
       val id = Some(generateId(email))
-      val p = Person(id, firstname, lastname, "-", title, "-", 1, isTraining = false, showSensitive = true, 1)
-      val ps = PersonSensitive(id, email, "-", company, "-", lookingForAJob = false)
 
-      val pj = personToJson(p, ps)
 
-      PersonDAO.create(p.copy(json = pj._2))
-      PersonSensitiveDAO.create(ps)
-      pj._1
+      val pj = PersonJson(generateId(email).toString, firstname, lastname, None, email, Option(company), None, None, None, "false", None, None, "true"  )
+      (pj, Json.toJson(pj).toString)
+
+
+      PersonDAO.create(Person(Option(pj.regId), Json.toJson(pj).toString))
+
+      pj
 
     })
 
 
-  private def personToJson(p: Person, ps: PersonSensitive): (PersonJson, String) = {
-
-    import Person._
-
-    val pj = PersonJson(generateId(ps.email).toString, p.firstname, p.lastname, ps.email, Option(ps.company), None, None, None, None, None, None, None, None, Option(p.position))
-    (pj, Json.toJson(pj).toString)
-  }
-
-  private def generateId(email: String): Long = {
-    email.toLowerCase.trim.hashCode.abs
+  private def generateId(email: String): String = {
+    s"${email.toLowerCase.trim.hashCode.abs}"
   }
 
 

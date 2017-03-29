@@ -214,7 +214,7 @@
                             url: "/admin/representatives",
                             type: 'POST',
                             data: JSON.stringify({
-                                idPerson: Number($("#idPerson").val()),
+                                idPerson: $("#idPerson").val(),
                                 idSponsor: Number($("#idSponsor").val())
                             }),
                             async: true,
@@ -474,7 +474,7 @@
             $('#removeRepresentative').click(function () {
 
                 $.ajax({
-                    url: "/admin/representatives/" + Number($("#idPerson").val()),
+                    url: "/admin/representatives/" + $("#idPerson").val(),
                     type: 'DELETE',
                     async: true,
                     success: function (data) {
@@ -524,7 +524,6 @@
                 var ipdSponsor = $("#idSponsor").val();
 
                 if (!(_.isEmpty(ipdSponsor) || _.isEmpty(idPerson))) {
-                    console.log("activeAddRepresentative")
                     $('#addRepresentative').removeAttr("disabled")
                 }
 

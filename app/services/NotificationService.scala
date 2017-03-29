@@ -17,7 +17,7 @@ trait NotificationService {
 
   def addNotification(notif: Notification): Unit
 
-  def getNotifications(idRecipient: Long, dateTime: LocalDateTime): Seq[Notification]
+  def getNotifications(idRecipient: String, dateTime: LocalDateTime): Seq[Notification]
 
   def getNotification(idNotification: Long): Option[Notification]
 
@@ -34,7 +34,7 @@ class NotificationServiceImpl(db: Database, mailer: MailerClient, remote: Remote
     )
   }
 
-  override def getNotifications(idRecipient: Long, dateTime: LocalDateTime): Seq[Notification] = {
+  override def getNotifications(idRecipient: String, dateTime: LocalDateTime): Seq[Notification] = {
 
     db.withConnection(implicit c =>
       NotificationDAO.findNotificationByDateAndRecipient(idRecipient, dateTime)

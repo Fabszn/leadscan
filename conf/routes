@@ -3,17 +3,16 @@
 
 
 #person
-GET           /api/persons/:id                                       controllers.PersonController.read(id:Long)
-GET           /api/persons/:id/sensitive                             controllers.PersonController.readSensitive(id:Long)
-PUT           /api/persons/:id                                       controllers.PersonController.maj(id:Long)
-GET           /api/persons/:id/contacts                              controllers.LeadController.leads(id:Long)
+GET           /api/persons/:id                                       controllers.PersonController.read(id:String)
+PUT           /api/persons/:id                                       controllers.PersonController.maj(id:String)
+GET           /api/persons/:id/contacts                              controllers.LeadController.leads(id:String)
 GET           /api/persons/last_contacts/:datetime                   controllers.LeadController.latestLeads(datetime:Long)
 
 
 #Leads
 POST          /api/leads                                             controllers.LeadController.lead
 POST          /api/leads/note                                        controllers.LeadController.addNote
-GET           /api/leads/notes/:id                                   controllers.LeadController.readNotes(id:Long)
+GET           /api/leads/notes/:id                                   controllers.LeadController.readNotes(id:String)
 GET           /api/leads/note/:id                                    controllers.LeadController.readNote(id:Long)
 
 
@@ -21,7 +20,7 @@ GET           /api/leads/note/:id                                    controllers
 
 #Notification
 
-GET           /api/notifications/:idRecipient/since/:dateTime        controllers.NotificationController.allNotif(idRecipient:Long, dateTime:String)
+GET           /api/notifications/:idRecipient/since/:dateTime        controllers.NotificationController.allNotif(idRecipient:String, dateTime:String)
 GET           /api/notifications/:id                                 controllers.NotificationController.read(id:Long)
 
 #Status
@@ -50,14 +49,14 @@ GET           /admin/stats/data                                      controllers
 GET           /admin/export                                          controllers.AdminController.export
 GET           /admin/export/:idSponsor                               controllers.AdminController.exportBySponsor(idSponsor:Long)
 GET           /admin/export_event                                    controllers.AdminController.exportEvent
-GET           /admin/export_representative/:id_repr                  controllers.AdminController.exportRepresentative(id_repr:Long)
+GET           /admin/export_representative/:id_repr                  controllers.AdminController.exportRepresentative(id_repr:String)
 GET           /admin/representatives                                 controllers.SponsorsController.readAllRepr
 GET           /admin/only_representatives/:idSponsor                 controllers.SponsorsController.readOnlyReprBySponsor(idSponsor:Long)
 GET           /admin/all_only_representatives                        controllers.SponsorsController.readOnlyRepr
 GET           /admin/view_only_representatives                       controllers.AdminController.repreSpnsor
 POST          /admin/representatives                                 controllers.AdminController.linkRepreSponsor
 POST          /admin/representatives/new                             controllers.AdminController.newPerson
-DELETE        /admin/representatives/:idPerson                       controllers.AdminController.removeRepreSponsor(idPerson:Long)
+DELETE        /admin/representatives/:idPerson                       controllers.AdminController.removeRepreSponsor(idPerson:String)
 
 GET           /admin/checkAuth                                       controllers.AdminController.checkAuth
 
@@ -79,7 +78,7 @@ GET           /admin/sponsors                                        controllers
 
 GET           /admin/sponsors/all                                    controllers.SponsorsController.readAll
 
-GET           /admin/sponsors/:id                                    controllers.SponsorsController.read(id:Long)
+GET           /admin/sponsors/:id                                    controllers.SponsorsController.read(id:String)
 PUT           /admin/sponsors                                        controllers.SponsorsController.modify
 
 POST          /admin/sponsors                                        controllers.SponsorsController.add

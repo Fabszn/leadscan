@@ -24,7 +24,7 @@ class SponsorsController(ss: SponsorService) extends Controller {
   }
 
 
-  def read(id: Long) = AdminAuthAction { implicit request =>
+  def read(id: String) = AdminAuthAction { implicit request =>
 
     implicit val sponsor2json: Writes[Sponsor] = (
 

@@ -57,7 +57,7 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
 
   def all() = AdminAuthAction {
 
-    Ok(Json.toJson(Map("data" -> ps.allPersons().map(p => Seq(p.id.get.toString, p.firstname, p.lastname)))))
+    Ok(Json.toJson(Map("data" -> ps.allPersons().map(p => Seq(p.id.get.toString, "toBecompleted", "toBecompleted")))))
   }
 
 
@@ -65,10 +65,10 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
 
   def linkRepreSponsor = AdminAuthAction(parse.json) { implicit request =>
 
-    case class RepresentativeSponsor(idPerson: Long, idSponsor: Long)
+    case class RepresentativeSponsor(idPerson: String, idSponsor: Long)
 
     implicit val repSpoReaader: Reads[RepresentativeSponsor] = (
-      (__ \ "idPerson").read[Long] and (__ \ "idSponsor").read[Long]
+      (__ \ "idPerson").read[String] and (__ \ "idSponsor").read[Long]
       ) (RepresentativeSponsor.apply _)
 
 
@@ -84,7 +84,7 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
           import scala.concurrent.ExecutionContext.Implicits.global
           val pass = PasswordGenerator.generatePassword
           ps.addpass(p.regId, pass)
-          remote.sendPassword(p.regId.toLong, pass, token).foreach { _ =>
+          remote.sendPassword(p.regId, pass, token).foreach { _ =>
             ns.sendMail(Seq(p.email), Option(views.txt.mails.notifPassword.render(p.firstname, s.name, pass).body), Option(views.html.mails.notifPassword.render(p.firstname, s.name, pass).body))
           }
         }
@@ -119,7 +119,7 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
   }
 
 
-  def removeRepreSponsor(idPerson: Long) = AdminAuthAction {
+  def removeRepreSponsor(idPerson: String) = AdminAuthAction {
 
     ss.removeRepresentative(idPerson)
     Created("Representative has been removed")
@@ -154,7 +154,7 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
     Ok.sendFile(csv.toJava).withHeaders((CONTENT_DISPOSITION, s"attachment; filename=allLeads-$currentDate.csv"), (CONTENT_TYPE, "application/x-download"))
   }
 
-  def exportRepresentative(idRepr: Long) = Action {
+  def exportRepresentative(idRepr: String) = Action {
     import better.files._
 
     val currentDate = LocalDateTime.now()
@@ -182,7 +182,7 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
     val personJsons: Seq[PersonJson] = ps.allPersons().map(p => Json.parse(p.json).as[PersonJson])
 
 
-    Ok(Json.toJson(Map("data" -> personJsons.map(pj => Seq(pj.regId, pj.firstname, pj.lastname, pj.email, pj.title.getOrElse("-"), pj.country.getOrElse("-"), pj.phone.getOrElse("-"), pj.city.getOrElse("-"), pj.company.getOrElse("-"))))))
+    Ok(Json.toJson(Map("data" -> personJsons.map(pj => Seq(pj.regId, pj.firstname, pj.lastname, pj.email, pj.title.getOrElse("-"),  pj.phone.getOrElse("-"), pj.city.getOrElse("-"), pj.company.getOrElse("-"))))))
   }
 
 
