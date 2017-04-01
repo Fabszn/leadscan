@@ -97,8 +97,8 @@ class ImportController(ps: PersonService, ss: SponsorService, es: EventService, 
         Try {
           remote.sendPerson(Json.parse(p.json).as[PersonJson], currentToken)
 
-          val token = jsonUtils.tokenExtractorFromSession(request)
-          ps.addPerson(p, token)
+
+          ps.addPerson(p)
 
         }
         match {

@@ -27,7 +27,7 @@ trait PersonService {
 
   def majPerson(id: String, up: UpdatePerson)
 
-  def addPerson(p: Person, token: String): Unit
+  def addPerson(p: Person): Unit
 
   def allPersons(): Seq[Person]
 
@@ -96,7 +96,7 @@ class PersonServiceImpl(db: Database, ns: NotificationService, remote: RemoteCli
   }
 
 
-  override def addPerson(p: Person, token: String): Unit = {
+  override def addPerson(p: Person): Unit = {
     db.withTransaction(implicit connexion =>
 
       PersonDAO.findBy(PersonDAO.pkField, p.id) match {
