@@ -29,7 +29,8 @@ If you use [Intellij IDE](https://www.jetbrains.com/idea/) IDE you will need to 
 Then install the Scala SDK in Intellij IDEA
 
 ### Pre requis
- To run the application, you must have local database. You could run one postgresql DB in docker container with the following command :
+
+To run the application, you must have local database. You could run one postgresql DB in docker container with the following command :
 
 	docker run  -p 5432:5432 -e POSTGRES_PASSWORD=test -e POSTGRES_USER=fabszn -e POSTGRES_DB=leadtracker  -d postgres:9.6
 
@@ -57,7 +58,21 @@ The information above is related to the information provided to the docker image
  
  /!\ This file must not be commited (that's why it's in the `.gitignore`)! 
 
+Note : On Clevercloud the pgSQL version are a little older
+- on shared plans (DEV and S) : PostgreSQL 9.2.8
+- on newly created dedicated databases (plans M and above) : Postgresql 9.5.4
+
 ### Installing
+
+Create a local Play configuration file in conf/local.conf, and put into this file your local Dev configuration. 
+You can also start SBT and specify the global environments properties from the command line. 
+
+Required propreties are :
+
+    POSTGRESQL_ADDON_HOST
+    POSTGRESQL_ADDON_PASSWORD
+    POSTGRESQL_ADDON_USER
+    POSTGRESQL_ADDON_DB
 
 Once you have all the code, you can run the following command :
 

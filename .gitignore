@@ -1,4 +1,7 @@
+# Put into the local.conf file your local env properties for Development only
 conf/local.conf
+
+
 # Ignore all dotfiles...
 .*
 # except for .gitignore
