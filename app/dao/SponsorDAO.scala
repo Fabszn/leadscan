@@ -11,6 +11,7 @@ import model.{Person, PersonJson, Sponsor}
   * Created by fsznajderman on 11/02/2017.
   */
 object SponsorDAO extends mainDBDAO[Sponsor, Long] {
+
   override def rowParser: RowParser[Sponsor] =
     for {
       id <- get[Option[Long]]("id")
@@ -44,16 +45,17 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
 
 
   def all(implicit connection: Connection): Seq[Sponsor] = {
-
     SQL"""select * from SPONSOR """.as(rowParser.*)
-
   }
-
 
   def addRepresentative(idPerson: String, idSponsor: Long)(implicit connection: Connection): Unit = {
     SQL"""insert into PERSON_SPONSOR (idperson, idsponsor) values ($idPerson, $idSponsor) ON CONFLICT DO NOTHING""".execute()
   }
 
+  def isRepresentative(idPerson: String, idSponsor: Long)(implicit c:Connection): Boolean = {
+    val res=SQL"""SELECT idPerson from PERSON_SPONSOR ps WHERE ps.idperson = ${idPerson} AND ps.idSponsor = ${idSponsor} LIMIT 1""".as(SqlParser.str("idPerson").singleOpt)
+    res.isDefined
+  }
 
   case class PersonSponsorInfo(idPerson: String, firstname: String, lastname: String, email: String = "", idSponsor: Option[String], nameSponsor: Option[String])
 

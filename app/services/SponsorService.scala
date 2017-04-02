@@ -21,7 +21,7 @@ trait SponsorService {
 
   def modifySponsor(sponsor: Sponsor): Unit
 
-  def addRepresentative(idPerson: String, idSpnsor: Long): Unit
+  def addRepresentative(idPerson: String, idSponsor: Long): Unit
 
   def removeRepresentative(idPerson: String): Unit
 
@@ -37,6 +37,7 @@ trait SponsorService {
 
   def exportForRepresentative(id: String): Seq[String]
 
+  def isRepresentative(idPerson:String, idSponsor:Long):Boolean
 
 }
 
@@ -53,6 +54,13 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
 
     )
 
+
+  override def isRepresentative(idPerson: String, idSponsor: Long): Boolean = {
+    db.withConnection(implicit connection=>
+    SponsorDAO.isRepresentative(idPerson,idSponsor)
+    )
+  }
+
   override def modifySponsor(sponsor: Sponsor): Unit = {
     db.withConnection(implicit connection =>
       SponsorDAO.updateByNamedParameters(sponsor.id.get)(SponsorDAO.getParams(sponsor).toList)
@@ -62,7 +70,6 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
   override def addSponsor(sponsor: Sponsor): Unit = {
     db.withConnection(implicit connection =>
       SponsorDAO.create(sponsor)
-
     )
   }
 
