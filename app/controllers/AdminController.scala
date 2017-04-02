@@ -85,7 +85,11 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
           val pass = PasswordGenerator.generatePassword
           ps.addpass(p.regId, pass)
           remote.sendPassword(p.regId, pass, token).foreach { _ =>
-            ns.sendMail(Seq(p.email), Option(views.txt.mails.notifPassword.render(p.firstname, s.name, pass).body), Option(views.html.mails.notifPassword.render(p.firstname, s.name, pass).body))
+            ns.sendMail(
+              Seq(p.email),
+              Option(views.txt.mails.notifPassword.render(p.firstname, s.name, pass, p.email).body),
+              Option(views.html.mails.notifPassword.render(p.firstname, s.name, pass, p.email).body)
+            )
           }
         }
         Created("Representative and sponsor are associated")

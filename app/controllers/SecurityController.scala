@@ -39,8 +39,8 @@ class SecurityController(authService: AuthService) extends Controller with Logge
       case Right(userData) => {
         authService.validAuthentifiaction(userData.login, userData.pass).map {
           case UnauthenticateUser(error) => {
-            logger.info(s"User : ${userData.login} is no authorised - [$error]")
-            Unauthorized(s"User : ${userData.login} is no authorised - [$error]")
+            logger.info(s"User : ${userData.login} is no authorized - [$error]")
+            Unauthorized(s"User : ${userData.login} is no authorized - [$error]")
           }
           case AuthenticateUser(_, _, email, token) => {
             logger.info(s"$userData authenticated")

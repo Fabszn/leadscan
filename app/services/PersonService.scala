@@ -19,6 +19,8 @@ case class UpdatePerson(pString: Map[String, Option[String]] = Map(),
                        )
 
 trait PersonService {
+  def findByEmail(email: String): Option[Person]
+
   def getPerson(id: String): Option[Person]
 
   def getCompletePerson(id: String): Option[PersonJson]
@@ -78,6 +80,12 @@ class PersonServiceImpl(db: Database, ns: NotificationService, remote: RemoteCli
     }
   }
 
+  override def findByEmail(email: String): Option[Person] = {
+    db.withConnection { implicit c =>
+      PersonDAO.findBy[String]("email", email)
+    }
+  }
+
 
   override def majPerson(id: String, up: UpdatePerson): Unit = {
 
@@ -123,7 +131,7 @@ class PersonServiceImpl(db: Database, ns: NotificationService, remote: RemoteCli
       val id = Some(generateId(email))
 
 
-      val pj = PersonJson(generateId(email).toString, firstname, lastname, None, email, Option(company), None, None, None, "false", None, None, "true"  )
+      val pj = PersonJson(generateId(email).toString, firstname, lastname, None, email, Option(company), None, None, None, "false", None, None, "true")
       (pj, Json.toJson(pj).toString)
 
 

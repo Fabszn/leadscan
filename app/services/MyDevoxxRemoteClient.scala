@@ -35,12 +35,18 @@ trait RemoteClient {
 
 class MyDevoxxRemoteClient(ws: WSClient, es: EventService) extends RemoteClient with LoggerAudit {
 
-
+  // Todo Je retournerai un Future[Try[String]] pour gérer si authentification a échoué
   override def getJWtToken(login: String, password: String, remenberMe: Boolean): Future[String] = {
 
     ws.url(Settings.oAuth.endpoints.auth)
       .withHeaders("Content-Type" -> "application/json")
-      .post(Json.obj("email" -> login, "password" -> password, "rememberMe" -> remenberMe)).map(wsRes => (wsRes.json \ "token").as[String]).recover { case e: Exception => s"${e.getMessage} - ${e.getCause}" }
+      .post(Json.obj("email" -> login, "password" -> password, "rememberMe" -> remenberMe))
+      .map(wsRes => (wsRes.json \ "token").as[String])
+      .recover {
+        case e: Exception =>
+          play.Logger.error("Unable to load JWT Token due to ",e)
+          s"${e.getMessage} - ${e.getCause}"
+      }
 
 
   }

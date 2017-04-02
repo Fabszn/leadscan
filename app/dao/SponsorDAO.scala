@@ -51,17 +51,14 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
 
 
   def addRepresentative(idPerson: String, idSponsor: Long)(implicit connection: Connection): Unit = {
-
-    SQL"""insert into PERSON_SPONSOR (idperson, idsponsor) values ($idPerson, $idSponsor)""".execute()
-
+    SQL"""insert into PERSON_SPONSOR (idperson, idsponsor) values ($idPerson, $idSponsor) ON CONFLICT DO NOTHING""".execute()
   }
+
 
   case class PersonSponsorInfo(idPerson: String, firstname: String, lastname: String, email: String = "", idSponsor: Option[String], nameSponsor: Option[String])
 
 
   def allWithSponsor(implicit connection: Connection): Seq[PersonSponsorInfo] = {
-
-
     SQL"""select json
          ,s.id as idSponsor, s."name" as nameSponsor  from SPONSOR s inner join
        PERSON_SPONSOR ps on s.id=ps.idSponsor
@@ -70,14 +67,11 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
   }
 
   def onlyRepresentatives(idSponsor: Long)(implicit connection: Connection): Seq[PersonSponsorInfo] = {
-
-
     SQL"""select json
        ,s.id as idSponsor, s."name" as nameSponsor  from
        SPONSOR s inner join
        PERSON_SPONSOR ps on s.id=ps.idSponsor inner join
        PERSON p on p.id=ps.idperson  where s.id=${idSponsor}""".as(rowParserSponsorInfo.*).map(data => PersonSponsorInfo(data._1.regId, data._1.firstname, data._1.lastname, email = "", data._2.map(_.toString), data._3))
-
   }
 
   def onlyRepresentatives(implicit connection: Connection): Seq[PersonSponsorInfo] = {

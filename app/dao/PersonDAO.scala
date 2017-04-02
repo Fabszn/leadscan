@@ -11,13 +11,12 @@ import model.{CompletePerson, Person, PersonJson}
   * Created by fsznajderman on 19/01/2017.
   */
 object PersonDAO extends mainDBDAO[Person, String] {
+
   override def table: String = "person"
 
   override def getParams(item: Person): Seq[NamedParameter] = Seq[NamedParameter](
     'id -> item.id.get,
     'json -> item.json
-
-
   )
 
   override def rowParser: RowParser[Person] =
@@ -57,7 +56,7 @@ object PersonDAO extends mainDBDAO[Person, String] {
   def findAllLatestLeadById(id: String, datetime: LocalDateTime)(implicit c: Connection): Seq[CompletePerson] = {
 
     SQL"""select * from PERSON p inner join lead l on l.idtarget=p.id
-       where l.idapplicant = $id and l.datetime > ${datetime};""".as(rowParserCompletePerson.*).map(p =>  Person.completePerson(p._1).copy(datetime = Option(p._2)))
+       where l.idapplicant = $id and l.datetime > ${datetime};""".as(rowParserCompletePerson.*).map(p => Person.completePerson(p._1).copy(datetime = Option(p._2)))
 
   }
 

@@ -29,8 +29,9 @@ class AuthServiceImpl(db: Database, remote: RemoteClient) extends AuthService {
       AdminAccountDAO.findBy("email_adress", login)
     }
 
+    // TODO gérer le cas où le client retourne un 401 Unauthorized
     admin match {
-      case None => Future.successful(UnauthenticateUser("None admin user has been found for this email"))
+      case None => Future.successful(UnauthenticateUser("No admin was found for this email address"))
       case Some(_) => for {
         jeton <- remote.getJWtToken(login, password)
         user <- remote.getUserInfo(jeton)
