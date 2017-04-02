@@ -1,6 +1,9 @@
 package controllers
 
+import java.io.FileReader
+
 import batch.utils._
+import com.opencsv.CSVReader
 import model._
 import play.api.libs.json.Json
 import play.api.mvc.Controller
@@ -9,6 +12,7 @@ import utils.oAuthActions.AdminAuthAction
 import utils.{LoggerAudit, PasswordGenerator}
 
 import scala.util.{Failure, Success, Try}
+
 
 /**
   * Created by fsznajderman on 07/02/2017.
@@ -23,7 +27,7 @@ class ImportController(ps: PersonService, ss: SponsorService, es: EventService, 
     body.file("csvFile").foreach { csvFile =>
 
       val csv = csvFile.ref
-      val r: Seq[Map[String, String]] = loadCVSSourceFile(csv.file).map(kv => kv.updated("Email", kv.getOrElse("Email", "notFound").toLowerCase()))
+      val r: Seq[Map[String, String]] = loadCSVSourceFileWithLib(csv.file).map(kv => kv.updated("Email", kv.getOrElse("Email", "notFound").toLowerCase()))
 
 
       val reprs = for {
@@ -81,9 +85,8 @@ class ImportController(ps: PersonService, ss: SponsorService, es: EventService, 
   def importAllAttendees() = AdminAuthAction(parse.multipartFormData) { implicit request =>
     val body = request.body
     body.file("csvFile").foreach { csvFile =>
-
       val csv = csvFile.ref
-      val r: Seq[Map[String, String]] = loadCVSSourceFile(csv.file).map(kv => kv.updated("Email_Address", kv.getOrElse("Email_Address", "notFound").toLowerCase()))
+      val r: Seq[Map[String, String]] = loadCSVSourceFileWithLib(csv.file).map(kv => kv.updated("Email_Address", kv.getOrElse("Email_Address", "notFound").toLowerCase()))
       val convertedPerson = for {
         kv <- r
       } yield Person(kv.get("RegId"), Json.toJson(kv).toString)
