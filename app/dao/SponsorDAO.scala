@@ -49,7 +49,7 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
   }
 
   def addRepresentative(idPerson: String, idSponsor: Long)(implicit connection: Connection): Unit = {
-    SQL"""insert into PERSON_SPONSOR (idperson, idsponsor) values ($idPerson, $idSponsor) ON CONFLICT DO NOTHING""".execute()
+    SQL"""insert into PERSON_SPONSOR (idperson, idsponsor) values ($idPerson, $idSponsor)""".execute()
   }
 
   def isRepresentative(idPerson: String, idSponsor: Long)(implicit c:Connection): Boolean = {
