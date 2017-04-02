@@ -82,7 +82,7 @@ sbt run
 
 This will compile all the code, and deploy it. Just check you have access to the following URLs:
 
-* [http://localhost:9000/status]() : status information 
+* [http://localhost:9000/api/status]() : status information 
 
 
 ## Running the tests
