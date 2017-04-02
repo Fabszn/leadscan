@@ -4,6 +4,7 @@ import config.Settings
 import dao.SponsorDAO.PersonSponsorInfo
 import dao.{LeadNoteDAO, PersonDAO, SponsorDAO}
 import model.{PersonJson, Sponsor}
+import org.apache.commons.lang3.StringUtils
 import play.api.db.Database
 import play.api.libs.json.Json
 
@@ -115,9 +116,8 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
 
 
   override def loadSponsor(sponsorName: String): Option[Sponsor] = {
-
     db.withConnection(implicit connection =>
-      SponsorDAO.findBy("name", sponsorName)
+      SponsorDAO.findBy("name", StringUtils.trimToEmpty(sponsorName).toUpperCase)
     )
 
   }

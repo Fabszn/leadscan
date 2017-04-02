@@ -41,18 +41,15 @@ class ImportController(personService: PersonService
 
       representatives.foreach {
         representative =>
-          // because sponsorId is a Long
-          val sponsorId = representative.regId.hashCode
-          // TODO j'ai pas l'impression que la creation d'un Sponsor respecte et garde mon ID mais que cela utilise une clé autoincrémentée
           val sponsor = sponsorService.loadSponsor(representative.sponsor) match {
             case None =>
-              eventService.addEvent(Event(typeEvent = ImportRepresentative.typeEvent, message = s"Sponsor with name ${representative.sponsor} not found, creating a new sponsor with id $sponsorId"))
-              val newSponsor = Sponsor(Some(sponsorId), representative.sponsor, representative.sponsorLevel)
+              eventService.addEvent(Event(typeEvent = ImportRepresentative.typeEvent, message = s"Sponsor with name ${representative.sponsor} not found, creating a new sponsor"))
+              val newSponsor = Sponsor(None, representative.sponsor, representative.sponsorLevel)
               sponsorService.addSponsor(newSponsor)
               play.Logger.debug(s"Created new sponsor [${newSponsor.name}]")
-              newSponsor
+              sponsorService.loadSponsor(representative.sponsor).get // TODO pas top de devoir recharger ce que l'om vient de créer mais c'est pour récupérer le bon sponsorId
             case Some(exSponsor) =>
-              play.Logger.debug(s"Loaded sponsor ${exSponsor.name}")
+              play.Logger.debug(s"Loaded sponsor ${exSponsor.name} with id ${exSponsor.id.get}")
               exSponsor
           }
 
@@ -64,6 +61,7 @@ class ImportController(personService: PersonService
               play.Logger.warn(s"A Person was not found while trying to import representatives. Please import this person first. $representative")
             case Some(person) => {
               if (sponsorService.isRepresentative(person.regId, sponsor.id.get)) {
+                play.Logger.info("Already representative")
                 // Maybe update ?
                 eventService.addEvent(
                   Event(
@@ -71,6 +69,7 @@ class ImportController(personService: PersonService
                     message = s"Representative already exists ${person.email} ${person.regId} for ${sponsor.name}")
                 )
               } else {
+                play.Logger.info("New representative")
                 Try {
                   sponsorService.addRepresentative(person.regId, sponsor.id.get)
                 } match {

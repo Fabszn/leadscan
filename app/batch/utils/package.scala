@@ -30,7 +30,6 @@ package object utils {
     lines.headOption.map(_.toList) match {
       case None => Seq.empty
       case Some(headers) => {
-        println("CSV Header " + headers) // TODO voir comment utiliser tes loggers
         lines.tail.map {
           oneLine =>
             (headers zip oneLine.map(s=>StringUtils.trimToNull(s)).toList).toMap
