@@ -84,7 +84,7 @@ class ImportController(ps: PersonService, ss: SponsorService, es: EventService, 
 
   def importAllAttendees() = AdminAuthAction(parse.multipartFormData) { implicit request =>
     val body = request.body
-    body.file("csvFile").foreach { csvFile =>
+    body.file("csvFile").map { csvFile =>
       val csv = csvFile.ref
       val r: Seq[Map[String, String]] = loadCSVSourceFileWithLib(csv.file).map(kv => kv.updated("Email_Address", kv.getOrElse("Email_Address", "notFound").toLowerCase()))
       val convertedPerson = for {
@@ -93,27 +93,23 @@ class ImportController(ps: PersonService, ss: SponsorService, es: EventService, 
 
       val currentToken = jsonUtils.tokenExtractorFromSession(request)
       import Person._
-      convertedPerson.foreach { p =>
-
+      val imported = convertedPerson.map { p =>
         //notify MyDevoxx with new person
-
         Try {
           remote.sendPerson(Json.parse(p.json).as[PersonJson], currentToken)
-
-
           ps.addPerson(p)
-
         }
         match {
-          case Failure(e) => logger.error(p.json + "  " + e.getMessage)
-          case _ =>
+          case Failure(e) =>
+            logger.error(p.json + "  " + e.getMessage)
+            0
+          case _ => 1
         }
       }
+      Ok(s"Imported ${imported.sum} person, with ${convertedPerson.size} CSV lines")
+    }.getOrElse(NotFound("No file received"))
 
 
-    }
-
-    Ok("import done!")
   }
 
   def importIndex = AdminAuthAction {
