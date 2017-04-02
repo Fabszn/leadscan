@@ -44,47 +44,53 @@ class ImportController(personService: PersonService
           // because sponsorId is a Long
           val sponsorId = representative.regId.hashCode
           // TODO j'ai pas l'impression que la creation d'un Sponsor respecte et garde mon ID mais que cela utilise une clé autoincrémentée
-          sponsorService.loadSponsor(representative.sponsor) match {
+          val sponsor = sponsorService.loadSponsor(representative.sponsor) match {
             case None =>
               eventService.addEvent(Event(typeEvent = ImportRepresentative.typeEvent, message = s"Sponsor with name ${representative.sponsor} not found, creating a new sponsor with id $sponsorId"))
               val newSponsor = Sponsor(Some(sponsorId), representative.sponsor, representative.sponsorLevel)
               sponsorService.addSponsor(newSponsor)
-            case Some(sponsor) =>
-              personService.getCompletePerson(representative.regId) match {
-                case None =>
-                  eventService.addEvent(Event(typeEvent = ImportRepresentative.typeEvent, message = s"Person not found for Representative regId : ${representative.regId}"))
-                  // If the Person does not exist then we will not create it here
-                  // It means that the representatives must already exist in the Database as Person
-                  play.Logger.warn(s"A Person was not found while trying to import representatives. Please import this person first. $representative")
-                case Some(person) => {
-                  if (sponsorService.isRepresentative(person.regId, sponsor.id.get)) {
-                    // Maybe update ?
-                    eventService.addEvent(
-                      Event(
-                        typeEvent = ImportRepresentative.typeEvent,
-                        message = s"Representative already exists ${person.email} ${person.regId} for ${sponsor.name}")
-                    )
-                  } else {
-                    Try {
-                      sponsorService.addRepresentative(person.regId, sponsor.id.get)
-                    } match {
-                      case Success(_) => {
-                        val currentToken = jsonUtils.tokenExtractorFromSession(request)
-                        val pass = PasswordGenerator.generatePassword
-                        remoteClient.sendPassword(person.regId, pass, currentToken) // Update the password on MyDevoxx... maybe not a good idea if the user does already exist
-                        notificationService.sendMail(Seq(person.email),
-                          Option(views.txt.mails.notifPassword.render(person.firstname, sponsor.name, pass, person.email).body),
-                          Option(views.html.mails.notifPassword.render(person.firstname, sponsor.name, pass, person.email).body))
-                        eventService.addEvent(Event(typeEvent = ImportRepresentative.typeEvent, message = s"Email sent to ${person.firstname} ${person.lastname} (${person.email}) for sponsor ${sponsor.name}"))
-                      }
-                      case Failure(e) =>
-                        eventService.addEvent(Event(typeEvent = AddRepresentative.typeEvent, message = s"An error occured when addRepresentative ${e.getMessage}"))
+              play.Logger.debug(s"Created new sponsor [${newSponsor.name}]")
+              newSponsor
+            case Some(exSponsor) =>
+              play.Logger.debug(s"Loaded sponsor ${exSponsor.name}")
+              exSponsor
+          }
 
-                    }
+          personService.getCompletePerson(representative.regId) match {
+            case None =>
+              eventService.addEvent(Event(typeEvent = ImportRepresentative.typeEvent, message = s"Person not found for Representative regId : ${representative.regId}"))
+              // If the Person does not exist then we will not create it here
+              // It means that the representatives must already exist in the Database as Person
+              play.Logger.warn(s"A Person was not found while trying to import representatives. Please import this person first. $representative")
+            case Some(person) => {
+              if (sponsorService.isRepresentative(person.regId, sponsor.id.get)) {
+                // Maybe update ?
+                eventService.addEvent(
+                  Event(
+                    typeEvent = ImportRepresentative.typeEvent,
+                    message = s"Representative already exists ${person.email} ${person.regId} for ${sponsor.name}")
+                )
+              } else {
+                Try {
+                  sponsorService.addRepresentative(person.regId, sponsor.id.get)
+                } match {
+                  case Success(_) => {
+                    val currentToken = jsonUtils.tokenExtractorFromSession(request)
+                    val pass = PasswordGenerator.generatePassword
+                    remoteClient.sendPassword(person.regId, pass, currentToken) // Update the password on MyDevoxx... maybe not a good idea if the user does already exist
+                    notificationService.sendMail(Seq(person.email),
+                      Option(views.txt.mails.notifPassword.render(person.firstname, sponsor.name, pass, person.email).body),
+                      Option(views.html.mails.notifPassword.render(person.firstname, sponsor.name, pass, person.email).body))
+                    eventService.addEvent(Event(typeEvent = ImportRepresentative.typeEvent, message = s"Email sent to ${person.firstname} ${person.lastname} (${person.email}) for sponsor ${sponsor.name}"))
                   }
+                  case Failure(e) =>
+                    eventService.addEvent(Event(typeEvent = AddRepresentative.typeEvent, message = s"An error occured when addRepresentative ${e.getMessage}"))
+
                 }
               }
+            }
           }
+
 
       }
     }
