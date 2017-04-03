@@ -30,9 +30,6 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
   def lead = CORSAction(ApiAuthAction(parse.json) {
     implicit request => {
 
-
-
-
       val json = request.body
       //specific request.body parser.
       (json \ "idApplicant").validate[String].asEither match {
