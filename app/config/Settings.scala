@@ -41,9 +41,8 @@ object Settings {
 
 
     object mailer {
-      import JavaConversions._
       val from: String = config.getString("play.mailer.from")
-      val bcc:Seq[String] = config.getStringList("play.mailer.bcc").toIndexedSeq
+      val bcc:String = config.getString("play.mailer.bcc")
       val committee: String = config.getString("play.mailer.committee")
     }
 
