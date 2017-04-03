@@ -224,15 +224,6 @@ object HateoasUtils extends LoggerAudit {
 
   private def personJson2Map(personJ: PersonJson, date: Option[LocalDateTime], notes: Seq[LeadNote]) = {
 
-    /*Prénom
-    Nom
-    Societe
-    Type de billet (combo conf ou uni)
-    Societe
-    Poste / fonction
-    Email
-    Tel*/
-
     Map(
       "regId" -> JsString(personJ.regId),
       "firstname" -> JsString(personJ.firstname),
@@ -240,8 +231,8 @@ object HateoasUtils extends LoggerAudit {
       "company" -> JsString(personJ.company.getOrElse("")),
       "ticketType" -> JsString(personJ.ticketType.getOrElse("")),
       "title" -> JsString(personJ.title.getOrElse("")),
-      "email" -> JsString(personJ.email),
-      "phone" -> JsString(personJ.phone.getOrElse("")),
+      //"email" -> JsString(personJ.email),
+      //"phone" -> JsString(personJ.phone.getOrElse("")),
       "phone" -> JsString(personJ.phone.getOrElse("")),
       "leadDateTime" -> JsString(date.fold("notFound")(d => d.toEpochSecond(ZoneOffset.UTC).toString)),
       "notes" -> JsString(notes.map(ln => ln.note).mkString(" "))
