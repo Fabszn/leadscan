@@ -75,7 +75,7 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
        ,s.id as idSponsor, s."name" as nameSponsor  from
        SPONSOR s inner join
        PERSON_SPONSOR ps on s.id=ps.idSponsor inner join
-       PERSON p on p.id=ps.idperson  where s.id=${idSponsor}""".as(rowParserSponsorInfo.*).map(data => PersonSponsorInfo(data._1.regId, data._1.firstname, data._1.lastname, email = "", data._2.map(_.toString), data._3))
+       PERSON p on p.id=ps.idperson  where s.id=${idSponsor}""".as(rowParserSponsorInfo.*).map(data => PersonSponsorInfo(data._1.regId, data._1.firstname, data._1.lastname, data._1.email, data._2.map(_.toString), data._3))
   }
 
   def onlyRepresentatives(implicit connection: Connection): Seq[PersonSponsorInfo] = {
