@@ -2,6 +2,9 @@ package config
 
 import com.typesafe.config.ConfigFactory
 
+import scala.collection.JavaConversions
+import scala.reflect.internal.util.ScalaClassLoader
+
 /**
   * Created by fsznajderman on 03/02/2017.
   */
@@ -36,9 +39,11 @@ object Settings {
 
   object play {
 
+
     object mailer {
+      import JavaConversions._
       val from: String = config.getString("play.mailer.from")
-      val bcc: String = config.getString("play.mailer.bcc")
+      val bcc:Seq[String] = config.getStringList("play.mailer.bcc").toIndexedSeq
       val committee: String = config.getString("play.mailer.committee")
     }
 
