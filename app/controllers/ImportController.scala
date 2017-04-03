@@ -22,6 +22,49 @@ class ImportController(personService: PersonService
 
   case class RepresentativeMapping(regId: String, email: String, sponsor: String, sponsorLevel: String)
 
+  case class MailData(regId: String, email: String, sponsor: String, firstname: String, lastname: String)
+
+
+  def massiveSendMailToRepresentative() = AdminAuthAction(parse.multipartFormData) { implicit request =>
+
+    val body = request.body
+    body.file("csvFile").foreach { csvFile =>
+
+      val csv = csvFile.ref
+      val r: Seq[Map[String, String]] = loadCSVSourceFileWithLib(csv.file)
+      val mails: Seq[MailData] = for {
+        kv <- r
+      } yield MailData(
+        kv.getOrElse("RegId", "No registrantId")
+        , kv.getOrElse("Email_Address", "Email address not found")
+        , kv.getOrElse("Company", "Company not found")
+        , kv.getOrElse("first_Name", "unknown_firstname")
+        , kv.getOrElse("last_Name", "unknown_lastname")
+      )
+
+      import scala.concurrent.ExecutionContext.Implicits.global
+      mails.foreach(m => {
+        val currentToken = jsonUtils.tokenExtractorFromSession(request)
+        val pass = PasswordGenerator.generatePassword
+        remoteClient.sendPassword(m.regId, pass, currentToken).andThen {
+          case Success(_) =>
+            notificationService.sendMail(Seq(m.email),
+              Option(views.txt.mails.notifPassword.render(m.firstname, m.sponsor, pass, m.email, s"ref : ${m.regId}").body),
+              Option(views.html.mails.notifPassword.render(m.firstname, m.sponsor, pass, m.email, s"ref : ${m.regId}").body))
+            eventService.addEvent(Event(typeEvent = ImportRepresentative.typeEvent, message = s"SUCCESS : Email has been sent to ${m.firstname} ${m.lastname} (${m.email}) for sponsor ${m.sponsor}"))
+          case Failure(ex) =>
+            eventService.addEvent(Event(typeEvent = ImportRepresentative.typeEvent, message = s"ERROR :  ${ ex.getMessage} - Email has been not sent to ${m.firstname} ${m.lastname} (${m.email}) for sponsor ${m.sponsor} : "))
+        }
+      }
+      )
+    }
+
+
+    Ok("Import done!")
+
+  }
+
+
   def importAllRepresentatives() = AdminAuthAction(parse.multipartFormData) { implicit request =>
 
     val body = request.body
@@ -78,8 +121,8 @@ class ImportController(personService: PersonService
                     val pass = PasswordGenerator.generatePassword
                     remoteClient.sendPassword(person.regId, pass, currentToken) // Update the password on MyDevoxx... maybe not a good idea if the user does already exist
                     notificationService.sendMail(Seq(person.email),
-                      Option(views.txt.mails.notifPassword.render(person.firstname, sponsor.name, pass, person.email).body),
-                      Option(views.html.mails.notifPassword.render(person.firstname, sponsor.name, pass, person.email).body))
+                      Option(views.txt.mails.notifPassword.render(person.firstname, sponsor.name, pass, person.email,"").body),
+                      Option(views.html.mails.notifPassword.render(person.firstname, sponsor.name, pass, person.email,"").body))
                     eventService.addEvent(Event(typeEvent = ImportRepresentative.typeEvent, message = s"Email sent to ${person.firstname} ${person.lastname} (${person.email}) for sponsor ${sponsor.name}"))
                   }
                   case Failure(e) =>

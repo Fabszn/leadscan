@@ -40,6 +40,7 @@ GET           /admin/signout                                         controllers
 GET           /admin/import                                          controllers.ImportController.importIndex()
 POST          /admin/batch_attendees                                 controllers.ImportController.importAllAttendees()
 POST          /admin/batch_representatives                           controllers.ImportController.importAllRepresentatives()
+POST          /admin/batch_mail                                      controllers.ImportController.massiveSendMailToRepresentative()
 
 
 GET           /assets/*file                                          controllers.Assets.at(path="/public", file)

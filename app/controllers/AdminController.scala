@@ -116,8 +116,8 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
           remote.sendPassword(p.regId, pass, token).foreach { _ =>
             ns.sendMail(
               Seq(p.email),
-              Option(views.txt.mails.notifPassword.render(p.firstname, s.name, pass, p.email).body),
-              Option(views.html.mails.notifPassword.render(p.firstname, s.name, pass, p.email).body)
+              Option(views.txt.mails.notifPassword.render(p.firstname, s.name, pass, p.email,"").body),
+              Option(views.html.mails.notifPassword.render(p.firstname, s.name, pass, p.email,"").body)
             )
           }
         }
