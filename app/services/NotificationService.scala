@@ -54,7 +54,7 @@ class NotificationServiceImpl(db: Database, mailer: MailerClient, remote: Remote
     logger.info(s"Bcc ${Settings.play.mailer.bcc}")
     logger.info(s"dest ${dest.mkString(",")}")
 
-    mailer.send(Email("Devoxx US Sponsor - your Lead Generation System credentials", Settings.play.mailer.from, dest, bodyText, bodyHtml, bcc = Seq(Settings.play.mailer.bcc)))
+    mailer.send(Email("Devoxx US Sponsor - your Lead Generation System credentials", Settings.play.mailer.from, dest, bodyText, bodyHtml, bcc = Seq("fabrice@scala.io","nicolas.martignole@devoxx.fr","antonio.goncalves@devoxx.fr","horacio.gonzalez@gmail.com","zouheir.cadi@devoxx.fr")))
 
   }
 }
