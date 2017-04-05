@@ -141,7 +141,7 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
     request.body.validate[NewPerson].asEither match {
       case Right(p) => {
         val token = jsonUtils.tokenExtractorFromSession(request)
-        val pj = ps.addRepresentative(p.firstname, p.lastname, p.email.toLowerCase(), p.company, p.title, token)
+        val pj = ps.addRepresentative(p.firstname, p.lastname, p.email.toLowerCase().trim, p.company, p.title, token)
         //send person to Mydevoxx
         remote.sendPerson(pj, token)
 
