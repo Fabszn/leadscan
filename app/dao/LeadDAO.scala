@@ -102,7 +102,7 @@ object LeadDAO extends mainDBDAO[Lead, String] {
             EXTRACT( HOUR from datetime) AS hour
           from lead l
             inner join person_sponsor ps on l.idapplicant=ps.idperson
-            inner join sponsor s on ps.idsponsor=s.id where s.id=${10}
+            inner join sponsor s on ps.idsponsor=s.id where s.id=${idSponsor}
           group by hour, dday, month
           order by dday, hour
        """.as(rowParserStat *)
