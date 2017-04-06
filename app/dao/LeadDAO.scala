@@ -60,9 +60,9 @@ object LeadDAO extends mainDBDAO[Lead, String] {
     SQL"""
           select
             count(*) as nb,
-            EXTRACT(DAY from datetime) AS dday,
-            EXTRACT( month from datetime) AS month,
-            EXTRACT( HOUR from datetime) AS hour
+            EXTRACT(DAY from datetime  + '2 hour'::interval) AS dday,
+            EXTRACT( month from datetime  + '2 hour'::interval) AS month,
+            EXTRACT( HOUR from datetime  + '2 hour'::interval) AS hour
           from lead group by hour, dday, month
        order by dday, hour
        """.as(rowParserStat *)
