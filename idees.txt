@@ -1,0 +1,12 @@
+ - Donner par defaut un seul compte / sponsors
+ - Donner accès à un formulaire de demande d'accès au lead scan
+ - Donner des plus de stats sur les périodes intéressantes
+ - Mettre en place un moteur de gamification
+ - Mettre une FAQ directement dans l'appli WEB pour les cas d'erreur classique
+ - Liste de précau .. navigateurs par exemple
+
+Feedbacks :  
+ - Amélioration du temps de saisie. 
+ - Problématique Iphone de saisie. 
+ - Message d'erreur plus clair
+ - 
