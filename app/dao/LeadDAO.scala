@@ -97,9 +97,9 @@ object LeadDAO extends mainDBDAO[Lead, String] {
     SQL"""
           select
             count(*) as nb,
-            EXTRACT(DAY from datetime) AS dday,
-            EXTRACT( month from datetime) AS month,
-            EXTRACT( HOUR from datetime) AS hour
+            EXTRACT(DAY from datetime + '2 hour'::interval) AS dday,
+            EXTRACT( month from datetime + '2 hour'::interval) AS month,
+            EXTRACT( HOUR from datetime + '2 hour'::interval) AS hour
           from lead l
             inner join person_sponsor ps on l.idapplicant=ps.idperson
             inner join sponsor s on ps.idsponsor=s.id where s.id=${idSponsor}
