@@ -31,7 +31,7 @@ object LeadNoteDAO extends mainDBDAO[LeadNote, Long] {
   )
 
 
-  def findNoteByApplicantAndTarget(idApplicatn: String, idTarget: Long)(implicit c :Connection): Seq[LeadNote] = {
+  def findNoteByApplicantAndTarget(idApplicatn: String, idTarget: String)(implicit c :Connection): Seq[LeadNote] = {
 
     SQL"""select * from lead_note where idapplicant = $idApplicatn and idtarget=$idTarget""".as(rowParser.*)
 

@@ -139,7 +139,7 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
             val applicant = PersonDAO.find(line.idApplicant).map(p => (pj.firstname, pj.lastname)).getOrElse(("not_found", "not_found"))
 
 
-            val notes = LeadNoteDAO.findNoteByApplicantAndTarget(line.idApplicant, pj.regId.toLong)
+            val notes = LeadNoteDAO.findNoteByApplicantAndTarget(line.idApplicant, pj.regId)
 
             //todo must be fixed
             val nbNote = if (notes.isEmpty) 0 else 1
@@ -166,7 +166,7 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
             val applicant = PersonDAO.find(line.idApplicant).map(p => (pj.firstname, pj.lastname)).getOrElse(("not_found", "not_found"))
 
 
-            val notes = LeadNoteDAO.findNoteByApplicantAndTarget(line.idApplicant, pj.regId.toLong)
+            val notes = LeadNoteDAO.findNoteByApplicantAndTarget(line.idApplicant, pj.regId)
 
             val nbNote = notes.count(n => n.note.trim.nonEmpty)
 
