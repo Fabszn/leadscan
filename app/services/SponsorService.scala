@@ -134,10 +134,14 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
 
         Json.parse(line.json).validate[PersonJson].asEither match {
           case Left(error) => s"An error occurred wiht this line -> $error"
-          case Right(pj) =>
+          case Right(pj) => {
 
-            val applicant = PersonDAO.find(line.idApplicant).map(p => (pj.firstname, pj.lastname)).getOrElse(("not_found", "not_found"))
 
+            val applicant: Option[(String, String)] = PersonDAO.find(line.idApplicant).map(p => {
+              import model.Person.personJsonReader
+              val app = Json.parse(p.json).as[PersonJson]
+              (app.firstname, app.lastname)
+            })
 
             val notes = LeadNoteDAO.findNoteByApplicantAndTarget(line.idApplicant, pj.regId)
 
@@ -145,7 +149,8 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
             val nbNote = if (notes.isEmpty) 0 else 1
             val notesVal = notes.map(n => n.note).mkString(" ")
             //headers.sponsor = "Rep_first_Name,Rep_last_Name,RegId,first_Name,last_Name,Email_Address,Company,Country,Title,nbNote,allNotes"
-            clean(s"""${applicant._1}$SEP${applicant._2}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.phone.getOrElse("")}$SEP${pj.company.getOrElse("")}$SEP${pj.title.getOrElse("")}$SEP $notesVal""")
+            s"""${applicant.get._1}$SEP${applicant.get._2}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.company.getOrElse("")}$SEP${pj.title.getOrElse("")}$SEP $notesVal"""
+          }
         }
       })
     ).toList
@@ -163,14 +168,18 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
           case Left(error) => s"An error occurred wiht this line -> $error"
           case Right(pj) =>
 
-            val applicant = PersonDAO.find(line.idApplicant).map(p => (pj.firstname, pj.lastname)).getOrElse(("not_found", "not_found"))
+            val applicant = PersonDAO.find(line.idApplicant).map(p => {
+              import model.Person.personJsonReader
+              val app = Json.parse(p.json).as[PersonJson]
+              (app.firstname, app.lastname)
+            })
 
 
             val notes = LeadNoteDAO.findNoteByApplicantAndTarget(line.idApplicant, pj.regId)
 
-            val nbNote = notes.count(n => n.note.trim.nonEmpty)
+            //val nbNote = notes.count(n => n.note.trim.nonEmpty)
 
-            clean(s"""${applicant._1}$SEP${applicant._2}$SEP${line.sponsor}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.phone.getOrElse("")}$SEP${pj.title.getOrElse("")}$SEP$nbNote""")
+            s"""${applicant.get._1}$SEP${applicant.get._2}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.company.getOrElse("")}$SEP${pj.title.getOrElse("")}"""
         }
       })
     ).toList

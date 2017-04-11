@@ -1,7 +1,9 @@
 package controllers
 
+import java.io.{File, FileWriter}
 import java.time.LocalDateTime
 
+import com.opencsv.CSVWriter
 import dao.LeadDAO.Item
 import model.{ErrorMessage, PersonJson}
 import play.api.libs.functional.syntax._
@@ -65,7 +67,6 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
     import jsonUtils._
 
 
-
     ss.loadSponsorFromRepresentative(regIdExtractorReports(tokenExtractorFromSession(request))) match {
 
       case Some(sponsor) => {
@@ -76,7 +77,7 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
         val pointsGlobal = sts.getData.leadsDateTime.map(i => JsNumber(Item.tupleFormated(i)._1))
         val dataTimeGlobable = sts.getData.leadsDateTime.map(i => JsString(Item.tupleFormated(i)._2))
 
-        Ok(Json.toJson(Map("points" -> points, "datetime" -> dataTime, "nbLead" -> nbLead, "sponsors" -> sponsors, "pointsGlobal" -> pointsGlobal,"dataTimeGlobable" -> dataTimeGlobable )))
+        Ok(Json.toJson(Map("points" -> points, "datetime" -> dataTime, "nbLead" -> nbLead, "sponsors" -> sponsors, "pointsGlobal" -> pointsGlobal, "dataTimeGlobable" -> dataTimeGlobable)))
       }
       case None => Unauthorized("You are not representative of one sponsor")
 
@@ -116,8 +117,8 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
           remote.sendPassword(p.regId, pass, token).foreach { _ =>
             ns.sendMail(
               Seq(p.email),
-              Option(views.txt.mails.notifPassword.render(p.firstname, s.name, pass, p.email,"").body),
-              Option(views.html.mails.notifPassword.render(p.firstname, s.name, pass, p.email,"").body)
+              Option(views.txt.mails.notifPassword.render(p.firstname, s.name, pass, p.email, "").body),
+              Option(views.html.mails.notifPassword.render(p.firstname, s.name, pass, p.email, "").body)
             )
           }
         }
@@ -160,44 +161,61 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
 
 
   def exportBySponsor(id: Long) = Action {
-    import better.files._
+    //import better.files._
+
 
     val nameSponsor = ss.loadSponsor(id).map(s => s.name).getOrElse("NoNameFound")
     val currentDate = LocalDateTime.now()
 
-    val csv: File = java.io.File.createTempFile(System.currentTimeMillis().toString, "").getAbsolutePath.toFile
+    val csv: File = java.io.File.createTempFile(System.currentTimeMillis().toString, "")
+    println("test")
+    println("test")
+    println("test")
+    //csv.appendLines(ss.exportForSponsor(id): _*)
+    val writer = new CSVWriter(new FileWriter(csv), ',')
+    ss.exportForSponsor(id).foreach(line => {
 
-    csv.appendLines(ss.exportForSponsor(id): _*)
 
+      writer.writeNext(line.split('|'))
+    }
+    )
+    writer.close
 
-    Ok.sendFile(csv.toJava).withHeaders((CONTENT_DISPOSITION, s"attachment; filename=$nameSponsor-$currentDate.csv"), (CONTENT_TYPE, "application/x-download"))
+    Ok.sendFile(csv).withHeaders((CONTENT_DISPOSITION, s"attachment; filename=$nameSponsor-$currentDate.csv"), (CONTENT_TYPE, "application/x-download"))
   }
 
 
   def exportEvent = Action {
-    import better.files._
+    //import better.files._
 
     val currentDate = LocalDateTime.now()
 
-    val csv: File = java.io.File.createTempFile(System.currentTimeMillis().toString, "").getAbsolutePath.toFile
+    val csv: File = java.io.File.createTempFile(System.currentTimeMillis().toString, "")
 
-    csv.appendLines(ss.exportForEvent: _*)
+    //csv.appendLines(ss.exportForEvent: _*)
 
+    val writer = new CSVWriter(new FileWriter(csv), ',', ',')
+    ss.exportForEvent.foreach(line => {
+     println(line)
+      writer.writeNext(line.split('|'))
+    }
+    )
 
-    Ok.sendFile(csv.toJava).withHeaders((CONTENT_DISPOSITION, s"attachment; filename=allLeads-$currentDate.csv"), (CONTENT_TYPE, "application/x-download"))
+    Ok.sendFile(csv).withHeaders((CONTENT_DISPOSITION, s"attachment; filename=allLeads-$currentDate.csv"), (CONTENT_TYPE, "application/x-download"))
   }
 
   def exportRepresentative(idRepr: String) = Action {
-    import better.files._
 
     val currentDate = LocalDateTime.now()
 
-    val csv: File = java.io.File.createTempFile(System.currentTimeMillis().toString, "").getAbsolutePath.toFile
+    val csv = java.io.File.createTempFile(System.currentTimeMillis().toString, "")
+    /*
+    val writer = new CSVWriter(new FileWriter(csv), ',', ',')
 
-    csv.appendLines(ss.exportForRepresentative(idRepr): _*)
+    writer.writeNext()*/
 
 
-    Ok.sendFile(csv.toJava).withHeaders((CONTENT_DISPOSITION, s"attachment; filename=$idRepr-$currentDate.csv"), (CONTENT_TYPE, "application/x-download"))
+    Ok.sendFile(csv).withHeaders((CONTENT_DISPOSITION, s"attachment; filename=$idRepr-$currentDate.csv"), (CONTENT_TYPE, "application/x-download"))
   }
 
   def checkAdminAuth = AdminAuthAction { implicit request =>
