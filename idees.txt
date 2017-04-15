@@ -5,6 +5,25 @@
  - Mettre une FAQ directement dans l'appli WEB pour les cas d'erreur classique
  - Liste de précau .. navigateurs par exemple
 
+
+Gamification - networking
+
+1 - Proposer aux sponsors de créer des événements dans l'appli du lead scan. Ces évènements seront visibles de tous (ou seulement de ceux qui on déjà été scannés par le sponsor). 
+L'événement pourra apparaitre comme une notification dans l'application du lead scan pour d'un attendee.
+
+Les attendees pourraient répondre au moment de leur inscription à une question simple : plutôt dev back ou dev front (ou les deux). Cela permettrait de classifier la population des personnes sans rentrer trop dans l'intimité des attendees.
+
+2 - Recruteur / recruté
+Les attendees pourraient mettre en ligne de manière anonyme, le fait qu'il recherche un poste de tel ou tel type. 
+Les sponsors pourraient voir ces annonces de manière anonyme et indiquer qu'ils sont intéressés par ce profil.
+
+L'attendee lui verrait les sponsors ayant répondu favorablement à sa recherche. Il aurait la possibilité de d'accepter de partager ses informations pour qu'il soit contactés par le sponsor (maintenant ou après la conférence).
+De son coté le sponsor serait notifié qu'en cas de sélection par l'attendee.
+Dans son export après la conférence, l'attendee en question serait identifié clairement par rapport aux autres.
+
+Ce mécanisme permet à l'attendee de postuler discrêtement sans que sa boite ne le sache (si elle est présente sur la conf).
+ 
+
 Feedbacks :  
  - Amélioration du temps de saisie. 
  - Problématique Iphone de saisie. 
