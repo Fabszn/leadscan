@@ -13,7 +13,6 @@ import scala.concurrent.Future
   * Created by fsznajderman on 01/03/2017.
   */
 
-
 sealed trait User
 
 case class UnauthenticateUser(msg: String) extends User
@@ -21,7 +20,24 @@ case class UnauthenticateUser(msg: String) extends User
 case class AuthenticateUser(firstname: String, lastname: String, email: String, token: String) extends User
 
 
+case class MyDevoxxPerson(userID: String,
+                          registrantId: Option[String],
+                          firstName: String,
+                          lastName: String,
+                          gender: Option[String],
+                          company: String,
+                          job: String,
+                          address1: Option[String],
+                          address2: Option[String],
+                          region: Option[String],
+                          city: Option[String],
+                          zip: Option[String],
+                          country: Option[String],
+                          phone: Option[String]
+                         )
+
 trait RemoteClient {
+
   def getJWtToken(login: String, password: String, remenberMe: Boolean = false): Future[String]
 
   def getUserInfo(token: String): Future[User]
@@ -29,6 +45,8 @@ trait RemoteClient {
   def sendPerson(person: PersonJson, token: String): Future[String]
 
   def sendPassword(regId: String, pass: String, token: String): Future[String]
+
+  def loadByregId(regId: String, token: String): Future[MyDevoxxPerson]
 
 }
 
@@ -44,7 +62,7 @@ class MyDevoxxRemoteClient(ws: WSClient, es: EventService) extends RemoteClient 
       .map(wsRes => (wsRes.json \ "token").as[String])
       .recover {
         case e: Exception =>
-          play.Logger.error("Unable to load JWT Token due to ",e)
+          play.Logger.error("Unable to load JWT Token due to ", e)
           s"${e.getMessage} - ${e.getCause}"
       }
 
@@ -87,7 +105,7 @@ class MyDevoxxRemoteClient(ws: WSClient, es: EventService) extends RemoteClient 
 
     val response = ws.url(Settings.oAuth.endpoints.createPerson).withHeaders("Content-Type" -> "application/json", Settings.oAuth.TOKEN_KEY -> token).post(personToSend).map(r => r.body)
     response.onComplete(r => {
-      es.addEvent(Event(typeEvent=ImportRegistration.typeEvent,message=s" $r as answer for ${personToSend.toString} "))
+      es.addEvent(Event(typeEvent = ImportRegistration.typeEvent, message = s" $r as answer for ${personToSend.toString} "))
     })
     response
   }
@@ -102,6 +120,21 @@ class MyDevoxxRemoteClient(ws: WSClient, es: EventService) extends RemoteClient 
     response
 
   }
+
+  override def loadByregId(regId: String, token: String): Future[MyDevoxxPerson] = {
+
+    logger.info(s" URI ${Settings.oAuth.endpoints.personByRegId}${regId}")
+    val response: Future[String] = ws.url(s"${Settings.oAuth.endpoints.personByRegId}${regId}").withHeaders("Content-Type" -> "application/json", Settings.oAuth.TOKEN_KEY -> token).get().map(r => r.body)
+
+    implicit val myDevoxxPerson = Json.reads[MyDevoxxPerson]
+    response.map { json => {
+      logger.info(s" json $json")
+      Json.parse(json).as[MyDevoxxPerson]
+    }
+    }
+  }
+
+
 }
 
 

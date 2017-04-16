@@ -36,13 +36,14 @@ class Components(context: Context)
 
   val database: Database = dbApi.database("leadTrackerDb")
   val es = new EventServiceImpl(database)
-  val remote = new MyDevoxxRemoteClient(wsClient,es)
+  val remote = new MyDevoxxRemoteClient(wsClient, es)
   val ls = new LeadServiceImpl(database)
   val ns = new NotificationServiceImpl(database, mailerClient, remote)
-  val ss = new SponsorServiceImpl(database,es)
+  val ss = new SponsorServiceImpl(database, es)
   val sts = new StatsServiceImpl(database)
   val as = new AuthServiceImpl(database, remote)
-  val ps = new PersonServiceImpl(database, ns, remote,es)
+  val ps = new PersonServiceImpl(database, ns, remote, es)
+  val sys = new SyncServiceImpl(remote,es,database)
 
 
   val flyway = new PlayInitializer(configuration, environment, webCommands)
@@ -54,7 +55,7 @@ class Components(context: Context)
     new controllers.LeadController(ls, ns, ps),
     new controllers.NotificationController(ns),
     new controllers.Status(ns),
-    new controllers.AdminController(ps, ss, sts, ns, remote),
+    new controllers.AdminController(ps, ss, sts, ns, sys, remote),
     new controllers.SecurityController(as),
     new controllers.ImportController(ps, ss, es, remote, ns),
     new controllers.Assets(httpErrorHandler),

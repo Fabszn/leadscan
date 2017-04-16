@@ -17,7 +17,7 @@ import utils.{LoggerAudit, PasswordGenerator}
 /**
   * Created by fsznajderman on 10/02/2017.
   */
-class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, ns: NotificationService, remote: RemoteClient) extends Controller with LoggerAudit {
+class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, ns: NotificationService, sys: SyncService, remote: RemoteClient) extends Controller with LoggerAudit {
 
 
   def index = AdminRootAction {
@@ -196,7 +196,7 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
 
     val writer = new CSVWriter(new FileWriter(csv), ',', ',')
     ss.exportForEvent.foreach(line => {
-     println(line)
+      println(line)
       writer.writeNext(line.split('|'))
     }
     )
@@ -242,9 +242,9 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
     Ok(Json.toJson(Map(ps.pass.map(p => p.regId -> p.pass): _*)))
   }
 
-  def test = Action { implicit request =>
+  def syncWithMyDevoxx = Action { implicit request =>
 
-    println(jsonUtils.tokenExtractorFromSession(request))
+    sys.syncMyDevoxx(jsonUtils.tokenExtractorFromSession(request))
 
 
     Ok("test")

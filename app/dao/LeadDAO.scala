@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 
 import anorm.SqlParser._
 import anorm.{NamedParameter, RowParser, _}
-import model.Lead
+import model.{Lead, Person}
 
 /**
   * Created by fsznajderman on 24/01/2017.
@@ -115,6 +115,13 @@ object LeadDAO extends mainDBDAO[Lead, String] {
 
   object Item {
     def tupleFormated(item: Item): (Int, String) = (item.nb, s" ${item.day}-${item.month} ${item.hour}h")
+  }
+
+
+  def uniqPersonScanned(implicit c: Connection): Seq[Person] = {
+
+    SQL"""select distinct p.* from lead l inner join Person p on p.id=l.idtarget;""".as(PersonDAO.rowParser.*)
+
   }
 
 }

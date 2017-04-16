@@ -70,6 +70,8 @@ GET           /reports/checkAuth                                     controllers
 
 GET           /admin/persons                                         controllers.AdminController.person
 
+GET           /admin/sync_my_devoxx                                  controllers.AdminController.syncWithMyDevoxx
+
 #stats
 
 GET           /admin/stats                                           controllers.AdminController.statsData

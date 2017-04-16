@@ -5,11 +5,11 @@ import java.time.LocalDateTime
 /**
   * Created by fsznajderman on 19/03/2017.
   */
-case class Event(id: Option[Long]=None, typeEvent: String, message: String, datetime: LocalDateTime=LocalDateTime.now())
+case class Event(id: Option[Long] = None, typeEvent: String, message: String, datetime: LocalDateTime = LocalDateTime.now())
 
 
-sealed trait EventType{
-  val typeEvent:String
+sealed trait EventType {
+  val typeEvent: String
 }
 
 case object ImportRepresentative extends EventType {
@@ -24,6 +24,11 @@ case object AddRepresentative extends EventType {
 
 case object ImportRegistration extends EventType {
   override val typeEvent: String = "import_registration"
+
+}
+
+case object SynchMyDevoxx extends EventType {
+  override val typeEvent: String = "Syncho_MyDevoxx"
 
 }
 
