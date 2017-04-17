@@ -1,11 +1,13 @@
 package controllers
 
-import java.io.{File, FileWriter}
+import java.io.{File, FileOutputStream, FileWriter, OutputStreamWriter}
+import java.nio.charset.Charset
 import java.time.LocalDateTime
 
 import com.opencsv.CSVWriter
 import dao.LeadDAO.Item
 import model.{ErrorMessage, PersonJson}
+import org.apache.commons.lang3.{RandomStringUtils, StringUtils}
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{Json, Reads, _}
 import play.api.mvc.{Action, Controller}
@@ -161,27 +163,25 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
 
 
   def exportBySponsor(id: Long) = Action {
-    //import better.files._
-
-
-    val nameSponsor = ss.loadSponsor(id).map(s => s.name).getOrElse("NoNameFound")
+    val nameSponsor = ss.loadSponsor(id).map(s => StringUtils.stripAccents(s.name.toUpperCase)).getOrElse("NoNameFound")
     val currentDate = LocalDateTime.now()
+    val csvFile: File = java.io.File.createTempFile(RandomStringUtils.randomAlphabetic(16), "csv")
 
-    val csv: File = java.io.File.createTempFile(System.currentTimeMillis().toString, "")
-    println("test")
-    println("test")
-    println("test")
-    //csv.appendLines(ss.exportForSponsor(id): _*)
-    val writer = new CSVWriter(new FileWriter(csv), ',')
+    val writer: CSVWriter = new CSVWriter(new OutputStreamWriter(new FileOutputStream(csvFile), Charset.forName("ISO-8859-15")), ',')
     ss.exportForSponsor(id).foreach(line => {
-
-
       writer.writeNext(line.split('|'))
     }
     )
-    writer.close
+    writer.close()
 
-    Ok.sendFile(csv).withHeaders((CONTENT_DISPOSITION, s"attachment; filename=$nameSponsor-$currentDate.csv"), (CONTENT_TYPE, "application/x-download"))
+    val filename = s"$nameSponsor-$currentDate.csv"
+
+    Ok.sendFile(
+      content = csvFile,
+      inline = false,
+      onClose = () => csvFile.delete(),
+      fileName = tempFile => filename
+    )
   }
 
 
@@ -200,6 +200,7 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
       writer.writeNext(line.split('|'))
     }
     )
+    writer.close()
 
     Ok.sendFile(csv).withHeaders((CONTENT_DISPOSITION, s"attachment; filename=allLeads-$currentDate.csv"), (CONTENT_TYPE, "application/x-download"))
   }
