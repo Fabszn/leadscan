@@ -1,6 +1,5 @@
 package controllers
 
-import buildinfo.BuildInfo
 import play.api.mvc.{Action, Controller}
 import services.NotificationService
 
@@ -10,7 +9,7 @@ import services.NotificationService
 class Status(notif: NotificationService) extends Controller {
 
   def status = Action {
-    Ok(BuildInfo.toJson)
+    Ok("Build ok")
   }
 
 
