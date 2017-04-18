@@ -167,7 +167,8 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
     val currentDate = LocalDateTime.now()
     val csvFile: File = java.io.File.createTempFile(RandomStringUtils.randomAlphabetic(16), "csv")
 
-    val writer: CSVWriter = new CSVWriter(new OutputStreamWriter(new FileOutputStream(csvFile), Charset.forName("ISO-8859-15")), ',')
+    // We force the format for Excel (which is terrible with UTF-8)
+    val writer: CSVWriter = new CSVWriter(new OutputStreamWriter(new FileOutputStream(csvFile), Charset.forName("Windows-1252")), ',')
     ss.exportForSponsor(id).foreach(line => {
       writer.writeNext(line.split('|'))
     }
