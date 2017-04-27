@@ -14,13 +14,13 @@ class ReportsController(ss: SponsorService) extends Controller with LoggerAudit 
 
   def reports = Action {
 
-    Ok(views.html.reports())
+    Ok(views.html.reports.reports())
 
   }
 
   def representatives = Action {
 
-    Ok(views.html.reprentativeBySponsor())
+    Ok(views.html.reports.reprentativeBySponsor())
 
   }
 

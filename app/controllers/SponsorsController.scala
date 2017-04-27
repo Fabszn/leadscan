@@ -20,7 +20,7 @@ class SponsorsController(ss: SponsorService) extends Controller {
     ) (Sponsor.apply _)
 
   def view = AdminAuthAction {
-    Ok(views.html.sponsors())
+    Ok(views.html.admin.sponsors())
   }
 
 
@@ -42,10 +42,9 @@ class SponsorsController(ss: SponsorService) extends Controller {
   def modify = AdminAuthAction(parse.json) { implicit request =>
 
     request.body.validate[Sponsor].asEither match {
-      case Right(s) => {
+      case Right(s) =>
         ss.modifySponsor(s)
         Created(toHateoas(InfoMessage("Sponsor has been updated")))
-      }
       case Left(e) => InternalServerError(e.toString())
     }
 

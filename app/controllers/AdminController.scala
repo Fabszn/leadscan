@@ -23,37 +23,37 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
 
 
   def index = AdminRootAction {
-    Ok(views.html.reports())
+    Ok(views.html.reports.reports())
   }
 
   def admin = AdminRootAction {
-    Ok(views.html.admin())
+    Ok(views.html.admin.admin())
   }
 
   def person = AdminAuthAction {
-    Ok(views.html.person())
+    Ok(views.html.admin.person())
   }
 
   def stats = AdminAuthAction {
-    Ok(views.html.stats())
+    Ok(views.html.admin.stats())
   }
 
   def statsBySponsor = ReportsAuthAction {
-    Ok(views.html.statsBySponsor())
+    Ok(views.html.admin.statsBySponsor())
   }
 
   def export = AdminAuthAction {
 
-    Ok(views.html.export())
+    Ok(views.html.admin.export())
   }
 
   def repreSpnsor = AdminAuthAction {
 
-    Ok(views.html.onlyReprentative())
+    Ok(views.html.admin.onlyReprentative())
   }
 
   def passView = AdminAuthAction {
-    Ok(views.html.pass())
+    Ok(views.html.admin.pass())
   }
 
   def statsData = AdminAuthAction {

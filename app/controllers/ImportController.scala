@@ -53,7 +53,7 @@ class ImportController(personService: PersonService
               Option(views.html.mails.notifPassword.render(m.firstname, m.sponsor, pass, m.email, s"ref : ${m.regId}").body))
             eventService.addEvent(Event(typeEvent = ImportRepresentative.typeEvent, message = s"SUCCESS : Email has been sent to ${m.firstname} ${m.lastname} (${m.email}) for sponsor ${m.sponsor}"))
           case Failure(ex) =>
-            eventService.addEvent(Event(typeEvent = ImportRepresentative.typeEvent, message = s"ERROR :  ${ ex.getMessage} - Email has been not sent to ${m.firstname} ${m.lastname} (${m.email}) for sponsor ${m.sponsor} : "))
+            eventService.addEvent(Event(typeEvent = ImportRepresentative.typeEvent, message = s"ERROR :  ${ex.getMessage} - Email has been not sent to ${m.firstname} ${m.lastname} (${m.email}) for sponsor ${m.sponsor} : "))
         }
       }
       )
@@ -121,8 +121,8 @@ class ImportController(personService: PersonService
                     val pass = PasswordGenerator.generatePassword
                     remoteClient.sendPassword(person.regId, pass, currentToken) // Update the password on MyDevoxx... maybe not a good idea if the user does already exist
                     notificationService.sendMail(Seq(person.email),
-                      Option(views.txt.mails.notifPassword.render(person.firstname, sponsor.name, pass, person.email,"").body),
-                      Option(views.html.mails.notifPassword.render(person.firstname, sponsor.name, pass, person.email,"").body))
+                      Option(views.txt.mails.notifPassword.render(person.firstname, sponsor.name, pass, person.email, "").body),
+                      Option(views.html.mails.notifPassword.render(person.firstname, sponsor.name, pass, person.email, "").body))
                     eventService.addEvent(Event(typeEvent = ImportRepresentative.typeEvent, message = s"Email sent to ${person.firstname} ${person.lastname} (${person.email}) for sponsor ${sponsor.name}"))
                   }
                   case Failure(e) =>
@@ -144,9 +144,9 @@ class ImportController(personService: PersonService
     val body = request.body
     body.file("csvFile").map { csvFile =>
       val csv = csvFile.ref
-      val r: Seq[Map[String, String]] = loadCSVSourceFileWithLib(csv.file)
+
       val convertedPerson = for {
-        kv <- r
+        kv <- loadCSVSourceFileWithLib(csv.file)
       } yield Person(kv.get("RegId"), Json.toJson(kv).toString)
 
 
@@ -171,7 +171,7 @@ class ImportController(personService: PersonService
   }
 
   def importIndex = AdminAuthAction {
-    Ok(views.html.importData())
+    Ok(views.html.admin.importData())
   }
 }
 

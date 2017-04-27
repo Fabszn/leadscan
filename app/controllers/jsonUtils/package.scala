@@ -75,7 +75,7 @@ package object jsonUtils extends LoggerAudit {
   }
 
 
-  def regIdExtractor(token: String) = {
+  def regIdExtractor(token: String):String = {
     Jwt.decode(token, Settings.oAuth.sharedSecret, Seq(JwtAlgorithm.HS256)) match {
       case Success(s) => (Json.parse(s) \ "registrantId").as[String]
       case Failure(es) => {

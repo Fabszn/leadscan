@@ -132,7 +132,7 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
   }
 
   def isRepresentative(regID: String)(implicit connection: Connection): Option[Sponsor] = {
-    SQL"""select * from person_sponsor ps inner join sponsor s on ps.idsponsor=s.id where ps.idperson=${regID}""".as(rowParser.singleOpt)
+      SQL"""select * from person_sponsor ps inner join sponsor s on ps.idsponsor=s.id where ps.idperson=${regID}""".as(rowParser.singleOpt)
   }
 
 
