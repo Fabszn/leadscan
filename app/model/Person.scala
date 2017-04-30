@@ -9,18 +9,32 @@ import play.api.libs.json.{Reads, _}
 
 /**
   * Created by fsznajderman on 19/01/2017.
-  * Here we have different version on Person.. The most recent , is je PersonJson that aim to manage the DevoxxUs use case
+  * Here we have different version on Person.. The most recent , is PersonJson that aim to manage the DevoxxUs use case
   */
 case class Person(id: Option[String], json: String = "")
 
 case class LightingPerson(id: String, firstname: String, lastname: String)
 
-case class CompletePerson(regId: String, firstname: String, lastname: String, gender: Option[String], title: Option[String], email: String, phoneNumber: Option[String], company: Option[String], json: String, datetime: Option[LocalDateTime])
+case class CompletePerson(regId: String, firstname: String, lastname: String, title: String, email: String, phoneNumber: Option[String], company: Option[String], json: String, datetime: Option[LocalDateTime])
 
 case class CompletePersonWithNotes(person: CompletePerson, notes: Seq[LeadNote] = Nil)
 
-case class PersonJson(regId: String, firstname: String, lastname: String, gender: Option[String], email: String, company: Option[String], city: Option[String], phone: Option[String], title: Option[String], isTraining: String, ticketFamily: Option[String], ticketType: Option[String], isRepresentative: String)
+case class PersonJson(regId: String,
+                      gender: Option[String],
+                      firstname: String,
+                      lastname: String,
+                      email: String,
+                      title: String,
+                      company: Option[String],
+                      workAdress1: Option[String],
+                      workAdress2: Option[String],
+                      city: Option[String],
+                      workCounty: Option[String],
+                      WorkPostCode: Option[String],
+                      workCountry: Option[String],
+                      phone: Option[String])
 
+//RegId,gender,firstname,lastname,email,title,company,workAdress1,workAdress2,city,workCounty,WorkPostCode,workCountry,phone
 
 object Person {
 
@@ -31,42 +45,47 @@ object Person {
 
   def completePerson(p: JsonPerson): CompletePerson = {
     val pj = Json.parse(p).as[PersonJson]
-    CompletePerson(pj.regId, pj.firstname, pj.lastname, pj.gender, pj.title, pj.email, pj.phone, pj.company, p, None)
+    CompletePerson(pj.regId, pj.firstname, pj.lastname, pj.title, pj.email, pj.phone, pj.company, p, None)
   }
+
+
+  //RegId,Prefix,first_Name,last_Name,Email,Job_Title,Company,Work_Address_1,Work_Address_2,Work_City,Work_County,Work_Postcode,Work_Country,Work_Phone
 
 
   implicit val personJsonReader: Reads[PersonJson] = (
     (__ \ "RegId").read[String] and
-      (__ \ "first_Name").read[String] and
-      (__ \ "last_Name").read[String] and
-      (__ \ "gender").readNullable[String] and
-      (__ \ "Email_Address").read[String] and
+    (__ \ "gender").readNullable[String] and
+      (__ \ "firstname").read[String] and
+      (__ \ "lastname").read[String] and
+      (__ \ "email").read[String] and
+      (__ \ "title").read[String] and
       (__ \ "Company").readNullable[String] and
-      (__ \ "City").readNullable[String] and
-      (__ \ "Phone").readNullable[String] and
-      (__ \ "Title").readNullable[String] and
-      (__ \ "isTraining").read[String] and
-      (__ \ "Ticket_family").readNullable[String] and
-      (__ \ "Ticket_type").readNullable[String] and
-      (__ \ "isRepresentative").read[String]
+      (__ \ "workAdress1").readNullable[String] and
+      (__ \ "workAdress2").readNullable[String] and
+      (__ \ "city").readNullable[String] and
+      (__ \ "workCounty").readNullable[String] and
+      (__ \ "WorkPostCode").readNullable[String] and
+      (__ \ "workCountry").readNullable[String] and
+      (__ \ "phone").readNullable[String]
     ) (PersonJson.apply _)
 
 
   implicit val personJWrites: Writes[PersonJson] = (
 
     (JsPath \ "RegId").write[String] and
-      (JsPath \ "first_Name").write[String] and
-      (JsPath \ "last_Name").write[String] and
       (JsPath \ "gender").writeNullable[String] and
-      (JsPath \ "Email_Address").write[String] and
+      (JsPath \ "firstname").write[String] and
+      (JsPath \ "lastname").write[String] and
+      (JsPath \ "email").write[String] and
+      (JsPath \ "title").write[String] and
       (JsPath \ "Company").writeNullable[String] and
-      (JsPath \ "City").writeNullable[String] and
-      (JsPath \ "Phone").writeNullable[String] and
-      (JsPath \ "Title").writeNullable[String] and
-      (JsPath \ "isTraining").write[String] and
-      (JsPath \ "Ticket_family").writeNullable[String] and
-      (JsPath \ "Ticket_type").writeNullable[String] and
-      (JsPath \ "isRepresentative").write[String]) (unlift(PersonJson.unapply))
+      (JsPath \ "workAdress1").writeNullable[String] and
+      (JsPath \ "workAdress2").writeNullable[String] and
+      (JsPath \ "city").writeNullable[String] and
+      (JsPath \ "workCounty").writeNullable[String] and
+      (JsPath \ "WorkPostCode").writeNullable[String] and
+      (JsPath \ "workCountry").writeNullable[String] and
+      (JsPath \ "phone").writeNullable[String]) (unlift(PersonJson.unapply))
 
 
   def json2PersonJson(json: String): PersonJson = {

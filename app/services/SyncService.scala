@@ -65,9 +65,9 @@ class SyncServiceImpl(remote: RemoteClient, es: EventService, db: Database) exte
     if (localPerson.firstname.trim.toLowerCase != remotePerson.firstName.trim.toLowerCase ||
       localPerson.lastname.trim.toLowerCase != remotePerson.lastName.trim.toLowerCase ||
       localPerson.company.getOrElse("").trim.toLowerCase != remotePerson.company.trim.toLowerCase ||
-      localPerson.title.getOrElse("").trim.toLowerCase != remotePerson.job.trim.toLowerCase) {
+      localPerson.title.trim.toLowerCase != remotePerson.job.trim.toLowerCase) {
       logger.info("update")
-      Some(localPerson.copy(firstname = remotePerson.firstName, lastname = remotePerson.lastName, company = Option(remotePerson.company), title = Option(remotePerson.job)))
+      Some(localPerson.copy(firstname = remotePerson.firstName, lastname = remotePerson.lastName, company = Option(remotePerson.company), title = remotePerson.job))
     } else {
       logger.info("not update")
       None

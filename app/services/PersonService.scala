@@ -131,7 +131,7 @@ class PersonServiceImpl(db: Database, ns: NotificationService, remote: RemoteCli
       val id = Some(generateId(email))
 
 
-      val pj = PersonJson(generateId(email).toString, firstname, lastname, None, email, Option(company), None, None, None, "false", None, None, "true")
+      val pj = PersonJson(generateId(email).toString,None, firstname, lastname, email, title, Option(company), None, None, None, None,None, None, None)
       (pj, Json.toJson(pj).toString)
 
 
