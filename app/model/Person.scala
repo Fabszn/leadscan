@@ -59,7 +59,7 @@ object Person {
       (__ \ "lastname").read[String] and
       (__ \ "email").read[String] and
       (__ \ "title").read[String] and
-      (__ \ "Company").read[String] and
+      (__ \ "company").read[String] and
       (__ \ "workAdress1").readNullable[String] and
       (__ \ "workAdress2").readNullable[String] and
       (__ \ "city").readNullable[String] and
