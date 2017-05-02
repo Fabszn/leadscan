@@ -230,8 +230,9 @@ object HateoasUtils extends LoggerAudit {
       "lastname" -> JsString(personJ.lastname),
       "company" -> JsString(personJ.company),
       "title" -> JsString(personJ.title),
-      //"email" -> JsString(personJ.email),
-      //"phone" -> JsString(personJ.phone.getOrElse("")),
+      "email" -> JsString(personJ.email),
+      "phone" -> JsString(personJ.phone.getOrElse("")),
+      "city" -> JsString(personJ.city.getOrElse("")),
       "leadDateTime" -> JsString(date.fold("notFound")(d => d.toEpochSecond(ZoneOffset.UTC).toString)),
       "notes" -> JsString(notes.map(ln => ln.note).mkString(" "))
     )
