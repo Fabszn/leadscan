@@ -43,7 +43,7 @@ class Components(context: Context)
   val sts = new StatsServiceImpl(database)
   val as = new AuthServiceImpl(database, remote)
   val ps = new PersonServiceImpl(database, ns, remote, es)
-  val sys = new SyncServiceImpl(remote,es,database)
+  val sys = new SyncServiceImpl(remote, es, database)
 
 
   val flyway = new PlayInitializer(configuration, environment, webCommands)
@@ -59,8 +59,8 @@ class Components(context: Context)
     new controllers.SecurityController(as),
     new controllers.ImportController(ps, ss, es, remote, ns),
     new controllers.Assets(httpErrorHandler),
-    new controllers.SponsorsController(ss),
-    new controllers.ReportsController(ss)
+    new controllers.ReportsController(ss, ps, remote, es, ns, sts),
+    new controllers.SponsorsController(ss)
 
   )
 }

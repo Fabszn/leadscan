@@ -1,5 +1,4 @@
 import controllers.LeadController
-import model.{Person, PersonSensitive}
 import org.mockito.Mockito._
 import org.scalatest.Matchers._
 import org.scalatest.mock.MockitoSugar

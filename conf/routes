@@ -50,8 +50,7 @@ GET           /assets/*file                                          controllers
 GET           /admin                                                 controllers.AdminController.admin
 GET           /admin/stats                                           controllers.AdminController.stats
 GET           /admin/stats/data                                      controllers.AdminController.statsData
-GET           /reports/stats_by_sponsor                              controllers.AdminController.statsBySponsor
-GET           /reports/stats_by_sponsor/data                         controllers.AdminController.statsBySponsorData
+GET           /reports/stats_by_sponsor                              controllers.ReportsController.statsBySponsor
 GET           /admin/export                                          controllers.AdminController.export
 GET           /admin/export/:idSponsor                               controllers.AdminController.exportBySponsor(idSponsor:Long)
 GET           /admin/export_event                                    controllers.AdminController.exportEvent
@@ -63,12 +62,12 @@ GET           /admin/view_only_representatives                       controllers
 POST          /admin/representatives                                 controllers.AdminController.linkRepreSponsor
 POST          /admin/representatives/new                             controllers.AdminController.newPerson
 DELETE        /admin/representatives/:idPerson                       controllers.AdminController.removeRepreSponsor(idPerson:String)
-
 GET           /admin/checkAuth                                       controllers.AdminController.checkAdminAuth
 GET           /reports/checkAuth                                     controllers.ReportsController.checkReportsAuth
 
 
 GET           /admin/persons                                         controllers.AdminController.person
+
 
 GET           /admin/sync_my_devoxx                                  controllers.AdminController.syncWithMyDevoxx
 
@@ -100,5 +99,5 @@ GET           /admin/passView                                        controllers
 GET           /reports                                               controllers.ReportsController.reports
 GET           /reports/representatives                               controllers.ReportsController.representatives
 GET           /reports/representatives_by_sponsor                    controllers.ReportsController.representativesBySponsor
-
-
+GET           /reports/stats_by_sponsor/data                         controllers.ReportsController.statsBySponsorData
+POST          /reports/representatives/new                           controllers.ReportsController.newPerson

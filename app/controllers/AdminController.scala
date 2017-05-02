@@ -16,6 +16,8 @@ import utils.HateoasUtils.toHateoas
 import utils.oAuthActions.{AdminAuthAction, AdminRootAction, ReportsAuthAction}
 import utils.{LoggerAudit, PasswordGenerator}
 
+import scala.concurrent.Future
+
 /**
   * Created by fsznajderman on 10/02/2017.
   */
@@ -36,10 +38,6 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
 
   def stats = AdminAuthAction {
     Ok(views.html.admin.stats())
-  }
-
-  def statsBySponsor = ReportsAuthAction {
-    Ok(views.html.admin.statsBySponsor())
   }
 
   def export = AdminAuthAction {
@@ -65,26 +63,7 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
     Ok(Json.toJson(Map("points" -> points, "datetime" -> dataTime, "nbLead" -> nbLead, "sponsors" -> sponsors)))
   }
 
-  def statsBySponsorData = ReportsAuthAction { implicit request =>
-    import jsonUtils._
 
-
-    ss.loadSponsorFromRepresentative(regIdExtractorReports(tokenExtractorFromSession(request))) match {
-
-      case Some(sponsor) => {
-        val points = sts.getDataBySponsor(sponsor.id.get).leadsDateTime.map(i => JsNumber(Item.tupleFormated(i)._1))
-        val dataTime = sts.getDataBySponsor(sponsor.id.get).leadsDateTime.map(i => JsString(Item.tupleFormated(i)._2))
-        val nbLead = sts.getDataBySponsor(sponsor.id.get).sponsorStat.map(i => JsNumber(i._1))
-        val sponsors = sts.getDataBySponsor(sponsor.id.get).sponsorStat.map(i => JsString(i._2))
-        val pointsGlobal = sts.getData.leadsDateTime.map(i => JsNumber(Item.tupleFormated(i)._1))
-        val dataTimeGlobable = sts.getData.leadsDateTime.map(i => JsString(Item.tupleFormated(i)._2))
-
-        Ok(Json.toJson(Map("points" -> points, "datetime" -> dataTime, "nbLead" -> nbLead, "sponsors" -> sponsors, "pointsGlobal" -> pointsGlobal, "dataTimeGlobable" -> dataTimeGlobable)))
-      }
-      case None => Unauthorized("You are not representative of one sponsor")
-
-    }
-  }
 
 
   def all() = AdminAuthAction {
@@ -253,4 +232,37 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
   }
 
 
+}
+
+object Test extends App {
+
+  import scala.concurrent.ExecutionContext.Implicits.global
+
+  val f1 = Future{
+    Thread.sleep(3000)
+    println("F1 2000")
+  }
+
+  val f2 = Future{
+    Thread.sleep(1000)
+    println("F2 1000")
+  }
+
+  val f3 = Future{
+    Thread.sleep(5000)
+
+  }
+  f1.onComplete(_ => println("F1 2000"))
+  f2.onComplete(_ => println("F2 1000"))
+  f3.onComplete(_ => println("F3 5000"))
+
+
+  for{
+    _<- f1
+    _<- f2
+    _<- f3
+  }yield "finished"
+
+
+  Thread.sleep(8000)
 }
