@@ -228,7 +228,7 @@ object HateoasUtils extends LoggerAudit {
       "regId" -> JsString(personJ.regId),
       "firstname" -> JsString(personJ.firstname),
       "lastname" -> JsString(personJ.lastname),
-      "company" -> JsString(personJ.company.getOrElse("")),
+      "company" -> JsString(personJ.company),
       "title" -> JsString(personJ.title),
       //"email" -> JsString(personJ.email),
       //"phone" -> JsString(personJ.phone.getOrElse("")),

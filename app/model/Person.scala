@@ -15,7 +15,7 @@ case class Person(id: Option[String], json: String = "")
 
 case class LightingPerson(id: String, firstname: String, lastname: String)
 
-case class CompletePerson(regId: String, firstname: String, lastname: String, title: String, email: String, phoneNumber: Option[String], company: Option[String], json: String, datetime: Option[LocalDateTime])
+case class CompletePerson(regId: String, firstname: String, lastname: String, title: String, email: String, phoneNumber: Option[String], company: String, json: String, datetime: Option[LocalDateTime])
 
 case class CompletePersonWithNotes(person: CompletePerson, notes: Seq[LeadNote] = Nil)
 
@@ -25,7 +25,7 @@ case class PersonJson(regId: String,
                       lastname: String,
                       email: String,
                       title: String,
-                      company: Option[String],
+                      company: String,
                       workAdress1: Option[String],
                       workAdress2: Option[String],
                       city: Option[String],
@@ -59,7 +59,7 @@ object Person {
       (__ \ "lastname").read[String] and
       (__ \ "email").read[String] and
       (__ \ "title").read[String] and
-      (__ \ "Company").readNullable[String] and
+      (__ \ "Company").read[String] and
       (__ \ "workAdress1").readNullable[String] and
       (__ \ "workAdress2").readNullable[String] and
       (__ \ "city").readNullable[String] and
@@ -78,7 +78,7 @@ object Person {
       (JsPath \ "lastname").write[String] and
       (JsPath \ "email").write[String] and
       (JsPath \ "title").write[String] and
-      (JsPath \ "Company").writeNullable[String] and
+      (JsPath \ "Company").write[String] and
       (JsPath \ "workAdress1").writeNullable[String] and
       (JsPath \ "workAdress2").writeNullable[String] and
       (JsPath \ "city").writeNullable[String] and

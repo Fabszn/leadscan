@@ -235,7 +235,7 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
     val personJsons: Seq[PersonJson] = ps.allPersons().map(p => Json.parse(p.json).as[PersonJson])
 
 
-    Ok(Json.toJson(Map("data" -> personJsons.map(pj => Seq(pj.regId, pj.firstname, pj.lastname, pj.email, pj.title, pj.phone.getOrElse("-"), pj.city.getOrElse("-"), pj.company.getOrElse("-"))))))
+    Ok(Json.toJson(Map("data" -> personJsons.map(pj => Seq(pj.regId, pj.firstname, pj.lastname, pj.email, pj.title, pj.phone.getOrElse("-"), pj.city.getOrElse("-"), pj.company)))))
   }
 
 

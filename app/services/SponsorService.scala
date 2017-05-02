@@ -149,7 +149,7 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
             //val nbNote = if (notes.isEmpty) 0 else 1
             val notesVal = notes.map(n => n.note.replace("\n"," ")).mkString(" ")
             //headers.sponsor = "Rep_first_Name,Rep_last_Name,RegId,first_Name,last_Name,Email_Address,Company,Country,Title,nbNote,allNotes"
-            s"""${applicant.get._1}$SEP${applicant.get._2}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.company.getOrElse("")}$SEP${pj.title}$SEP $notesVal"""
+            s"""${applicant.get._1}$SEP${applicant.get._2}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.company}$SEP${pj.title}$SEP $notesVal"""
           }
         }
       })
@@ -179,7 +179,7 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
 
             //val nbNote = notes.count(n => n.note.trim.nonEmpty)
 
-            s"""${applicant.get._1}$SEP${applicant.get._2}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.company.getOrElse("")}$SEP${pj.title}"""
+            s"""${applicant.get._1}$SEP${applicant.get._2}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.company}$SEP${pj.title}"""
         }
       })
     ).toList
