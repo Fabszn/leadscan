@@ -33,7 +33,7 @@ class SponsorsController(ss: SponsorService) extends Controller {
         (JsPath \ "level").write[String]
       ) (unlift(Sponsor.unapply))
 
-    ss.loadSponsor(id).fold(NotFound(toHateoas(ErrorMessage("Sponsor_not_found", s"sponsor with id $id hasn't been found"))))(sponsor =>
+    ss.loadSponsor(id.toInt).fold(NotFound(toHateoas(ErrorMessage("Sponsor_not_found", s"sponsor with id $id hasn't been found"))))(sponsor =>
       Ok(Json.toJson(sponsor))
     )
 
