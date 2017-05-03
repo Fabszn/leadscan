@@ -78,7 +78,7 @@ object Person {
       (JsPath \ "lastname").write[String] and
       (JsPath \ "email").write[String] and
       (JsPath \ "title").write[String] and
-      (JsPath \ "Company").write[String] and
+      (JsPath \ "company").write[String] and
       (JsPath \ "workAdress1").writeNullable[String] and
       (JsPath \ "workAdress2").writeNullable[String] and
       (JsPath \ "city").writeNullable[String] and
