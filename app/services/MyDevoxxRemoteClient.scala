@@ -40,13 +40,15 @@ trait RemoteClient {
 
   def getJWtToken(login: String, password: String, remenberMe: Boolean = false): Future[String]
 
+  def getUserInfo(): Future[User]
+
   def getUserInfo(token: String): Future[User]
 
-  def sendPerson(person: PersonJson, token: String): Future[String]
+  def sendPerson(person: PersonJson): Future[String]
 
-  def sendPassword(regId: String, pass: String, token: String): Future[String]
+  def sendPassword(regId: String, pass: String): Future[String]
 
-  def loadByregId(regId: String, token: String): Future[MyDevoxxPerson]
+  def loadByregId(regId: String): Future[MyDevoxxPerson]
 
 }
 
@@ -54,7 +56,7 @@ trait RemoteClient {
 class MyDevoxxRemoteClient(ws: WSClient, es: EventService) extends RemoteClient with LoggerAudit {
 
   // Todo Je retournerai un Future[Try[String]] pour gérer si authentification a échoué
-  override def getJWtToken(login: String, password: String, remenberMe: Boolean): Future[String] = {
+  override def getJWtToken(login: String, password: String, remenberMe: Boolean = false): Future[String] = {
 
     ws.url(Settings.oAuth.endpoints.auth)
       .withHeaders("Content-Type" -> "application/json")
@@ -69,26 +71,54 @@ class MyDevoxxRemoteClient(ws: WSClient, es: EventService) extends RemoteClient 
 
   }
 
+
   override def getUserInfo(token: String): Future[User] = {
 
     logger.info("getUserInfo")
-    ws.url(Settings.oAuth.endpoints.userinfo)
-      .withHeaders("Content-Type" -> "application/json", "Accept" -> "application/json", "X-Auth-Token" -> token).get().map { wsR => {
-      val firstName = (wsR.json \ "firstName").as[String]
-      val lastName = (wsR.json \ "lastName").as[String]
-      val email = (wsR.json \ "email").as[String]
-      val userId = (wsR.json \ "userID").as[String]
-
+    val r = for {
+      json <- ws.url(Settings.oAuth.endpoints.userinfo)
+        .withHeaders("Content-Type" -> "application/json", "Accept" -> "application/json", "X-Auth-Token" -> token).get().map(w => w.json)
+    } yield {
+      val firstName = (json \ "firstName").as[String]
+      val lastName = (json \ "lastName").as[String]
+      val email = (json \ "email").as[String]
+      val userId = (json \ "userID").as[String]
 
       AuthenticateUser(firstName, lastName, email, token)
     }
-    }.recover {
+
+    r.recover {
       case e: Throwable => UnauthenticateUser(e.getMessage)
     }
 
+    r
   }
 
-  override def sendPerson(p: PersonJson, token: String): Future[String] = {
+
+  override def getUserInfo: Future[User] = {
+
+    logger.info("getUserInfo")
+    val r = for {
+      token <- getJWtToken(Settings.oAuth.myDevoxxLogin, Settings.oAuth.myDevoxxpwd)
+      json <- ws.url(Settings.oAuth.endpoints.userinfo)
+        .withHeaders("Content-Type" -> "application/json", "Accept" -> "application/json", "X-Auth-Token" -> token).get().map(w => w.json)
+    } yield {
+      val firstName = (json \ "firstName").as[String]
+      val lastName = (json \ "lastName").as[String]
+      val email = (json \ "email").as[String]
+      val userId = (json \ "userID").as[String]
+
+      AuthenticateUser(firstName, lastName, email, token)
+    }
+
+    r.recover {
+      case e: Throwable => UnauthenticateUser(e.getMessage)
+    }
+
+    r
+  }
+
+  override def sendPerson(p: PersonJson): Future[String] = {
 
     logger.info("Person")
     val personToSend = Json.toJson(Json.obj(
@@ -103,34 +133,61 @@ class MyDevoxxRemoteClient(ws: WSClient, es: EventService) extends RemoteClient 
 
     logger.debug(s"Person sent to Mydevoxx $personToSend")
 
-    val response = ws.url(Settings.oAuth.endpoints.createPerson).withHeaders("Content-Type" -> "application/json", Settings.oAuth.TOKEN_KEY -> token).post(personToSend).map(r => r.body)
-    response.onComplete(r => {
-      es.addEvent(Event(typeEvent = ImportRegistration.typeEvent, message = s" $r as answer for ${personToSend.toString} "))
+    val r = for {
+      token <- getJWtToken(Settings.oAuth.myDevoxxLogin, Settings.oAuth.myDevoxxpwd)
+      response <- ws.url(Settings.oAuth.endpoints.createPerson).withHeaders("Content-Type" -> "application/json", Settings.oAuth.TOKEN_KEY -> token).post(personToSend).map(r => r.body)
+    } yield response
+    r.onComplete(r => {
+      es.addEvent(Event(typeEvent = ImportRegistration.typeEvent, message = s" $r as answer for ${
+        personToSend.toString
+      } "))
     })
-    response
+    r
   }
 
-  override def sendPassword(regId: String, pass: String, token: String): Future[String] = {
+  override def sendPassword(regId: String, pass: String): Future[String] = {
+
 
     logger.info("sendPassword")
     val body = Json.toJson(Json.obj("password" -> pass))
 
-    val response = ws.url(s"${Settings.oAuth.endpoints.createPassword}${regId}").withHeaders("Content-Type" -> "application/json", Settings.oAuth.TOKEN_KEY -> token).post(body).map(r => r.body)
-    response.onComplete(r => logger.debug(s" ${r.toString} response from myDevoxx for password $r"))
-    response
+    val r = for {
+      token <- getJWtToken(Settings.oAuth.myDevoxxLogin, Settings.oAuth.myDevoxxpwd)
+      response <- ws.url(s"${
+        Settings.oAuth.endpoints.createPassword
+      }${
+        regId
+      }").withHeaders("Content-Type" -> "application/json", Settings.oAuth.TOKEN_KEY -> token).post(body).map(r => r.body)
+    } yield response
+
+
+    r.onComplete(r => logger.debug(s" ${
+      r.toString
+    } response from myDevoxx for password $r"))
+    r
 
   }
 
-  override def loadByregId(regId: String, token: String): Future[MyDevoxxPerson] = {
+  override def loadByregId(regId: String): Future[MyDevoxxPerson] = {
 
-    logger.info(s" URI ${Settings.oAuth.endpoints.personByRegId}${regId}")
-    val response: Future[String] = ws.url(s"${Settings.oAuth.endpoints.personByRegId}${regId}").withHeaders("Content-Type" -> "application/json", Settings.oAuth.TOKEN_KEY -> token).get().map(r => r.body)
+    logger.info(s" URI ${
+      Settings.oAuth.endpoints.personByRegId
+    }${
+      regId
+    }")
 
-    implicit val myDevoxxPerson = Json.reads[MyDevoxxPerson]
-    response.map { json => {
+
+    for {
+      token <- getJWtToken(Settings.oAuth.myDevoxxLogin, Settings.oAuth.myDevoxxpwd)
+      json <- ws.url(s"${
+        Settings.oAuth.endpoints.personByRegId
+      }${
+        regId
+      }").withHeaders("Content-Type" -> "application/json", Settings.oAuth.TOKEN_KEY -> token).get().map(r => r.body)
+    } yield {
+      implicit val myDevoxxPerson = Json.reads[MyDevoxxPerson]
       logger.info(s" json $json")
       Json.parse(json).as[MyDevoxxPerson]
-    }
     }
   }
 

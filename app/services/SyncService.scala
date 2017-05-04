@@ -30,7 +30,7 @@ class SyncServiceImpl(remote: RemoteClient, es: EventService, db: Database) exte
 
     leadScanPerson.foreach { localPerson => {
       logger.info(s"local ${localPerson.regId}")
-      remote.loadByregId(localPerson.regId, token).map { remotePerson => {
+      remote.loadByregId(localPerson.regId).map { remotePerson => {
         logger.info(s"remote ${remotePerson.registrantId} ")
         syncPerson(localPerson, remotePerson) match {
           case None => es.addEvent(Event(typeEvent = SynchMyDevoxx.typeEvent, message = s"NO UPDATE for regId : ${localPerson.regId}"))

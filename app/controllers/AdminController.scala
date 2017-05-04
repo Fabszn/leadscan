@@ -107,7 +107,7 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
     request.body.validate[RepresentativeSponsor].asEither match {
       case Right(link) => {
         ss.addRepresentative(link.idPerson, link.idSponsor)
-        val token = jsonUtils.tokenExtractorFromSession(request)
+        //val token = jsonUtils.tokenExtractorFromSession(request)
 
         for {
           p <- ps.getCompletePerson(link.idPerson)
@@ -116,7 +116,7 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
           import scala.concurrent.ExecutionContext.Implicits.global
           val pass = PasswordGenerator.generatePassword
           ps.addpass(p.regId, pass)
-          remote.sendPassword(p.regId, pass, token).foreach { _ =>
+          remote.sendPassword(p.regId, pass).foreach { _ =>
             ns.sendMail(
               Seq(p.email),
               Option(views.txt.mails.notifPassword.render(p.firstname, s.name, pass, p.email, "").body),
@@ -143,10 +143,9 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
 
     request.body.validate[NewPerson].asEither match {
       case Right(p) => {
-        val token = jsonUtils.tokenExtractorFromSession(request)
-        val pj = ps.addRepresentative(p.firstname, p.lastname, p.email.toLowerCase().trim, p.company, p.title, token)
+        val pj = ps.addRepresentative(p.firstname, p.lastname, p.email.toLowerCase().trim, p.company, p.title)
         //send person to Mydevoxx
-        remote.sendPerson(pj, token)
+        remote.sendPerson(pj)
 
         Created("representative has been created")
       }

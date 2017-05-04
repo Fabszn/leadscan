@@ -44,9 +44,8 @@ class ImportController(personService: PersonService
 
       import scala.concurrent.ExecutionContext.Implicits.global
       mails.foreach(m => {
-        val currentToken = jsonUtils.tokenExtractorFromSession(request)
         val pass = PasswordGenerator.generatePassword
-        remoteClient.sendPassword(m.regId, pass, currentToken).andThen {
+        remoteClient.sendPassword(m.regId, pass).andThen {
           case Success(_) =>
             notificationService.sendMail(Seq(m.email),
               Option(views.txt.mails.notifPassword.render(m.firstname, m.sponsor, pass, m.email, s"ref : ${m.regId}").body),
@@ -117,9 +116,8 @@ class ImportController(personService: PersonService
                   sponsorService.addRepresentative(person.regId, sponsor.id.get)
                 } match {
                   case Success(_) => {
-                    val currentToken = jsonUtils.tokenExtractorFromSession(request)
                     val pass = PasswordGenerator.generatePassword
-                    remoteClient.sendPassword(person.regId, pass, currentToken) // Update the password on MyDevoxx... maybe not a good idea if the user does already exist
+                    remoteClient.sendPassword(person.regId, pass) // Update the password on MyDevoxx... maybe not a good idea if the user does already exist
                     notificationService.sendMail(Seq(person.email),
                       Option(views.txt.mails.notifPassword.render(person.firstname, sponsor.name, pass, person.email, "").body),
                       Option(views.html.mails.notifPassword.render(person.firstname, sponsor.name, pass, person.email, "").body))
@@ -150,12 +148,11 @@ class ImportController(personService: PersonService
       } yield Person(kv.get("RegId"), Json.toJson(kv).toString)
 
 
-      val currentToken = jsonUtils.tokenExtractorFromSession(request)
       import Person._
       val imported = convertedPerson.map { p =>
         //notify MyDevoxx with new person
         Try {
-          remoteClient.sendPerson(Json.parse(p.json).as[PersonJson], currentToken)
+          remoteClient.sendPerson(Json.parse(p.json).as[PersonJson])
           personService.addPerson(p)
         }
         match {

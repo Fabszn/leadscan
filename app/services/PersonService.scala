@@ -33,7 +33,7 @@ trait PersonService {
 
   def allPersons(): Seq[Person]
 
-  def addRepresentative(firstname: String, lastname: String, email: String, company: String, title: String, token: String): PersonJson
+  def addRepresentative(firstname: String, lastname: String, email: String, company: String, title: String): PersonJson
 
   def pass: Seq[Pass]
 
@@ -123,7 +123,7 @@ class PersonServiceImpl(db: Database, ns: NotificationService, remote: RemoteCli
   }
 
 
-  override def addRepresentative(firstname: String, lastname: String, email: String, company: String, title: String, token: String): PersonJson =
+  override def addRepresentative(firstname: String, lastname: String, email: String, company: String, title: String): PersonJson =
     db.withTransaction(implicit connection => {
 
 

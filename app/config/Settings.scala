@@ -26,6 +26,8 @@ object Settings {
 
     val sharedSecret = config.getString("oAuth.jwt.sharedsecret")
     val localSecret = config.getString("oAuth.jwt.localsecret")
+    val myDevoxxLogin =  config.getString("oAuth.creds.login")
+    val myDevoxxpwd =  config.getString("oAuth.creds.pwd")
 
     object endpoints {
       val auth: String = urlbase + config.getString("oAuth.endpoints.auth")

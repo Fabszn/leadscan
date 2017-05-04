@@ -67,8 +67,8 @@ class AuthServiceImpl(db: Database, remote: RemoteClient) extends AuthService {
 
   private def auth(login: String, password: String): Future[User] = {
     for {
-      jeton <- remote.getJWtToken(login, password)
-      user <- remote.getUserInfo(jeton)
+      token <- remote.getJWtToken(login,password)
+      user <- remote.getUserInfo(token)
     } yield user
   }
 
