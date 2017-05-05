@@ -234,35 +234,3 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
 
 }
 
-object Test extends App {
-
-  import scala.concurrent.ExecutionContext.Implicits.global
-
-  val f1 = Future{
-    Thread.sleep(3000)
-    println("F1 2000")
-  }
-
-  val f2 = Future{
-    Thread.sleep(1000)
-    println("F2 1000")
-  }
-
-  val f3 = Future{
-    Thread.sleep(5000)
-
-  }
-  f1.onComplete(_ => println("F1 2000"))
-  f2.onComplete(_ => println("F2 1000"))
-  f3.onComplete(_ => println("F3 5000"))
-
-
-  for{
-    _<- f1
-    _<- f2
-    _<- f3
-  }yield "finished"
-
-
-  Thread.sleep(8000)
-}
