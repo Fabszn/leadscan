@@ -67,10 +67,121 @@
     </div>
 </div>
 
+<script type="text/x-template" id="confirmationPopin">
+<transition name="modal">
+<div class="modal-mask" v-show="show" transition="modal">
+<div class="modal-wrapper">
+<div class="modal-container">
+
+<div class="modal-header">
+<slot name="header">
+default header
+</slot>
+</div>
+
+<div class="modal-body">
+<slot name="body">
+default body
+</slot>
+</div>
+
+<slot name="footer">
+<div class="modal-footer">
+default footer
+
+</div>
+</slot>
+
+</div>
+</div>
+</div>
+</transition>
+</script>
+
+    <!-- app -->
+<div id="app">
+        <!-- use the modal component, pass in the prop -->
+    <modal :show.sync="showModal">
+        <h3 slot="header">{{ title }}</h3>
+        <div slot="body">
+                You are going to add a new representative with the following informatio :
+                    <h3>{{prenom}} {{nom}}</h3>
+                    <h3>{{mail}}</h3>
+
+                If you confirm an email will be sent with his credentials. Please verify email before confirm.
+            </div>
+
+        <div slot="footer">
+            <button class="btn btn-default" id="cancel" v-on:click="cancelLink">Cancel</button>
+            <button class="btn btn-default" id="Confirm" v-on:click="confirmLink">Confirm</button>
+        </div>
+    </modal>
+</div>
+
 
 <script>
 
         $(function () {
+
+
+            // register modal component
+            Vue.component('modal', {
+                template: '#confirmationPopin',
+                props: {
+                    show: {
+                        type: Boolean,
+                        required: true,
+                        twoWay: true
+                    }
+                }
+            });
+
+            // start app
+            var app = new Vue({
+                el: '#app',
+                data: {
+                    showModal: false,
+                    title: "Ask for confirmation",
+                    nom: "",
+                    prenom:"",
+                    mail:""
+                },
+                methods: {
+                    confirmLink: function () {
+                        $.ajax({
+                            url: "/reports/representatives/new",
+                            type: 'POST',
+                            data: JSON.stringify({
+                                firstname: newRepresentativeVue.firstname,
+                                lastname: newRepresentativeVue.lastname,
+                                email: newRepresentativeVue.email,
+                                company: newRepresentativeVue.company,
+                                title: newRepresentativeVue.title
+                            }),
+                            async: true,
+                            success: function (data) {
+
+                                sponsorDatatable.ajax.reload(false);
+                                newRepresentativeVue.firstname = "";
+                                newRepresentativeVue.lastname = "";
+                                newRepresentativeVue.email = "";
+
+                            },
+                            error: function (e) {
+                                console.error(e);
+                            },
+                            cache: false,
+                            contentType: 'application/json',
+                            processData: false
+                        });
+                        app.showModal = false;
+                    },
+                    cancelLink: function () {
+                        app.showModal = false;
+                    }
+                }
+            });
+
 
             var eVue = new Vue({
                 el: "#errorMessage",
@@ -101,35 +212,10 @@
                     },
                     add: function (e) {
                         if (isNoError('newcheckForm')) {
-                            $.ajax({
-                                url: "/reports/representatives/new",
-                                type: 'POST',
-                                data: JSON.stringify({
-                                    firstname: newRepresentativeVue.firstname,
-                                    lastname: newRepresentativeVue.lastname,
-                                    email: newRepresentativeVue.email,
-                                    company: newRepresentativeVue.company,
-                                    title: newRepresentativeVue.title
-                                }),
-                                async: true,
-                                success: function (data) {
-
-                                    sponsorDatatable.ajax.reload(false);
-                                    newRepresentativeVue.firstname = "";
-                                    newRepresentativeVue.lastname = "";
-                                    newRepresentativeVue.email = "";
-                                    newRepresentativeVue.company = "";
-                                    newRepresentativeVue.title = "";
-                                },
-                                error: function (e) {
-                                    console.error(e);
-                                },
-                                cache: false,
-                                contentType: 'application/json',
-                                processData: false
-                            });
-
-
+                            app.nom = newRepresentativeVue.lastname;
+                            app.prenom = newRepresentativeVue.firstname;
+                            app.mail = newRepresentativeVue.email;
+                            app.showModal = true;
                         }
                     }
                 }
@@ -167,7 +253,7 @@
                 ]
             });
 
-            console.log(sponsorDatatable.columns(4).data());
+            //console.log(sponsorDatatable.columns(4).data());
 
 
         })
