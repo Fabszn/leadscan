@@ -58,6 +58,7 @@
                         <ul class="nav navbar-nav navbar-right" v-if="displayMenu">
                             <li><a href="#" id="statsLinkLink" v-on:click="statsLink">Statistics</a></li>
                             <li><a href="#" id="representativeLink" v-on:click="representativeLink">Representatives</a></li>
+                            <li><a href="#" id="leadsLink" v-on:click="leadsLink">Leads</a></li>
                         </ul>
 
                 </div>
@@ -139,6 +140,9 @@
                         },
                         representativeLink: function (e) {
                             menuItemEvent('/reports/representatives', loginVue);
+                        },
+                        leadsLink: function (e) {
+                            menuItemEvent('/reports/leads', loginVue);
                         }
 
 

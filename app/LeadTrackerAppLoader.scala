@@ -59,7 +59,7 @@ class Components(context: Context)
     new controllers.SecurityController(as),
     new controllers.ImportController(ps, ss, es, remote, ns),
     new controllers.Assets(httpErrorHandler),
-    new controllers.ReportsController(ss, ps, remote, es, ns, sts),
+    new controllers.ReportsController(ss, ps, remote, es, ns, sts, ls),
     new controllers.SponsorsController(ss)
 
   )

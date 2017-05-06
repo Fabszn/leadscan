@@ -17,7 +17,7 @@ import scala.util.Success
 /**
   * Created by fsznajderman on 27/03/2017.
   */
-class ReportsController(ss: SponsorService, ps: PersonService, remote: RemoteClient, eventService: EventService, ns: NotificationService,sts: StatsService) extends Controller with LoggerAudit {
+class ReportsController(ss: SponsorService, ps: PersonService, remote: RemoteClient, eventService: EventService, ns: NotificationService, sts: StatsService, ls: LeadService) extends Controller with LoggerAudit {
 
   def reports = Action {
 
@@ -26,9 +26,11 @@ class ReportsController(ss: SponsorService, ps: PersonService, remote: RemoteCli
   }
 
   def representatives = Action {
-
     Ok(views.html.reports.reprentativeBySponsor())
+  }
 
+  def leads = Action {
+    Ok(views.html.reports.leads())
   }
 
   def statsBySponsor = ReportsAuthAction {
@@ -97,8 +99,7 @@ class ReportsController(ss: SponsorService, ps: PersonService, remote: RemoteCli
             val pass = PasswordGenerator.generatePassword
             //send person to Mydevoxx
             remote.sendPerson(pj).andThen {
-              case Success(_) =>
-              {
+              case Success(_) => {
                 ps.addpass(pj.regId, pass)
                 remote.sendPassword(pj.regId, pass)
               }
@@ -111,7 +112,7 @@ class ReportsController(ss: SponsorService, ps: PersonService, remote: RemoteCli
                   Option(views.html.mails.notifPassword.render(p.firstname, s.name, pass, p.email, "").body)
                 )
               }
-              case _ =>  eventService.addEvent(Event(typeEvent=ImportRepresentative.typeEvent,message=s"ERROR when send email representative / Reports $pj"))
+              case _ => eventService.addEvent(Event(typeEvent = ImportRepresentative.typeEvent, message = s"ERROR when send email representative / Reports $pj"))
             }
 
             Created("representative has been created")
@@ -126,4 +127,18 @@ class ReportsController(ss: SponsorService, ps: PersonService, remote: RemoteCli
     }
   }
 
+  def leadsBySponsor = ReportsAuthAction { implicit request =>
+
+
+    val regId = regIdExtractorReports(tokenExtractorFromSession(request))
+    ss.loadSponsorFromRepresentative(regId) match {
+      case None => NotFound(s"None sponsor reference found for this regID : ${regId}")
+      case Some(sponsor) => {
+        val personJsons = ss.loadScannedPersonBySponsor(sponsor.id.get)
+
+        Ok(Json.toJson(Map("data" -> personJsons.map(pj => Seq(pj.regId, pj.firstname, pj.lastname, pj.email, pj.title, pj.phone.getOrElse("-"), pj.city.getOrElse("-"), pj.company)))))
+      }
+    }
+
+  }
 }

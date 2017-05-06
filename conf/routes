@@ -100,4 +100,6 @@ GET           /reports                                               controllers
 GET           /reports/representatives                               controllers.ReportsController.representatives
 GET           /reports/representatives_by_sponsor                    controllers.ReportsController.representativesBySponsor
 GET           /reports/stats_by_sponsor/data                         controllers.ReportsController.statsBySponsorData
+GET           /reports/leads                                         controllers.ReportsController.leads
+GET           /report/leads_by_sponsor                               controllers.ReportsController.leadsBySponsor
 POST          /reports/representatives/new                           controllers.ReportsController.newPerson

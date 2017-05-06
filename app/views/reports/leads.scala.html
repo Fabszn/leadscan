@@ -1,0 +1,47 @@
+<div class="page-header">
+
+    <div class="row" >
+        <div class="col-md-12">
+            <table id="person" class="display">
+                <thead>
+                    <tr>
+                        <th>RegId</th>
+                        <th>Firstname</th>
+                        <th>Lastname</th>
+                        <th>email</th>
+                        <th>title</th>
+                        <th>phone</th>
+                        <th>city</th>
+                        <th>company</th>
+                    </tr>
+                </thead>
+                <tbody>
+            </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+        $(function () {
+
+            var sponsorDatatable = $('#person').DataTable({
+                "bServerSide": false,
+                "ajax": {url: "/report/leads_by_sponsor"},
+                "columnDefs": [
+                    {"visible": true, "targets": 0},
+                    {"visible": true, "targets": 1},
+                    {"visible": true, "targets": 2},
+                    {"visible": true, "targets": 3},
+                    {"visible": true, "targets": 4},
+                    {"visible": true, "targets": 5},
+                    {"visible": true, "targets": 6},
+                    {"visible": true, "targets": 7},
+                ]
+            });
+
+        })
+
+</script>

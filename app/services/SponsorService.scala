@@ -42,6 +42,8 @@ trait SponsorService {
 
   def loadSponsorFromRepresentative(id: String): Option[Sponsor]
 
+  def loadScannedPersonBySponsor(id: Long): Seq[PersonJson]
+
 
 }
 
@@ -147,7 +149,7 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
 
             //todo must be fixed
             //val nbNote = if (notes.isEmpty) 0 else 1
-            val notesVal = notes.map(n => n.note.replace("\n"," ")).mkString(" ")
+            val notesVal = notes.map(n => n.note.replace("\n", " ")).mkString(" ")
             //headers.sponsor = "Rep_first_Name,Rep_last_Name,RegId,first_Name,last_Name,Email_Address,Company,Country,Title,nbNote,allNotes"
             s"""${applicant.get._1}$SEP${applicant.get._2}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.company}$SEP${pj.title}$SEP $notesVal"""
           }
@@ -202,6 +204,18 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
 
   }
 
+
+  override def loadScannedPersonBySponsor(id: Long): Seq[PersonJson] = {
+    db.withConnection(implicit connection => {
+      import model.Person._
+      SponsorDAO.allPersonScannedBySponsor(id).map(line =>
+        Json.parse(line.json).validate[PersonJson].asEither match {
+          case Right(pj) => pj
+        }
+      )
+    }
+    )
+  }
 
   override def loadSponsorFromRepresentative(idRepresentative: String): Option[Sponsor] = {
 

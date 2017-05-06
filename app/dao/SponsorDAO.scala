@@ -131,6 +131,14 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
   inner join sponsor s on ps.idsponsor=s.id""".as(LeadLineRowParser.*)
   }
 
+  def allPersonScannedBySponsor(id:Long)(implicit connection: Connection): Seq[LeadLine] = {
+
+    SQL"""select distinct l.idapplicant, s.name as sponsor ,p1.json from lead l
+  inner join  person p1 on l.idtarget = p1.id inner join
+  lead l2 on l.idapplicant=l2.idapplicant inner join person_sponsor ps  on ps.idperson=l2.idapplicant
+  inner join sponsor s on ps.idsponsor=s.id where s.id=${id}""".as(LeadLineRowParser.*)
+  }
+
   def isRepresentative(regID: String)(implicit connection: Connection): Option[Sponsor] = {
       SQL"""select * from person_sponsor ps inner join sponsor s on ps.idsponsor=s.id where ps.idperson=${regID}""".as(rowParser.singleOpt)
   }
