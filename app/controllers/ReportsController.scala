@@ -1,11 +1,18 @@
 package controllers
 
+import java.io
+import java.io.{File, FileOutputStream, OutputStreamWriter}
+import java.nio.charset.Charset
+import java.time.LocalDateTime
+
+import com.opencsv.CSVWriter
 import controllers.jsonUtils.{regIdExtractorReports, tokenExtractorFromSession}
-import repository.LeadDAO.Item
 import model.{ErrorMessage, Event, ImportRepresentative}
+import org.apache.commons.lang3.{RandomStringUtils, StringUtils}
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import play.api.mvc.{Action, Controller}
+import repository.LeadDAO.Item
 import services._
 import utils.HateoasUtils.toHateoas
 import utils.oAuthActions.ReportsAuthAction
@@ -141,4 +148,35 @@ class ReportsController(ss: SponsorService, ps: PersonService, remote: RemoteCli
     }
 
   }
+
+  def export = ReportsAuthAction { implicit request =>
+    val regId = regIdExtractorReports(tokenExtractorFromSession(request))
+
+    ss.loadSponsorFromRepresentative(regId) match {
+      case Some(s) => {
+        val currentDate = LocalDateTime.now()
+        val csvFile: File = java.io.File.createTempFile(RandomStringUtils.randomAlphabetic(16), "csv")
+
+        // We force the format for Excel (which is terrible with UTF-8)
+        val writer: CSVWriter = new CSVWriter(new OutputStreamWriter(new FileOutputStream(csvFile), Charset.forName("UTF-8")), ',')
+        ss.exportForSponsor(s.id.get).foreach(line => {
+          writer.writeNext(line.split('|'))
+        }
+        )
+        writer.close()
+
+        val filename = s"${s.name.toUpperCase}-$currentDate.csv"
+
+        Ok.sendFile(
+          content = csvFile,
+          inline = false,
+          onClose = () => csvFile.delete(),
+          fileName = tempFile => filename
+        )
+      }
+      case None => BadRequest("No sponsor found")
+  }
+  }
+
+
 }

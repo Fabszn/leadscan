@@ -140,13 +140,13 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
   }
 
 
-  def exportBySponsor(id: Long) = Action {
+  def exportBySponsor(id: Long) = AdminAuthAction {
     val nameSponsor = ss.loadSponsor(id).map(s => StringUtils.stripAccents(s.name.toUpperCase)).getOrElse("NoNameFound")
     val currentDate = LocalDateTime.now()
     val csvFile: File = java.io.File.createTempFile(RandomStringUtils.randomAlphabetic(16), "csv")
 
     // We force the format for Excel (which is terrible with UTF-8)
-    val writer: CSVWriter = new CSVWriter(new OutputStreamWriter(new FileOutputStream(csvFile), Charset.forName("Windows-1252")), ',')
+    val writer: CSVWriter = new CSVWriter(new OutputStreamWriter(new FileOutputStream(csvFile), Charset.forName("UTF-8")), ',')
     ss.exportForSponsor(id).foreach(line => {
       writer.writeNext(line.split('|'))
     }
@@ -164,7 +164,7 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
   }
 
 
-  def exportEvent = Action {
+  def exportEvent = AdminAuthAction {
     //import better.files._
 
     val currentDate = LocalDateTime.now()
@@ -184,7 +184,7 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
     Ok.sendFile(csv).withHeaders((CONTENT_DISPOSITION, s"attachment; filename=allLeads-$currentDate.csv"), (CONTENT_TYPE, "application/x-download"))
   }
 
-  def exportRepresentative(idRepr: String) = Action {
+  def exportRepresentative(idRepr: String) = AdminAuthAction {
 
     val currentDate = LocalDateTime.now()
 

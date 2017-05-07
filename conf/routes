@@ -103,3 +103,4 @@ GET           /reports/stats_by_sponsor/data                         controllers
 GET           /reports/leads                                         controllers.ReportsController.leads
 GET           /report/leads_by_sponsor                               controllers.ReportsController.leadsBySponsor
 POST          /reports/representatives/new                           controllers.ReportsController.newPerson
+GET          /reports/export                                        controllers.ReportsController.export
