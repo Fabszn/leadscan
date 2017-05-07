@@ -1,7 +1,7 @@
 package controllers
 
 import controllers.jsonUtils.{regIdExtractorReports, tokenExtractorFromSession}
-import dao.LeadDAO.Item
+import repository.LeadDAO.Item
 import model.{ErrorMessage, Event, ImportRepresentative}
 import play.api.libs.functional.syntax._
 import play.api.libs.json._

@@ -1,7 +1,7 @@
 package services
 
-import dao.LeadDAO
-import dao.LeadDAO.Item
+import repository.LeadDAO
+import repository.LeadDAO.Item
 import play.api.db.Database
 
 

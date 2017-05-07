@@ -3,7 +3,7 @@ package services
 
 import config.Settings
 import controllers.jsonUtils
-import dao.{AdminAccountDAO, SponsorDAO}
+import repository.{AdminAccountDAO, SponsorDAO}
 import model.Account
 import pdi.jwt.{Jwt, JwtAlgorithm}
 import play.api.db.Database

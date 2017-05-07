@@ -1,6 +1,6 @@
 package services
 
-import dao.EventDAO
+import repository.EventDAO
 import model.Event
 import play.api.db.Database
 

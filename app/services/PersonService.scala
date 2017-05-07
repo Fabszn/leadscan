@@ -1,8 +1,8 @@
 package services
 
 import anorm.NamedParameter
-import dao.PersonDAO
-import dao.PersonDAO.Pass
+import repository.PersonDAO
+import repository.PersonDAO.Pass
 import model._
 import play.api.db.Database
 import play.api.libs.json.Json

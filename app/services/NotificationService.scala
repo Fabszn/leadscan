@@ -3,7 +3,7 @@ package services
 import java.time.LocalDateTime
 
 import config.Settings
-import dao.NotificationDAO
+import repository.NotificationDAO
 import model.Notification
 import play.api.db.Database
 import play.api.libs.mailer.{Email, MailerClient}

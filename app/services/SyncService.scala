@@ -1,6 +1,6 @@
 package services
 
-import dao.{LeadDAO, PersonDAO}
+import repository.{LeadDAO, PersonDAO}
 import model.{Event, Person, PersonJson, SynchMyDevoxx}
 import play.api.db.Database
 import play.api.libs.json.Json

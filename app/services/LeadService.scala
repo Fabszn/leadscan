@@ -2,7 +2,7 @@ package services
 
 import java.time.LocalDateTime
 
-import dao.{LeadDAO, LeadNoteDAO, PersonDAO}
+import repository.{LeadDAO, LeadNoteDAO, PersonDAO}
 import model._
 import play.api.db.Database
 import utils.LoggerAudit

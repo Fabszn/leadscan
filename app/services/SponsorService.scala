@@ -1,8 +1,8 @@
 package services
 
 import config.Settings
-import dao.SponsorDAO.PersonSponsorInfo
-import dao.{LeadNoteDAO, PersonDAO, SponsorDAO}
+import repository.SponsorDAO.PersonSponsorInfo
+import repository.{LeadNoteDAO, PersonDAO, SponsorDAO}
 import model.{PersonJson, Sponsor}
 import org.apache.commons.lang3.StringUtils
 import play.api.db.Database
@@ -150,8 +150,9 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
             //todo must be fixed
             //val nbNote = if (notes.isEmpty) 0 else 1
             val notesVal = notes.map(n => n.note.replace("\n", " ")).mkString(" ")
-            //headers.sponsor = "Rep_first_Name,Rep_last_Name,RegId,first_Name,last_Name,Email_Address,Company,Country,Title,nbNote,allNotes"
-            s"""${applicant.get._1}$SEP${applicant.get._2}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.company}$SEP${pj.title}$SEP $notesVal"""
+
+            //RegId,gender,firstname,lastname,email,title,company,workAdress1,workAdress2,city,workCounty,workPostCode,workCountry,phone
+            s"""${applicant.get._1}$SEP${applicant.get._2}$SEP${pj.regId}$SEP${pj.gender}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.title}$SEP${pj.company}$SEP${pj.workAdress1.getOrElse("")}$SEP${pj.workAdress2.getOrElse("")}$SEP${pj.city.getOrElse("")}$SEP${pj.workCounty.getOrElse("")}$SEP${pj.WorkPostCode.getOrElse("")}$SEP${pj.workCountry.getOrElse("")}$SEP${pj.phone.getOrElse("")}$SEP $notesVal"""
           }
         }
       })
@@ -177,11 +178,11 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
             })
 
 
-            val notes = LeadNoteDAO.findNoteByApplicantAndTarget(line.idApplicant, pj.regId)
+            //val notes = LeadNoteDAO.findNoteByApplicantAndTarget(line.idApplicant, pj.regId)
 
             //val nbNote = notes.count(n => n.note.trim.nonEmpty)
 
-            s"""${applicant.get._1}$SEP${applicant.get._2}$SEP${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.company}$SEP${pj.title}"""
+            s"""${applicant.get._1}$SEP${applicant.get._2}$SEP${pj.regId}$SEP${pj.gender.getOrElse("")}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.title}$SEP${pj.company}$SEP${pj.workAdress1.getOrElse("")}$SEP${pj.workAdress2.getOrElse("")}$SEP${pj.city.getOrElse("")}$SEP${pj.workCounty.getOrElse("")}$SEP${pj.WorkPostCode.getOrElse("")}$SEP${pj.workCountry.getOrElse("")}$SEP${pj.phone.getOrElse("")}"""
         }
       })
     ).toList
