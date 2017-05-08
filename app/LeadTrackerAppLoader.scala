@@ -55,7 +55,7 @@ class Components(context: Context)
     new controllers.LeadController(ls, ns, ps),
     new controllers.NotificationController(ns),
     new controllers.Status(ns),
-    new controllers.AdminController(ps, ss, sts, ns, sys, remote),
+    new controllers.AdminController(ps, ss, sts, ns, sys, remote,es),
     new controllers.SecurityController(as),
     new controllers.ImportController(ps, ss, es, remote, ns),
     new controllers.Assets(httpErrorHandler),

@@ -63,7 +63,8 @@ POST          /admin/representatives                                 controllers
 POST          /admin/representatives/new                             controllers.AdminController.newPerson
 DELETE        /admin/representatives/:idPerson                       controllers.AdminController.removeRepreSponsor(idPerson:String)
 GET           /admin/checkAuth                                       controllers.AdminController.checkAdminAuth
-GET           /reports/checkAuth                                     controllers.ReportsController.checkReportsAuth
+GET           /admin/events                                          controllers.AdminController.eventView
+GET           /admin/events_data                                     controllers.AdminController.loadAllEvents
 
 
 GET           /admin/persons                                         controllers.AdminController.person
@@ -97,10 +98,11 @@ GET           /admin/passView                                        controllers
 
 
 GET           /reports                                               controllers.ReportsController.reports
+GET           /reports/checkAuth                                     controllers.ReportsController.checkReportsAuth
 GET           /reports/representatives                               controllers.ReportsController.representatives
 GET           /reports/representatives_by_sponsor                    controllers.ReportsController.representativesBySponsor
 GET           /reports/stats_by_sponsor/data                         controllers.ReportsController.statsBySponsorData
 GET           /reports/leads                                         controllers.ReportsController.leads
 GET           /report/leads_by_sponsor                               controllers.ReportsController.leadsBySponsor
 POST          /reports/representatives/new                           controllers.ReportsController.newPerson
-GET          /reports/export                                        controllers.ReportsController.export
+GET           /reports/export                                        controllers.ReportsController.export

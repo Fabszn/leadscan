@@ -5,23 +5,21 @@ import java.nio.charset.Charset
 import java.time.LocalDateTime
 
 import com.opencsv.CSVWriter
-import repository.LeadDAO.Item
-import model.{ErrorMessage, PersonJson}
+import model.{ErrorMessage, Event, PersonJson}
 import org.apache.commons.lang3.{RandomStringUtils, StringUtils}
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{Json, Reads, _}
 import play.api.mvc.{Action, Controller}
+import repository.LeadDAO.Item
 import services._
 import utils.HateoasUtils.toHateoas
-import utils.oAuthActions.{AdminAuthAction, AdminRootAction, ReportsAuthAction}
+import utils.oAuthActions.{AdminAuthAction, AdminRootAction}
 import utils.{LoggerAudit, PasswordGenerator}
-
-import scala.concurrent.Future
 
 /**
   * Created by fsznajderman on 10/02/2017.
   */
-class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, ns: NotificationService, sys: SyncService, remote: RemoteClient) extends Controller with LoggerAudit {
+class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, ns: NotificationService, sys: SyncService, remote: RemoteClient, es: EventService) extends Controller with LoggerAudit {
 
 
   def index = AdminRootAction {
@@ -54,6 +52,10 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
     Ok(views.html.admin.pass())
   }
 
+  def eventView = AdminAuthAction {
+    Ok(views.html.admin.events())
+  }
+
   def statsData = AdminAuthAction {
     val points = sts.getData.leadsDateTime.map(i => JsNumber(Item.tupleFormated(i)._1))
     val dataTime = sts.getData.leadsDateTime.map(i => JsString(Item.tupleFormated(i)._2))
@@ -62,8 +64,6 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
 
     Ok(Json.toJson(Map("points" -> points, "datetime" -> dataTime, "nbLead" -> nbLead, "sponsors" -> sponsors)))
   }
-
-
 
 
   def all() = AdminAuthAction {
@@ -220,6 +220,15 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
   def pass = AdminAuthAction { implicit Request =>
 
     Ok(Json.toJson(Map(ps.pass.map(p => p.regId -> p.pass): _*)))
+  }
+
+  def loadAllEvents = AdminAuthAction {
+
+
+    Ok(Json.toJson(Map("data" -> es.allEvents.map(ev => Seq(ev.typeEvent,ev.message,ev.datetime.toString)))))
+
+
+
   }
 
   def syncWithMyDevoxx = Action { implicit request =>

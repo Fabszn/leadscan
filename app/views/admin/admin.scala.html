@@ -60,6 +60,7 @@
                         <li><a href="#" id="personLink" v-on:click="personLink">Person</a></li>
                         <li><a href="#" id="pass" v-on:click="passLink">Password</a></li>
                         <li><a href="#" id="stats" v-on:click="statsLink">Stats</a></li>
+                        <li><a href="#" id="events" v-on:click="eventsLink">Events</a></li>
 
                     </ul>
                 </div>
@@ -168,6 +169,9 @@
                         ,
                         statsLink: function (e) {
                             menuItemEvent('/admin/stats', loginVue);
+                        },
+                        eventsLink: function (e) {
+                            menuItemEvent('/admin/events', loginVue);
                         }
 
                     }

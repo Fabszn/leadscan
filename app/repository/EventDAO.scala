@@ -1,9 +1,10 @@
 package repository
 
+import java.sql.Connection
 import java.time.LocalDateTime
 
 import anorm.SqlParser.get
-import anorm.{NamedParameter, RowParser}
+import anorm.{NamedParameter, RowParser, _}
 import model.Event
 
 /**
@@ -25,4 +26,13 @@ object EventDAO extends mainDBDAO[Event, Long] {
     'message -> item.message,
     'dateTime -> item.datetime
   )
+
+
+  def all(implicit c: Connection): Seq[Event] = {
+
+    SQL"""
+         select * from events
+       """.as(rowParser *)
+  }
+
 }

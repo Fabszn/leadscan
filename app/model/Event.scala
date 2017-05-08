@@ -27,6 +27,11 @@ case object ImportRegistration extends EventType {
 
 }
 
+case object SendPassword extends EventType {
+  override val typeEvent: String = "send_password"
+
+}
+
 case object SynchMyDevoxx extends EventType {
   override val typeEvent: String = "Syncho_MyDevoxx"
 

@@ -1,7 +1,7 @@
 package services
 
 import config.Settings
-import model.{Event, ImportRegistration, PersonJson}
+import model.{Event, ImportRegistration, PersonJson, SendPassword}
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 import utils.LoggerAudit
@@ -161,9 +161,12 @@ class MyDevoxxRemoteClient(ws: WSClient, es: EventService) extends RemoteClient 
     } yield response
 
 
-    r.onComplete(r => logger.debug(s" ${
-      r.toString
-    } response from myDevoxx for password $r"))
+    r.onComplete(r => {
+      es.addEvent(Event(typeEvent = SendPassword.typeEvent, message = s" $r as answer for $regId --> $pass"))
+      logger.debug(s" ${
+        r.toString
+      } response from myDevoxx for password $r")
+    })
     r
 
   }
