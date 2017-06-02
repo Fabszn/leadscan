@@ -152,7 +152,7 @@ class SponsorServiceImpl(db: Database, es: EventService) extends SponsorService 
             val notesVal = notes.map(n => n.note.replace("\n", " ")).mkString(" ")
 
             //RegId,gender,firstname,lastname,email,title,company,workAdress1,workAdress2,city,workCounty,workPostCode,workCountry,phone
-            s"""${applicant.get._1}$SEP${applicant.get._2}$SEP${pj.regId}$SEP${pj.gender}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.title}$SEP${pj.company}$SEP${pj.workAdress1.getOrElse("")}$SEP${pj.workAdress2.getOrElse("")}$SEP${pj.city.getOrElse("")}$SEP${pj.workCounty.getOrElse("")}$SEP${pj.WorkPostCode.getOrElse("")}$SEP${pj.workCountry.getOrElse("")}$SEP${pj.phone.getOrElse("")}$SEP $notesVal"""
+            s"""${applicant.get._1}$SEP${applicant.get._2}$SEP${pj.regId}$SEP${pj.gender.getOrElse("")}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.title}$SEP${pj.company}$SEP${pj.workAdress1.getOrElse("")}$SEP${pj.workAdress2.getOrElse("")}$SEP${pj.city.getOrElse("")}$SEP${pj.workCounty.getOrElse("")}$SEP${pj.WorkPostCode.getOrElse("")}$SEP${pj.workCountry.getOrElse("")}$SEP${pj.phone.getOrElse("")}$SEP $notesVal"""
           }
         }
       })
