@@ -40,9 +40,9 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
             case Left(eTarget) => BadRequest(toHateoas(ErrorMessage("Json_parsing_error", s"Json parsing throws an error ${eTarget}")))
             case Right(targets) => {
 
-              val filteredTarget: (Seq[TargetInfo], Seq[TargetInfo]) = targets.partition(target => ls.isExists(target.idTarget).isDefined)
+              val (existingLeads, leadsNotFound): (Seq[TargetInfo], Seq[TargetInfo]) = targets.partition(target => ls.isExists(target.idTarget).isDefined)
 
-              val tLeads = filteredTarget._1.map(item => LeadFromRequest(idApplicant, item.idTarget, item.note)).map(l =>
+              val tLeads = existingLeads.map(item => LeadFromRequest(idApplicant, item.idTarget, item.note)).map(l =>
                 (convert2Lead(l), convert2LeadNote(l)))
 
               val v: Validation[(Lead, Option[LeadNote])] = Validation(tLeads.map(t => ls.isAlreadyConnect(t._1) match {
@@ -67,7 +67,7 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
                 for (
                   p <- ls.getCompleteLeads(idApplicant).filter(cpwn => idTargets.contains(cpwn.person.regId))
                 ) yield p
-              ) ++ Json.obj("targetsNotFound" -> filteredTarget._2.map(t => t.idTarget.toString)))
+              ) ++ Json.obj("targetsNotFound" -> leadsNotFound.map(t => t.idTarget.toString)))
             }
           }
         }

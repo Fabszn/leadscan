@@ -44,9 +44,11 @@ class ImportController(personService: PersonService
 
       import scala.concurrent.ExecutionContext.Implicits.global
       mails.foreach(m => {
+        //generate password and send it to MyDevoxx (remoteClient)
         val pass = PasswordGenerator.generatePassword
         remoteClient.sendPassword(m.regId, pass).andThen {
           case Success(_) =>
+            //Once MyDevoxx answered OK, then send an email to the attendee (and log an event)
             notificationService.sendMail(Seq(m.email),
               Option(views.txt.mails.notifPassword.render(m.firstname, m.sponsor, pass, m.email, s"ref : ${m.regId}").body),
               Option(views.html.mails.notifPassword.render(m.firstname, m.sponsor, pass, m.email, s"ref : ${m.regId}").body))
