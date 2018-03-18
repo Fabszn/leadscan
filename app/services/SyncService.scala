@@ -21,7 +21,6 @@ trait SyncService {
  * synchro between MyDevoxx and LeadScan. Data from MyDevoxx is copied into leadScan
  * Synchronisation key is RegId
  */
-**/
 class SyncServiceImpl(remote: RemoteClient, es: EventService, db: Database) extends SyncService with LoggerAudit {
   override def syncMyDevoxx(token: String): Unit = {
     import model.Person._
