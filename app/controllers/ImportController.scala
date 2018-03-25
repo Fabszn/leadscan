@@ -8,6 +8,7 @@ import services._
 import utils.oAuthActions.AdminAuthAction
 import utils.{LoggerAudit, PasswordGenerator}
 
+import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
 
 
@@ -24,6 +25,10 @@ class ImportController(personService: PersonService
 
   case class MailData(regId: String, email: String, sponsor: String, firstname: String, lastname: String)
 
+  def updateSponsorList =  AdminAuthAction { implicit request =>
+    sponsorService.loadRemoteSponsorsList
+    Ok("Upload running")
+  }
 
   def massiveSendMailToRepresentative() = AdminAuthAction(parse.multipartFormData) { implicit request =>
 
@@ -88,7 +93,7 @@ class ImportController(personService: PersonService
           val sponsor = sponsorService.loadSponsor(representative.sponsor) match {
             case None =>
               eventService.addEvent(Event(typeEvent = ImportRepresentative.typeEvent, message = s"Sponsor with name ${representative.sponsor} not found, creating a new sponsor"))
-              val newSponsor = Sponsor(None, representative.sponsor, representative.sponsorLevel)
+              val newSponsor = Sponsor(None, "",representative.sponsor, representative.sponsorLevel)
               sponsorService.addSponsor(newSponsor)
               play.Logger.debug(s"Created new sponsor [${newSponsor.name}]")
               sponsorService.loadSponsor(representative.sponsor).get // TODO pas top de devoir recharger ce que l'om vient de créer mais c'est pour récupérer le bon sponsorId

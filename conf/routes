@@ -41,7 +41,7 @@ GET           /admin/import                                          controllers
 POST          /admin/batch_attendees                                 controllers.ImportController.importAllAttendees()
 POST          /admin/batch_representatives                           controllers.ImportController.importAllRepresentatives()
 POST          /admin/batch_mail                                      controllers.ImportController.massiveSendMailToRepresentative()
-
+POST           /admin/update/sponsors                                 controllers.ImportController.updateSponsorList()
 
 GET           /assets/*file                                          controllers.Assets.at(path="/public", file)
 
@@ -59,6 +59,7 @@ GET           /admin/representatives                                 controllers
 GET           /admin/only_representatives/:idSponsor                 controllers.SponsorsController.readOnlyReprBySponsor(idSponsor:Long)
 GET           /admin/all_only_representatives                        controllers.SponsorsController.readOnlyRepr
 GET           /admin/view_only_representatives                       controllers.AdminController.repreSpnsor
+
 POST          /admin/representatives                                 controllers.AdminController.linkRepreSponsor
 POST          /admin/representatives/new                             controllers.AdminController.newPerson
 DELETE        /admin/representatives/:idPerson                       controllers.AdminController.removeRepreSponsor(idPerson:String)

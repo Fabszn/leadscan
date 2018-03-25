@@ -1,16 +1,15 @@
 <div class="row">
     <div class="col-md-12">
 
-        <h2>Import Registration</h2>
+        <h2>Update Sponsors list</h2>
     </div>
 </div>
 <div class="row">
     <div class="col-md-12">
-        <form method="post" action="/admin/batch_attendees" enctype="multipart/form-data" id="runBatch">
+        <form method="POST" action="/admin/update/sponsors" id="runBatch">
             <div class="form-group">
                 <div class="col-sm-4">
-                    <input type="file" name="csvFile" class="form-control"/>
-                    <input type="submit" value="Run import" class="form-control" id="btnRun"/>
+                    <input type="submit" value="Run update" class="form-control" id="btnRun"/>
                 </div>
             </div>
 
@@ -23,114 +22,4 @@
             &nbsp;
     </div>
 </div>
-<div class="row">
-    <div class="col-md-12">
 
-            &nbsp;
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-
-            &nbsp;
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-12">
-
-        <h2>Import Representatives</h2>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-        <form method="post" action="/admin/batch_representatives" enctype="multipart/form-data" id="runBatch">
-            <div class="form-group">
-                <div class="col-sm-4">
-                    <input type="file" name="csvFile" class="form-control"/>
-                    <input type="submit" value="Run import" class="form-control" id="btnRun"/>
-                </div>
-            </div>
-
-        </form>
-    </div>
-</div><div class="row">
-    <div class="col-md-12">
-
-            &nbsp;
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-
-            &nbsp;
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-
-            &nbsp;
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-12">
-
-        <h2>Massive send mail to representatives</h2>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-        <form method="post" action="/admin/batch_mail" enctype="multipart/form-data" id="runBatch">
-            <div class="form-group">
-                <div class="col-sm-4">
-                    <input type="file" name="csvFile" class="form-control"/>
-                    <input type="submit" value="Run import" class="form-control" id="btnRun"/>
-                </div>
-            </div>
-
-        </form>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-12">
-
-            &nbsp;
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-
-            &nbsp;
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-
-            &nbsp;
-    </div>
-</div>
-
-
-<div class="row">
-    <div class="col-md-12">
-        <h3>Description of CSV file format</h3>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-            CSV file must contains the following fields :
-        <h4>RegId,first_Name,last_Name,Email_Address,Company,Address_1,Address_2,City,Region,postal_Code,Country,Phone,Fax,Title</h4>
-
-    </div>
-
-    <div class="col-md-12">
-            Separator between field must be : <h4>comma</h4>
-
-    </div>
-
-    <div class="col-md-12">
-        <div class="alert alert-danger">Be careful with special character, before import csv file</div>
-    </div>
-</div>

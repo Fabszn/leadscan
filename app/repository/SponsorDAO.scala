@@ -15,12 +15,13 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
   override def rowParser: RowParser[Sponsor] =
     for {
       id <- get[Option[Long]]("id")
+      slug <- get[String]("slug")
       name <- get[String]("name")
       level <- get[String]("level")
-
     } yield
       Sponsor(
         id,
+        slug,
         name,
         level
       )
@@ -40,8 +41,10 @@ object SponsorDAO extends mainDBDAO[Sponsor, Long] {
 
   override def getParams(item: Sponsor): Seq[NamedParameter] = Seq[NamedParameter](
     'name -> item.name,
-    'level -> item.level
+    'level -> item.level,
+    'slug -> item.slug
   )
+
 
 
   def all(implicit connection: Connection): Seq[Sponsor] = {
