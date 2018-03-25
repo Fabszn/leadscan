@@ -15,7 +15,7 @@ import utils.oAuthActions.AdminAuthAction
 class SponsorsController(ss: SponsorService) extends Controller {
 
   implicit val readSponsor: Reads[Sponsor] = (
-    (__ \ "id").readNullable[Long] and (__ \ "name").read[String]
+    (__ \ "id").readNullable[Long] and (__ \ "slug").read[String]and (__ \ "name").read[String]
       and (__ \ "level").read[String]
     ) (Sponsor.apply _)
 
@@ -29,6 +29,7 @@ class SponsorsController(ss: SponsorService) extends Controller {
     implicit val sponsor2json: Writes[Sponsor] = (
 
       (JsPath \ "id").write[Option[Long]] and
+        (JsPath \ "slug").write[String] and
         (JsPath \ "name").write[String] and
         (JsPath \ "level").write[String]
       ) (unlift(Sponsor.unapply))
@@ -52,7 +53,7 @@ class SponsorsController(ss: SponsorService) extends Controller {
 
   def readAll = AdminAuthAction {
 
-    Ok(Json.toJson(Map("data" -> ss.loadSponsors().map(s => Seq(s.id.get.toString, s.name, s.level)))))
+    Ok(Json.toJson(Map("data" -> ss.loadSponsors().map(s => Seq(s.id.get.toString, s.name, s.level,s.slug)))))
   }
 
 

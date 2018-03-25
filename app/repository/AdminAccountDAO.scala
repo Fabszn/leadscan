@@ -27,6 +27,10 @@ object AdminAccountDAO extends mainDBDAO[Account, Long] {
   )
 
 
+  def findByLoginPassword(email:String, pass:String)(implicit c :Connection):Option[Account] =
+    SQL"""select id as Id, email_Adress  from admin_account where email_Adress=${email} AND pass=${pass}""".as(rowParser.singleOpt)
+
+
 
 
 }

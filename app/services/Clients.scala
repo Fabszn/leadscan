@@ -2,53 +2,69 @@ package services
 
 import config.Settings
 import model.{Event, ImportRegistration, PersonJson, SendPassword}
+import pdi.jwt.{Jwt, JwtAlgorithm}
+import play.api.db.Database
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
+import repository.{AdminAccountDAO, PersonDAO}
 import utils.LoggerAudit
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 /**
-  * Created by fsznajderman on 01/03/2017.
-  */
-
-sealed trait User
-
-case class UnauthenticateUser(msg: String) extends User
-
-case class AuthenticateUser(firstname: String, lastname: String, email: String, token: String) extends User
+ * Created by fsznajderman on 01/03/2017.
+ */
 
 
-case class MyDevoxxPerson(userID: String,
-                          registrantId: Option[String],
-                          firstName: String,
-                          lastName: String,
-                          gender: Option[String],
-                          company: String,
-                          job: String,
-                          address1: Option[String],
-                          address2: Option[String],
-                          region: Option[String],
-                          city: Option[String],
-                          zip: Option[String],
-                          country: Option[String],
-                          phone: Option[String]
-                         )
+case class MyDevoxxPerson(
+  userID: String,
+  registrantId: Option[String],
+  firstName: String,
+  lastName: String,
+  gender: Option[String],
+  company: String,
+  job: String,
+  address1: Option[String],
+  address2: Option[String],
+  region: Option[String],
+  city: Option[String],
+  zip: Option[String],
+  country: Option[String],
+  phone: Option[String]
+)
 
-trait RemoteClient {
 
-  def getJWtToken(login: String, password: String, remenberMe: Boolean = false): Future[String]
+class LocalRemoteClient(db: Database, es: EventService) extends RemoteClient with LoggerAudit {
+  override def getJWtToken(
+    login: String,
+    password: String,
+    remenberMe: Boolean): Future[String] = {
+    Future.successful {
+      db.withConnection { implicit connection =>
+        AdminAccountDAO.findByLoginPassword(login, password).fold("-1")(a => {
+          Jwt.encode(s"""{"registrantId":"${a.id}", "email":"${a.email}"}""", Settings.oAuth.sharedSecret, JwtAlgorithm.HS256)
+        })
+      }
+    }
+  }
 
-  def getUserInfo(): Future[User]
+  override def getUserInfo(): Future[User] = Future.failed(new NotImplementedError())
 
-  def getUserInfo(token: String): Future[User]
+  override def getUserInfo(token: String): Future[User] = {
+    Future.successful {
+      db.withConnection { implicit connection =>
+        AuthenticateUser("admin", "admin", "admin@admin.admin", token)
 
-  def sendPerson(person: PersonJson): Future[String]
+      }
+    }
+  }
 
-  def sendPassword(regId: String, pass: String): Future[String]
+  override def sendPerson(person: PersonJson): Future[String] = Future.failed(new NotImplementedError())
 
-  def loadByregId(regId: String): Future[MyDevoxxPerson]
+  override def sendPassword(regId: String, pass: String): Future[String] = Future.failed(new NotImplementedError())
+
+  override def loadByregId(regId: String): Future[MyDevoxxPerson] = Future.failed(new NotImplementedError())
 
 }
 
@@ -77,7 +93,8 @@ class MyDevoxxRemoteClient(ws: WSClient, es: EventService) extends RemoteClient 
     logger.info("getUserInfo")
     val r = for {
       json <- ws.url(Settings.oAuth.endpoints.userinfo)
-        .withHeaders("Content-Type" -> "application/json", "Accept" -> "application/json", "X-Auth-Token" -> token).get().map(w => w.json)
+        .withHeaders("Content-Type" -> "application/json", "Accept" -> "application/json", "X-Auth-Token" -> token)
+        .get().map(w => w.json)
     } yield {
       val firstName = (json \ "firstName").as[String]
       val lastName = (json \ "lastName").as[String]
@@ -94,14 +111,14 @@ class MyDevoxxRemoteClient(ws: WSClient, es: EventService) extends RemoteClient 
     r
   }
 
-
   override def getUserInfo: Future[User] = {
 
     logger.info("getUserInfo")
     val r = for {
       token <- getJWtToken(Settings.oAuth.myDevoxxLogin, Settings.oAuth.myDevoxxpwd)
       json <- ws.url(Settings.oAuth.endpoints.userinfo)
-        .withHeaders("Content-Type" -> "application/json", "Accept" -> "application/json", "X-Auth-Token" -> token).get().map(w => w.json)
+        .withHeaders("Content-Type" -> "application/json", "Accept" -> "application/json", "X-Auth-Token" -> token)
+        .get().map(w => w.json)
     } yield {
       val firstName = (json \ "firstName").as[String]
       val lastName = (json \ "lastName").as[String]
@@ -135,7 +152,8 @@ class MyDevoxxRemoteClient(ws: WSClient, es: EventService) extends RemoteClient 
 
     val r = for {
       token <- getJWtToken(Settings.oAuth.myDevoxxLogin, Settings.oAuth.myDevoxxpwd)
-      response <- ws.url(Settings.oAuth.endpoints.createPerson).withHeaders("Content-Type" -> "application/json", Settings.oAuth.TOKEN_KEY -> token).post(personToSend).map(r => r.body)
+      response <- ws.url(Settings.oAuth.endpoints.createPerson).withHeaders("Content-Type" -> "application/json",
+        Settings.oAuth.TOKEN_KEY -> token).post(personToSend).map(r => r.body)
     } yield response
     r.onComplete(r => {
       es.addEvent(Event(typeEvent = ImportRegistration.typeEvent, message = s" $r as answer for ${
@@ -157,7 +175,8 @@ class MyDevoxxRemoteClient(ws: WSClient, es: EventService) extends RemoteClient 
         Settings.oAuth.endpoints.createPassword
       }${
         regId
-      }").withHeaders("Content-Type" -> "application/json", Settings.oAuth.TOKEN_KEY -> token).post(body).map(r => r.body)
+      }").withHeaders("Content-Type" -> "application/json", Settings.oAuth.TOKEN_KEY -> token).post(body).map(r => r
+        .body)
     } yield response
 
 
