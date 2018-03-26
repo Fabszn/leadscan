@@ -34,15 +34,17 @@ class Components(context: Context)
 
   override lazy val httpFilters: Seq[EssentialFilter] = Seq(corsFilter)
 
+
   val database: Database = dbApi.database("leadTrackerDb")
   val es = new EventServiceImpl(database)
   val remote = new LocalRemoteClient(database, es)
   val ls = new LeadServiceImpl(database)
   val ns = new NotificationServiceImpl(database, mailerClient, remote)
-  val ss = new SponsorServiceImpl(database, es, wsClient)
+  val ps = new PersonServiceImpl(database, ns, remote, es)
+  val ss = new SponsorServiceImpl(database, es, wsClient,ps)
   val sts = new StatsServiceImpl(database)
   val as = new AuthServiceImpl(database, remote)
-  val ps = new PersonServiceImpl(database, ns, remote, es)
+
   val sys = new SyncServiceImpl(remote, es, database)
 
 

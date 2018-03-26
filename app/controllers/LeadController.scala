@@ -7,15 +7,15 @@ import model._
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.{Reads, _}
-import play.api.mvc.Controller
+import play.api.mvc.{Controller, Result, Results}
 import services.{LeadService, NotificationService, PersonService}
 import utils.HateoasUtils._
 import utils.oAuthActions.ApiAuthAction
 import utils.{CORSAction, LoggerAudit}
 
 /**
-  * Created by fsznajderman on 24/01/2017.
-  */
+ * Created by fsznajderman on 24/01/2017.
+ */
 class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService) extends Controller with LoggerAudit {
 
   case class TargetInfo(idTarget: String, note: Option[String])
@@ -27,148 +27,142 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
     ) (TargetInfo.apply _)
 
 
-  def lead = CORSAction(ApiAuthAction(parse.json) {
-    implicit request => {
+  def lead = {
+    CORSAction(ApiAuthAction(parse.json) {
+      implicit request => {
 
-      val json = request.body
-      //specific request.body parser.
-      (json \ "idApplicant").validate[String].asEither match {
-        case Left(erIdApplicant) => BadRequest(toHateoas(ErrorMessage("Json_parsing_error", s"Json parsing throws an error ${erIdApplicant}")))
-        case Right(idApplicant) => {
-
-          (json \ "targets").validate[Seq[TargetInfo]].asEither match {
-            case Left(eTarget) => BadRequest(toHateoas(ErrorMessage("Json_parsing_error", s"Json parsing throws an error ${eTarget}")))
-            case Right(targets) => {
-
-              val (existingLeads, leadsNotFound): (Seq[TargetInfo], Seq[TargetInfo]) = targets.partition(target => ls.isExists(target.idTarget).isDefined)
-
-              val tLeads = existingLeads.map(item => LeadFromRequest(idApplicant, item.idTarget, item.note)).map(l =>
-                (convert2Lead(l), convert2LeadNote(l)))
-
-              val v: Validation[(Lead, Option[LeadNote])] = Validation(tLeads.map(t => ls.isAlreadyConnect(t._1) match {
-                case None => Validation.OK(t)
-                case Some(_) => Validation.KO(t)
-              }): _*)
-
-
-              val validLead = tLeads.filterNot(item => v.failures.contains(item))
-
-              val idTargets = validLead.map(item => {
-                ls.addLead(item._1, item._2)
-                sendNotification(item)
-                item._1.idTarget
-              }) ++ v.failures.map(item => {
-                item._2.foreach(note => ls.addNote(note))
-                item._1.idTarget
-              })
-
-
-              Ok(toHateoas(
-                for (
-                  p <- ls.getCompleteLeads(idApplicant).filter(cpwn => idTargets.contains(cpwn.person.regId))
-                ) yield p
-              ) ++ Json.obj("targetsNotFound" -> leadsNotFound.map(t => t.idTarget.toString)))
-            }
-          }
+        request.body.validate[LeadGluon] match {
+          case JsError(l) => BadRequest(s"Payload has bad format. Details =>  ${l}")
+          case JsSuccess(r, _) => manageNewLead(r)
         }
       }
+
+    })
+  }
+
+  private def manageNewLead(l: LeadGluon): Result = {
+
+
+    val pj = PersonJson(l.idAttendee, None, l.firstName, l.lastName, l.email, "-", l.company)
+
+    //1 add person
+    ps.addPerson(Person(Some(l.idAttendee), Json.toJson(pj).toString))
+
+    val leadNote = l.message match {
+      case "" => None
+      case _ => Some(LeadNote(None, l.slug, l.idAttendee, l.message, l.scanDateTime))
     }
 
-  })
+    //todo manage the duplicate lead
+    ls.addLead(Lead(l.slug, l.idAttendee, l.scanDateTime), leadNote)
 
+    Ok(s"Scan for ${l.slug} / ${l.idAttendee} has been stored succefully")
+  }
 
-  def addNote = CORSAction {
-    ApiAuthAction(parse.json) {
-      implicit request =>
+  def addNote = {
+    CORSAction {
+      ApiAuthAction(parse.json) {
+        implicit request =>
 
-        implicit val leadReader: Reads[LeadFromRequest] = (
-          (__ \ "idApplicant").read[String] and (__ \ "idTarget").read[String] and (__ \ "note").readNullable[String]
-          ) (LeadFromRequest.apply _)
+          implicit val leadReader: Reads[LeadFromRequest] = (
+            (__ \ "idApplicant").read[String] and (__ \ "idTarget").read[String] and (__ \ "note").readNullable[String]
+            ) (LeadFromRequest.apply _)
 
-        request.body.validate[LeadFromRequest].asEither match {
-          case Left(errors) => BadRequest(toHateoas(ErrorMessage("Json_parsing_error", s"Json parsing throws an error ${
-            errors
-          }")))
-          case Right(leadFromRequest) => {
+          request.body.validate[LeadFromRequest].asEither match {
+            case Left(errors) => BadRequest(toHateoas(ErrorMessage("Json_parsing_error", s"Json parsing throws an " +
+              s"error ${
+                errors
+              }")))
+            case Right(leadFromRequest) => {
 
-            val lead = convert2Lead(leadFromRequest)
-            val leadNote: Option[LeadNote] = convert2LeadNote(leadFromRequest)
-            ls.isAlreadyConnect(lead).fold {
-              BadRequest(toHateoas(ErrorMessage("person_not_connected"
-                , s"Person with id ${
-                  lead.idApplicant
-                } is not already connected with person with id ${
-                  lead.idTarget
-                }")))
-            } {
-              _ =>
-                leadNote match {
-                  case Some(ln) => {
-                    ls.addNote(ln)
-                    Created(toHateoas(InfoMessage("Note added successfully")))
+              val lead = convert2Lead(leadFromRequest)
+              val leadNote: Option[LeadNote] = convert2LeadNote(leadFromRequest)
+              ls.isAlreadyConnect(lead).fold {
+                BadRequest(toHateoas(ErrorMessage("person_not_connected"
+                  , s"Person with id ${
+                    lead.idApplicant
+                  } is not already connected with person with id ${
+                    lead.idTarget
+                  }")))
+              } {
+                _ =>
+                  leadNote match {
+                    case Some(ln) => {
+                      ls.addNote(ln)
+                      Created(toHateoas(InfoMessage("Note added successfully")))
+                    }
+                    case None => BadRequest(toHateoas(ErrorMessage("Note_not_found", s"Note not found in request")))
                   }
-                  case None => BadRequest(toHateoas(ErrorMessage("Note_not_found", s"Note not found in request")))
-                }
-            }
+              }
 
+            }
+          }
+
+      }
+    }
+  }
+
+  def readNotes(idAppliquant: String) = {
+    CORSAction {
+      ApiAuthAction {
+        implicit request =>
+          Ok(toHateoas(ls.getNotes(idAppliquant)))
+      }
+    }
+  }
+
+  def readNote(idNote: Long) = {
+    CORSAction {
+      ApiAuthAction {
+        implicit request =>
+          ls.getNote(idNote).fold(
+            NotFound(toHateoas(ErrorMessage("Note_not_found", s"Note not found in request")))
+          )(n => Ok(toHateoas(n)))
+
+      }
+    }
+  }
+
+
+  def leads = {
+    CORSAction {
+      ApiAuthAction {
+        implicit request => {
+
+          val regId = jsonUtils.extractRegIdFromTokenRequest(request)
+          logger.info(s"regId found $regId")
+          ls.getCompleteLeads(regId) match {
+            case Nil => NotFound(toHateoas(ErrorMessage("leads_not_found", s"Leads for person with id ${regId} are " +
+              s"not " +
+              s"found")))
+            case leads => Ok(toHateoas(leads))
           }
         }
+      }
+
 
     }
   }
 
-  def readNotes(idAppliquant: String) = CORSAction {
-    ApiAuthAction {
-      implicit request =>
-        Ok(toHateoas(ls.getNotes(idAppliquant)))
-    }
-  }
-
-  def readNote(idNote: Long) = CORSAction {
-    ApiAuthAction {
-      implicit request =>
-        ls.getNote(idNote).fold(
-          NotFound(toHateoas(ErrorMessage("Note_not_found", s"Note not found in request")))
-        )(n => Ok(toHateoas(n)))
-
-    }
-  }
+  def latestLeads(datetime: Long) = {
+    CORSAction {
+      ApiAuthAction {
+        implicit request => {
 
 
-
-  def leads = CORSAction {
-    ApiAuthAction {
-      implicit request => {
-
-        val regId = jsonUtils.extractRegIdFromTokenRequest(request)
-        logger.info(s"regId found $regId")
-        ls.getCompleteLeads(regId) match {
-          case Nil => NotFound(toHateoas(ErrorMessage("leads_not_found", s"Leads for person with id ${regId} are not found")))
-          case leads => Ok(toHateoas(leads))
+          val regId = jsonUtils.extractRegIdFromTokenRequest(request)
+          logger.info(s"regId found $regId")
+          ls.getCompleteLatestLeads(regId, LocalDateTime.ofEpochSecond(datetime, 0, ZoneOffset.UTC)) match {
+            case Nil => NotFound(toHateoas(ErrorMessage("leads_not_found", s"Leads for person with id ${regId} are " +
+              s"not " +
+              s"found")))
+            case leads => Ok(toHateoas(leads))
+          }
         }
       }
+
+
     }
-
-
-  }
-
-  def latestLeads(datetime:Long) = CORSAction {
-    ApiAuthAction {
-      implicit request => {
-
-
-
-
-        val regId = jsonUtils.extractRegIdFromTokenRequest(request)
-        logger.info(s"regId found $regId")
-        ls.getCompleteLatestLeads(regId,LocalDateTime.ofEpochSecond(datetime, 0, ZoneOffset.UTC)) match {
-          case Nil => NotFound(toHateoas(ErrorMessage("leads_not_found", s"Leads for person with id ${regId} are not found")))
-          case leads => Ok(toHateoas(leads))
-        }
-      }
-    }
-
-
   }
 
   private def convert2Lead(leadFromRequest: LeadFromRequest): Lead = {

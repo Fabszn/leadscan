@@ -3,7 +3,7 @@ package services
 import config.Settings
 import repository.SponsorDAO.PersonSponsorInfo
 import repository.{LeadNoteDAO, PersonDAO, SponsorDAO}
-import model.{Event, EventDevoxx, PersonJson, Sponsor}
+import model._
 import org.apache.commons.lang3.StringUtils
 import play.api.db.Database
 import play.api.libs.json.Json
@@ -55,7 +55,12 @@ trait SponsorService {
 }
 
 
-class SponsorServiceImpl(db: Database, es: EventService, ws: WSClient) extends SponsorService with LoggerAudit {
+class SponsorServiceImpl(
+  db: Database,
+  es: EventService,
+  ws: WSClient,
+  ps: PersonService)
+  extends SponsorService with LoggerAudit {
 
 
   val SEP = "|"
@@ -277,8 +282,7 @@ class SponsorServiceImpl(db: Database, es: EventService, ws: WSClient) extends S
         (json \ "events").as[Seq[EventDevoxx]].filter(e => e.slug == "dvxfr18").head.sponsors
           .map(s => {
             logger.info(s"Sponsor ${s}")
-            Sponsor(Some(s.slug.hashCode), s.slug, s.name, s.level)
-
+            Sponsor(None, s.slug, s.name, s.level)
           }
           )
       } match {
@@ -289,23 +293,36 @@ class SponsorServiceImpl(db: Database, es: EventService, ws: WSClient) extends S
         }
       }
 
-      sponsors.foreach(s => {
+      logger.info(s"nb sponsors found ${sponsors.size}")
+      Try {
 
-        db.withConnection(implicit c => {
-
-          SponsorDAO.findBy("slug", s.slug) match {
-            case Some(s) => {
-              es.addEvent(Event(typeEvent = "update Sponsor", message = s"Sponsor ${s.slug} has been updated"))
-              SponsorDAO.update(s)
-            }
-            case None => {
-              es.addEvent(Event(typeEvent = "create Sponsor", message = s"Sponsor ${s.slug} has been created"))
-              SponsorDAO.create(s)
+          sponsors.foreach(s => {
+            logger.info(s"current ${s}")
+            db.withConnection(implicit c => {
+            SponsorDAO.findBy("slug", s.slug) match {
+              case Some(sponsorFound) => {
+                es.addEvent(Event(typeEvent = "update Sponsor", message = s"Sponsor ${s.slug} has been updated"))
+                SponsorDAO.update(sponsorFound.copy(name = s.name, level = s.level))
+              }
+              case None => {
+                es.addEvent(Event(typeEvent = "create Sponsor", message = s"Sponsor ${s.slug} has been created"))
+                SponsorDAO.create(s)
+                ps.addPerson(Person(Some(s.slug), Json.toJson(PersonJson.fakeSponsorPerson(s)).toString))
+                addRepresentative(s.slug, SponsorDAO.findBy("slug", s.slug).get.id.get)
+                logger.info(s"Sponsor ${s} created")
+              }
             }
           }
+          )
+        })
+      } match {
+        case Success(e) => e
+        case Failure(s) => {
+          s.printStackTrace
+          logger.error(s.getMessage)
+          throw new Exception(s)
         }
-        )
-      })
+      }
     }
   }
 

@@ -8,33 +8,42 @@ import play.api.libs.json.{Reads, _}
 
 
 /**
-  * Created by fsznajderman on 19/01/2017.
-  * Here we have different version on Person.. The most recent , is PersonJson that aim to manage the DevoxxUs use case
-  */
+ * Created by fsznajderman on 19/01/2017.
+ * Here we have different version on Person.. The most recent , is PersonJson that aim to manage the DevoxxUs use case
+ */
 case class Person(id: Option[String], json: String = "")
 
 case class LightingPerson(id: String, firstname: String, lastname: String)
 
-case class CompletePerson(regId: String, firstname: String, lastname: String, title: String, email: String, phoneNumber: Option[String], company: String, json: String, datetime: Option[LocalDateTime])
+case class CompletePerson(regId: String, firstname: String, lastname: String, title: String, email: String,
+  phoneNumber: Option[String], company: String, json: String, datetime: Option[LocalDateTime])
 
 case class CompletePersonWithNotes(person: CompletePerson, notes: Seq[LeadNote] = Nil)
 
-case class PersonJson(regId: String,
-                      gender: Option[String],
-                      firstname: String,
-                      lastname: String,
-                      email: String,
-                      title: String,
-                      company: String,
-                      workAdress1: Option[String],
-                      workAdress2: Option[String],
-                      city: Option[String],
-                      workCounty: Option[String],
-                      WorkPostCode: Option[String],
-                      workCountry: Option[String],
-                      phone: Option[String])
+case class PersonJson(
+  regId: String,
+  gender: Option[String] = None,
+  firstname: String,
+  lastname: String,
+  email: String,
+  title: String,
+  company: String,
+  workAdress1: Option[String] = None,
+  workAdress2: Option[String] = None,
+  city: Option[String] = None,
+  workCounty: Option[String] = None,
+  WorkPostCode: Option[String] = None,
+  workCountry: Option[String] = None,
+  phone: Option[String] = None)
 
-//RegId,gender,firstname,lastname,email,title,company,workAdress1,workAdress2,city,workCounty,WorkPostCode,workCountry,phone
+object PersonJson {
+  implicit val format = Json.format[PersonJson]
+
+  def fakeSponsorPerson(s:Sponsor) :PersonJson = PersonJson(s.slug, None, s.name, s.name, s.name, "-", s.name)
+}
+
+//RegId,gender,firstname,lastname,email,title,company,workAdress1,workAdress2,city,workCounty,WorkPostCode,
+// workCountry,phone
 
 object Person {
 
@@ -49,12 +58,13 @@ object Person {
   }
 
 
-  //RegId,Prefix,first_Name,last_Name,Email,Job_Title,Company,Work_Address_1,Work_Address_2,Work_City,Work_County,Work_Postcode,Work_Country,Work_Phone
+  //RegId,Prefix,first_Name,last_Name,Email,Job_Title,Company,Work_Address_1,Work_Address_2,Work_City,Work_County,
+  // Work_Postcode,Work_Country,Work_Phone
 
 
   implicit val personJsonReader: Reads[PersonJson] = (
     (__ \ "RegId").read[String] and
-    (__ \ "gender").readNullable[String] and
+      (__ \ "gender").readNullable[String] and
       (__ \ "firstname").read[String] and
       (__ \ "lastname").read[String] and
       (__ \ "email").read[String] and
