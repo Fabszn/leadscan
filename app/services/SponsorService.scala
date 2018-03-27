@@ -148,7 +148,9 @@ class SponsorServiceImpl(
       SponsorDAO.personBySponsor(id).map((line: SponsorDAO.LeadLine) => {
 
         Json.parse(line.json).validate[PersonJson].asEither match {
-          case Left(error) => s"An error occurred wiht this line -> $error"
+          case Left(error) => {
+            s"An error occurred with this line -> $error"
+          }
           case Right(pj) => {
 
 
@@ -166,20 +168,10 @@ class SponsorServiceImpl(
 
             //RegId,gender,firstname,lastname,email,title,company,workAdress1,workAdress2,city,workCounty,
             // workPostCode,workCountry,phone
-            s"""${applicant.get._1}$SEP${applicant.get._2}$SEP${pj.regId}$SEP${pj.gender.getOrElse("")}$SEP${
-              pj
-                .firstname
-            }$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.title}$SEP${pj.company}$SEP${
-              pj
-                .workAdress1.getOrElse("")
-            }$SEP${pj.workAdress2.getOrElse("")}$SEP${pj.city.getOrElse("")}$SEP${
-              pj
-                .workCounty.getOrElse("")
-            }$SEP${pj.WorkPostCode.getOrElse("")}$SEP${
-              pj.workCountry.getOrElse("")
-            }$SEP${pj.phone.getOrElse("")}$SEP $notesVal"""
+            s"""${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.company}$SEP$notesVal""".stripMargin
           }
         }
+
       })
     ).toList
 
@@ -296,9 +288,9 @@ class SponsorServiceImpl(
       logger.info(s"nb sponsors found ${sponsors.size}")
       Try {
 
-          sponsors.foreach(s => {
-            logger.info(s"current ${s}")
-            db.withConnection(implicit c => {
+        sponsors.foreach(s => {
+          logger.info(s"current ${s}")
+          db.withConnection(implicit c => {
             SponsorDAO.findBy("slug", s.slug) match {
               case Some(sponsorFound) => {
                 es.addEvent(Event(typeEvent = "update Sponsor", message = s"Sponsor ${s.slug} has been updated"))

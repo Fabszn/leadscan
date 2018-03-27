@@ -45,18 +45,26 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
 
     val pj = PersonJson(l.idAttendee, None, l.firstName, l.lastName, l.email, "-", l.company)
 
-    //1 add person
-    ps.addPerson(Person(Some(l.idAttendee), Json.toJson(pj).toString))
 
-    val leadNote = l.message match {
-      case "" => None
-      case _ => Some(LeadNote(None, l.slug, l.idAttendee, l.message, l.scanDateTime))
+    ls.isAlreadyConnect(Lead(l.idAttendee, l.slug)) match {
+      case Some(_) => Ok(s"Scan for ${l.slug} / ${l.idAttendee} already connected")
+      case None => {
+
+        //1 add person
+        ps.addPerson(Person(Some(l.idAttendee), Json.toJson(pj).toString))
+
+        val leadNote = l.message match {
+          case "" => None
+          case _ => Some(LeadNote(None, l.slug, l.idAttendee, l.message, l.scanDateTime))
+        }
+
+        //todo manage the duplicate lead
+        ls.addLead(Lead(l.slug, l.idAttendee, l.scanDateTime), leadNote)
+
+
+        Ok(s"Scan for ${l.slug} / ${l.idAttendee} has been stored succefully")
+      }
     }
-
-    //todo manage the duplicate lead
-    ls.addLead(Lead(l.slug, l.idAttendee, l.scanDateTime), leadNote)
-
-    Ok(s"Scan for ${l.slug} / ${l.idAttendee} has been stored succefully")
   }
 
   def addNote = {

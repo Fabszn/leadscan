@@ -63,7 +63,7 @@ object Person {
 
 
   implicit val personJsonReader: Reads[PersonJson] = (
-    (__ \ "RegId").read[String] and
+    (__ \ "regId").read[String] and
       (__ \ "gender").readNullable[String] and
       (__ \ "firstname").read[String] and
       (__ \ "lastname").read[String] and
@@ -82,7 +82,7 @@ object Person {
 
   implicit val personJWrites: Writes[PersonJson] = (
 
-    (JsPath \ "RegId").write[String] and
+    (JsPath \ "regId").write[String] and
       (JsPath \ "gender").writeNullable[String] and
       (JsPath \ "firstname").write[String] and
       (JsPath \ "lastname").write[String] and

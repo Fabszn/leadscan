@@ -4,7 +4,7 @@ name := """devoxx-leadtracker"""
 
 version := "1.0-SNAPSHOT"
 
-scalaVersion in ThisBuild := "2.11.8"
+scalaVersion in ThisBuild := "2.11.9"
 
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, BuildInfoPlugin)
@@ -31,5 +31,6 @@ lazy val root = (project in file("."))
       "com.pauldijou" %% "jwt-core" % "0.9.2",
       "com.typesafe.play" %% "play-mailer" % "5.0.0",
       "com.opencsv" % "opencsv" % "3.8",
-      "org.apache.commons" % "commons-lang3" % "3.1"
+      "org.apache.commons" % "commons-lang3" % "3.1",
+      "org.specs2" %% "specs2-core" % "3.7.3" % "test"
     ))

@@ -23,7 +23,8 @@ class AdminController(ps: PersonService, ss: SponsorService, sts: StatsService, 
 
 
   def index = AdminRootAction {
-    Ok(views.html.reports.reports())
+    Redirect("/admin", MOVED_PERMANENTLY)
+    //Ok(views.html.reports.reports())
   }
 
   def admin = AdminRootAction {
