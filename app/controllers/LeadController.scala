@@ -46,7 +46,7 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
     val pj = PersonJson(l.idAttendee, None, l.firstName, l.lastName, l.email, "-", l.company)
 
 
-    ls.isAlreadyConnect(Lead(l.idAttendee, l.slug)) match {
+    ls.isAlreadyConnect(Lead( l.slug,l.idAttendee)) match {
       case Some(_) => Ok(s"Scan for ${l.slug} / ${l.idAttendee} already connected")
       case None => {
 
@@ -62,7 +62,7 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
         ls.addLead(Lead(l.slug, l.idAttendee, l.scanDateTime), leadNote)
 
 
-        Ok(s"Scan for ${l.slug} / ${l.idAttendee} has been stored succefully")
+        Ok(s"Scan for ${l.slug} / ${l.idAttendee} has been stored successfully")
       }
     }
   }

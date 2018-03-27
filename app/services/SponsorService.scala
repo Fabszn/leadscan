@@ -181,7 +181,7 @@ class SponsorServiceImpl(
 
     import model.Person._
 
-    Settings.headersEvent :: db.withConnection(implicit connection =>
+    Settings.headersSponsor:: db.withConnection(implicit connection =>
       SponsorDAO.allPersonScanned.map(line => {
 
         Json.parse(line.json).validate[PersonJson].asEither match {
@@ -199,18 +199,7 @@ class SponsorServiceImpl(
 
             //val nbNote = notes.count(n => n.note.trim.nonEmpty)
 
-            s"""${applicant.get._1}$SEP${applicant.get._2}$SEP${pj.regId}$SEP${pj.gender.getOrElse("")}$SEP${
-              pj
-                .firstname
-            }$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.title}$SEP${pj.company}$SEP${
-              pj
-                .workAdress1.getOrElse("")
-            }$SEP${pj.workAdress2.getOrElse("")}$SEP${pj.city.getOrElse("")}$SEP${
-              pj
-                .workCounty.getOrElse("")
-            }$SEP${pj.WorkPostCode.getOrElse("")}$SEP${
-              pj.workCountry.getOrElse("")
-            }$SEP${pj.phone.getOrElse("")}"""
+            s"""${pj.regId}$SEP${pj.firstname}$SEP${pj.lastname}$SEP${pj.email}$SEP${pj.company}""".stripMargin
         }
       })
     ).toList
@@ -294,7 +283,7 @@ class SponsorServiceImpl(
             SponsorDAO.findBy("slug", s.slug) match {
               case Some(sponsorFound) => {
                 es.addEvent(Event(typeEvent = "update Sponsor", message = s"Sponsor ${s.slug} has been updated"))
-                SponsorDAO.update(sponsorFound.copy(name = s.name, level = s.level))
+                SponsorDAO.updateSponsor(sponsorFound.copy(name = s.name, level = s.level))
               }
               case None => {
                 es.addEvent(Event(typeEvent = "create Sponsor", message = s"Sponsor ${s.slug} has been created"))
