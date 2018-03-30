@@ -27,6 +27,22 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
     ) (TargetInfo.apply _)
 
 
+  def deleteLead = {
+    CORSAction(ApiAuthAction(parse.json) {
+      implicit request => {
+
+        val leadIds = request.body.as[LeadIDs]
+
+        ls.deleteLead(leadIds)
+
+
+        Ok(s"lead for ${leadIds.slug} / ${leadIds.idAttendee} has been deleted")
+
+      }
+    })
+
+  }
+
   def lead = {
     CORSAction(ApiAuthAction(parse.json) {
       implicit request => {
@@ -44,26 +60,34 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
 
 
     val pj = PersonJson(l.idAttendee, None, l.firstName, l.lastName, l.email, "-", l.company)
+    val leadNote = buildNote(l)
 
+    ls.isAlreadyConnect(Lead(l.slug, l.idAttendee)) match {
+      case Some(_) => {
 
-    ls.isAlreadyConnect(Lead( l.slug,l.idAttendee)) match {
-      case Some(_) => Ok(s"Scan for ${l.slug} / ${l.idAttendee} already connected")
+        //update note
+        leadNote.fold()(l => ls.addNote(l))
+
+        Ok(s"Scan for ${l.slug} / ${l.idAttendee} has been updated")
+      }
       case None => {
 
         //1 add person
         ps.addPerson(Person(Some(l.idAttendee), Json.toJson(pj).toString))
-
-        val leadNote = l.message match {
-          case "" => None
-          case _ => Some(LeadNote(None, l.slug, l.idAttendee, l.message, l.scanDateTime))
-        }
-
-        //todo manage the duplicate lead
         ls.addLead(Lead(l.slug, l.idAttendee, l.scanDateTime), leadNote)
 
 
         Ok(s"Scan for ${l.slug} / ${l.idAttendee} has been stored successfully")
       }
+    }
+  }
+
+  private def buildNote(l: LeadGluon)
+
+  = {
+    l.message match {
+      case "" => None
+      case _ => Some(LeadNote(None, l.slug, l.idAttendee, l.message, l.scanDateTime))
     }
   }
 
@@ -73,7 +97,8 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
         implicit request =>
 
           implicit val leadReader: Reads[LeadFromRequest] = (
-            (__ \ "idApplicant").read[String] and (__ \ "idTarget").read[String] and (__ \ "note").readNullable[String]
+            (__ \ "idApplicant").read[String] and (__ \ "idTarget").read[String] and (__ \ "note")
+              .readNullable[String]
             ) (LeadFromRequest.apply _)
 
           request.body.validate[LeadFromRequest].asEither match {
@@ -173,16 +198,22 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
     }
   }
 
-  private def convert2Lead(leadFromRequest: LeadFromRequest): Lead = {
+  private def convert2Lead(leadFromRequest: LeadFromRequest): Lead
+
+  = {
     Lead(leadFromRequest.idApplicant, leadFromRequest.idTarget)
   }
 
-  private def convert2LeadNote(leadFromRequest: LeadFromRequest): Option[LeadNote] = {
+  private def convert2LeadNote(leadFromRequest: LeadFromRequest): Option[LeadNote]
+
+  = {
     leadFromRequest.note.map(n => LeadNote(None, leadFromRequest.idApplicant, leadFromRequest.idTarget, n))
   }
 
 
-  private def sendNotification(item: (Lead, Option[LeadNote])) = {
+  private def sendNotification(item: (Lead, Option[LeadNote]))
+
+  = {
     ns.addNotification(Notification(id = None,
       idRecipient = item._1.idTarget,
       idRequester = item._1.idApplicant,
@@ -190,6 +221,8 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
       NotificationStatus.READ,
       LocalDateTime.now()))
   }
+
+
 
 
 }

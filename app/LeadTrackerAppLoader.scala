@@ -36,7 +36,8 @@ class Components(context: Context)
 
 
   val database: Database = dbApi.database("leadTrackerDb")
-  val es = new EventServiceImpl(database)
+
+  implicit val es = new EventServiceImpl(database)
   val remote = new LocalRemoteClient(database, es)
   val ls = new LeadServiceImpl(database)
   val ns = new NotificationServiceImpl(database, mailerClient, remote)

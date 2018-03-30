@@ -8,8 +8,8 @@ import play.api.db.Database
 import utils.LoggerAudit
 
 /**
-  * Created by fsznajderman on 24/01/2017.
-  */
+ * Created by fsznajderman on 24/01/2017.
+ */
 trait LeadService {
 
   def addLead(contact: Lead, note: Option[LeadNote]): Unit
@@ -32,13 +32,28 @@ trait LeadService {
 
   def getNote(idNote: Long): Option[LeadNote]
 
+
+  def deleteLead(leadIds: LeadIDs)
+
 }
 
 
-class LeadServiceImpl(db: Database) extends LeadService with LoggerAudit {
+class LeadServiceImpl(db: Database)(implicit es:EventService) extends LeadService with LoggerAudit {
 
 
-  override def getCompleteLeads(id: String): Seq[CompletePersonWithNotes] = {
+  override def deleteLead(leadIds: LeadIDs) = {
+
+    db.withTransaction { implicit c =>
+      LeadDAO.deleteLead(leadIds)
+      LeadNoteDAO.deleteLeadNote(leadIds)
+      es.addEvent(Event(None,DeleteLead.typeEvent,s"lead $leadIds has been deleted" ))
+    }
+
+  }
+
+  override def getCompleteLeads(id: String): Seq[CompletePersonWithNotes]
+
+  = {
     val allNotes = this.getNotes(id)
     this.getLeads(id).map(cp => CompletePersonWithNotes(cp, allNotes.filter(ln => {
       ln.idTarget.equals(cp.regId)
@@ -47,16 +62,20 @@ class LeadServiceImpl(db: Database) extends LeadService with LoggerAudit {
 
   }
 
-  override def getCompleteLatestLeads(id: String, datetime: LocalDateTime): Seq[CompletePersonWithNotes] = {
+  override def getCompleteLatestLeads(id: String, datetime: LocalDateTime): Seq[CompletePersonWithNotes]
+
+  = {
     val allNotes = this.getNotes(id)
-    this.getLatestLeads(id,datetime).map(cp => CompletePersonWithNotes(cp, allNotes.filter(ln => {
+    this.getLatestLeads(id, datetime).map(cp => CompletePersonWithNotes(cp, allNotes.filter(ln => {
       ln.idTarget.equals(cp.regId)
     })))
 
 
   }
 
-  override def getNote(idNote: Long): Option[LeadNote] = {
+  override def getNote(idNote: Long): Option[LeadNote]
+
+  = {
 
     db.withConnection { implicit c =>
       LeadNoteDAO.findBy("id", idNote)
@@ -65,7 +84,9 @@ class LeadServiceImpl(db: Database) extends LeadService with LoggerAudit {
 
   }
 
-  override def getNotes(id: String): Seq[LeadNote] = {
+  override def getNotes(id: String): Seq[LeadNote]
+
+  = {
 
     db.withConnection { implicit c =>
       LeadNoteDAO.listBy("idapplicant", id)
@@ -73,19 +94,26 @@ class LeadServiceImpl(db: Database) extends LeadService with LoggerAudit {
 
   }
 
-  override def addNote(note: LeadNote): Unit = {
-    db.withConnection { implicit c =>
+  override def addNote(note: LeadNote): Unit
+
+  = {
+    db.withTransaction { implicit c =>
       LeadNoteDAO.updateNote(note)
+      es.addEvent(Event(None,UpdateLeadNote.typeEvent,s"lead $note has been updated" ))
     }
   }
 
-  override def isAlreadyConnect(contact: Lead): Option[Lead] = {
+  override def isAlreadyConnect(contact: Lead): Option[Lead]
+
+  = {
     db.withConnection { implicit c =>
       LeadDAO.findByPks(contact.idApplicant, contact.idTarget)
     }
   }
 
-  override def addLead(contact: Lead, leadNote: Option[LeadNote]): Unit = {
+  override def addLead(contact: Lead, leadNote: Option[LeadNote]): Unit
+
+  = {
     db.withTransaction { implicit c =>
       LeadDAO.create(contact)
       val note = leadNote match {
@@ -96,21 +124,27 @@ class LeadServiceImpl(db: Database) extends LeadService with LoggerAudit {
     }
   }
 
-  override def getLeads(id: String): Seq[CompletePerson] = {
+  override def getLeads(id: String): Seq[CompletePerson]
+
+  = {
     db.withConnection { implicit c =>
       PersonDAO.findAllLeadById(id)
     }
 
   }
 
-  override def getLatestLeads(id: String, datetime:LocalDateTime): Seq[CompletePerson] = {
+  override def getLatestLeads(id: String, datetime: LocalDateTime): Seq[CompletePerson]
+
+  = {
     db.withConnection { implicit c =>
-      PersonDAO.findAllLatestLeadById(id,datetime)
+      PersonDAO.findAllLatestLeadById(id, datetime)
     }
 
   }
 
-  override def isExists(idTarget: String): Option[Person] = {
+  override def isExists(idTarget: String): Option[Person]
+
+  = {
     db.withConnection { implicit c =>
       PersonDAO.findBy(PersonDAO.pkField, idTarget)
     }

@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 
 import anorm.SqlParser._
 import anorm.{NamedParameter, RowParser, _}
-import model.{Lead, Person}
+import model.{Lead, LeadIDs, Person}
 
 /**
   * Created by fsznajderman on 24/01/2017.
@@ -20,6 +20,16 @@ object LeadDAO extends mainDBDAO[Lead, String] {
 
 
   override def table: String = "lead"
+
+
+  def deleteLead(leadIDs: LeadIDs)(implicit c:Connection): Unit ={
+
+    SQL"""
+         DELETE from LEAD where idApplicant=${leadIDs.slug} and idTarget=${leadIDs.idAttendee}
+       """.executeUpdate()
+
+  }
+
 
   override def getParams(item: Lead): Seq[NamedParameter] = Seq[NamedParameter](
     'idApplicant -> item.idApplicant,

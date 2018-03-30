@@ -5,7 +5,7 @@ import java.time.LocalDateTime
 
 import anorm.SqlParser.get
 import anorm.{NamedParameter, RowParser, _}
-import model.LeadNote
+import model.{LeadIDs, LeadNote}
 
 
 /**
@@ -44,6 +44,15 @@ object LeadNoteDAO extends mainDBDAO[LeadNote, Long] {
     SQL"""update lead_note set note=${note.note} where idapplicant = ${note.idApplicant} and idtarget=${note.idTarget}""".executeUpdate()
 
   }
+
+  def deleteLeadNote(leadIDs: LeadIDs)(implicit c:Connection): Unit ={
+
+    SQL"""
+         DELETE from lead_note where idApplicant=${leadIDs.slug} and idTarget=${leadIDs.idAttendee}
+       """.executeUpdate()
+
+  }
+
 
 
 }

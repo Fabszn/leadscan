@@ -37,3 +37,13 @@ case object SynchMyDevoxx extends EventType {
 
 }
 
+case object UpdateLeadNote extends EventType {
+  override val typeEvent: String = "Update lead Note"
+
+}
+
+case object DeleteLead extends EventType {
+  override val typeEvent: String = "Delete lead"
+
+}
+
