@@ -27,6 +27,26 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
     ) (TargetInfo.apply _)
 
 
+  def readLead(slug: String, idAttendee: String) = {
+    CORSAction(ApiAuthAction {
+      implicit request => {
+
+        ls.isAlreadyConnect(Lead(slug, idAttendee)).fold(NotFound(s"None lead found for ${slug} / ${idAttendee}"))(l
+        => {
+
+          val lobject = Json.obj("lead" -> l)
+
+          Ok(Json.toJson(ls.getNote(l.idApplicant, l.idTarget).fold(lobject)(n => lobject ++ Json.obj("message" ->
+            Json.toJson(n.note)))))
+
+
+        })
+
+      }
+    })
+
+  }
+
   def deleteLead = {
     CORSAction(ApiAuthAction(parse.json) {
       implicit request => {
@@ -221,8 +241,6 @@ class LeadController(ls: LeadService, ns: NotificationService, ps: PersonService
       NotificationStatus.READ,
       LocalDateTime.now()))
   }
-
-
 
 
 }

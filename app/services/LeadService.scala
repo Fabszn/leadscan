@@ -32,13 +32,15 @@ trait LeadService {
 
   def getNote(idNote: Long): Option[LeadNote]
 
+  def getNote(slug: String, idAttendee: String): Option[LeadNote]
+
 
   def deleteLead(leadIds: LeadIDs)
 
 }
 
 
-class LeadServiceImpl(db: Database)(implicit es:EventService) extends LeadService with LoggerAudit {
+class LeadServiceImpl(db: Database)(implicit es: EventService) extends LeadService with LoggerAudit {
 
 
   override def deleteLead(leadIds: LeadIDs) = {
@@ -46,9 +48,16 @@ class LeadServiceImpl(db: Database)(implicit es:EventService) extends LeadServic
     db.withTransaction { implicit c =>
       LeadDAO.deleteLead(leadIds)
       LeadNoteDAO.deleteLeadNote(leadIds)
-      es.addEvent(Event(None,DeleteLead.typeEvent,s"lead $leadIds has been deleted" ))
+      es.addEvent(Event(None, DeleteLead.typeEvent, s"lead $leadIds has been deleted"))
     }
 
+  }
+
+
+  override def getNote(slug: String, idAttendee: String): Option[LeadNote] = {
+    db.withConnection { implicit c =>
+      LeadNoteDAO.findNoteByApplicantAndTarget(slug, idAttendee).headOption
+    }
   }
 
   override def getCompleteLeads(id: String): Seq[CompletePersonWithNotes]
@@ -99,7 +108,7 @@ class LeadServiceImpl(db: Database)(implicit es:EventService) extends LeadServic
   = {
     db.withTransaction { implicit c =>
       LeadNoteDAO.updateNote(note)
-      es.addEvent(Event(None,UpdateLeadNote.typeEvent,s"lead $note has been updated" ))
+      es.addEvent(Event(None, UpdateLeadNote.typeEvent, s"lead $note has been updated"))
     }
   }
 

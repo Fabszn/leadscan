@@ -16,6 +16,7 @@ POST          /api/leads/note                                        controllers
 GET           /api/leads/notes/:id                                   controllers.LeadController.readNotes(id:String)
 GET           /api/leads/note/:id                                    controllers.LeadController.readNote(id:Long)
 DELETE        /api/leads                                             controllers.LeadController.deleteLead
+GET           /api/leads/slug/:slug/id_attendee/:idAttendee          controllers.LeadController.readLead(slug:String,idAttendee:String)
 
 
 

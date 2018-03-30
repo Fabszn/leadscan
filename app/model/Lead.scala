@@ -9,6 +9,9 @@ import play.api.libs.json.Json
  */
 case class Lead(idApplicant: String, idTarget: String, dateTime: LocalDateTime = LocalDateTime.now())
 
+object Lead{
+  implicit val format = Json.format[Lead]
+}
 
 case class LeadIDs(slug: String, idAttendee: String)
 
