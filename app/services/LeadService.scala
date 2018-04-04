@@ -71,9 +71,7 @@ class LeadServiceImpl(db: Database)(implicit es: EventService) extends LeadServi
 
   }
 
-  override def getCompleteLatestLeads(id: String, datetime: LocalDateTime): Seq[CompletePersonWithNotes]
-
-  = {
+  override def getCompleteLatestLeads(id: String, datetime: LocalDateTime): Seq[CompletePersonWithNotes]  = {
     val allNotes = this.getNotes(id)
     this.getLatestLeads(id, datetime).map(cp => CompletePersonWithNotes(cp, allNotes.filter(ln => {
       ln.idTarget.equals(cp.regId)
@@ -82,9 +80,7 @@ class LeadServiceImpl(db: Database)(implicit es: EventService) extends LeadServi
 
   }
 
-  override def getNote(idNote: Long): Option[LeadNote]
-
-  = {
+  override def getNote(idNote: Long): Option[LeadNote]  = {
 
     db.withConnection { implicit c =>
       LeadNoteDAO.findBy("id", idNote)
@@ -93,9 +89,7 @@ class LeadServiceImpl(db: Database)(implicit es: EventService) extends LeadServi
 
   }
 
-  override def getNotes(id: String): Seq[LeadNote]
-
-  = {
+  override def getNotes(id: String): Seq[LeadNote]  = {
 
     db.withConnection { implicit c =>
       LeadNoteDAO.listBy("idapplicant", id)
@@ -103,26 +97,20 @@ class LeadServiceImpl(db: Database)(implicit es: EventService) extends LeadServi
 
   }
 
-  override def addNote(note: LeadNote): Unit
-
-  = {
+  override def addNote(note: LeadNote): Unit  = {
     db.withTransaction { implicit c =>
       LeadNoteDAO.updateNote(note)
       es.addEvent(Event(None, UpdateLeadNote.typeEvent, s"lead $note has been updated"))
     }
   }
 
-  override def isAlreadyConnect(contact: Lead): Option[Lead]
-
-  = {
+  override def isAlreadyConnect(contact: Lead): Option[Lead]  = {
     db.withConnection { implicit c =>
       LeadDAO.findByPks(contact.idApplicant, contact.idTarget)
     }
   }
 
-  override def addLead(contact: Lead, leadNote: Option[LeadNote]): Unit
-
-  = {
+  override def addLead(contact: Lead, leadNote: Option[LeadNote]): Unit  = {
     db.withTransaction { implicit c =>
       LeadDAO.create(contact)
       val note = leadNote match {
@@ -130,30 +118,25 @@ class LeadServiceImpl(db: Database)(implicit es: EventService) extends LeadServi
         case None => LeadNote(None, contact.idApplicant, contact.idTarget, "", LocalDateTime.now())
       }
       LeadNoteDAO.create(note)
+      es.addEvent(Event(typeEvent = CreateLead.typeEvent, message = s"Created lead : Sponsor : ${contact.idApplicant} - Attendee : ${contact.idTarget}"))
     }
   }
 
-  override def getLeads(id: String): Seq[CompletePerson]
-
-  = {
+  override def getLeads(id: String): Seq[CompletePerson]  = {
     db.withConnection { implicit c =>
       PersonDAO.findAllLeadById(id)
     }
 
   }
 
-  override def getLatestLeads(id: String, datetime: LocalDateTime): Seq[CompletePerson]
-
-  = {
+  override def getLatestLeads(id: String, datetime: LocalDateTime): Seq[CompletePerson]  = {
     db.withConnection { implicit c =>
       PersonDAO.findAllLatestLeadById(id, datetime)
     }
 
   }
 
-  override def isExists(idTarget: String): Option[Person]
-
-  = {
+  override def isExists(idTarget: String): Option[Person]  = {
     db.withConnection { implicit c =>
       PersonDAO.findBy(PersonDAO.pkField, idTarget)
     }

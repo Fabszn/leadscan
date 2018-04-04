@@ -9,14 +9,15 @@ import play.api.libs.json.Json
 import utils.LoggerAudit
 
 /**
-  * Created by fsznajderman on 20/01/2017.
-  */
+ * Created by fsznajderman on 20/01/2017.
+ */
 
 
-case class UpdatePerson(pString: Map[String, Option[String]] = Map(),
-                        pInt: Map[String, Option[Int]] = Map(),
-                        pBoolean: Map[String, Option[Boolean]] = Map()
-                       )
+case class UpdatePerson(
+  pString: Map[String, Option[String]] = Map(),
+  pInt: Map[String, Option[Int]] = Map(),
+  pBoolean: Map[String, Option[Boolean]] = Map()
+)
 
 trait PersonService {
   def findByEmail(email: String): Option[Person]
@@ -42,7 +43,8 @@ trait PersonService {
 }
 
 
-class PersonServiceImpl(db: Database, ns: NotificationService, remote: RemoteClient, es: EventService) extends PersonService with LoggerAudit {
+class PersonServiceImpl(db: Database, ns: NotificationService, remote: RemoteClient, es: EventService)
+  extends PersonService with LoggerAudit {
 
 
   override def allPersons(): Seq[Person] = {
@@ -105,25 +107,25 @@ class PersonServiceImpl(db: Database, ns: NotificationService, remote: RemoteCli
 
 
   override def addPerson(p: Person): Unit = {
-    db.withTransaction(implicit connexion =>
+    db.withTransaction(implicit connexion => {
 
-      PersonDAO.findBy(PersonDAO.pkField, p.id) match {
+      val action = PersonDAO.findBy(PersonDAO.pkField, p.id) match {
         case None => {
-          es.addEvent(Event(typeEvent = ImportRegistration.typeEvent, message = s"Created  : ${p.id} - ${p.json}"))
           PersonDAO.create(p)
+          "Created"
         }
         case Some(_) => {
-          es.addEvent(Event(typeEvent = ImportRegistration.typeEvent, message = s"updated  : ${p.id} - ${p.json}"))
           PersonDAO.update(p)
+          "Updated"
         }
       }
-    )
-
-
+      es.addEvent(Event(typeEvent = ImportRegistration.typeEvent, message = s"$action  : ${p.id} - ${p.json}"))
+    })
   }
 
 
-  override def addRepresentative(firstname: String, lastname: String, email: String, company: String, title: String): PersonJson =
+  override def addRepresentative(firstname: String, lastname: String, email: String, company: String, title: String)
+  : PersonJson = {
     db.withTransaction(implicit connection => {
 
 
@@ -131,7 +133,8 @@ class PersonServiceImpl(db: Database, ns: NotificationService, remote: RemoteCli
       val id = Some(generateId(email))
 
 
-      val pj = PersonJson(generateId(email).toString,None, firstname, lastname, email, title, company, None, None, None, None,None, None, None)
+      val pj = PersonJson(generateId(email).toString, None, firstname, lastname, email, title, company, None, None,
+        None, None, None, None, None)
       (pj, Json.toJson(pj).toString)
 
 
@@ -140,6 +143,7 @@ class PersonServiceImpl(db: Database, ns: NotificationService, remote: RemoteCli
       pj
 
     })
+  }
 
 
   private def generateId(email: String): String = {

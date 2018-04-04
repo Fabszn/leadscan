@@ -47,3 +47,8 @@ case object DeleteLead extends EventType {
 
 }
 
+case object CreateLead extends EventType {
+  override val typeEvent: String = "Create lead"
+
+}
+
