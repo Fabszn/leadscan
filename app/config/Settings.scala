@@ -67,6 +67,10 @@ object Settings {
 
   }
 
+  object devoxx {
+     val kind: String = config.getString("devoxx.kind")
+  }
+
 
 }
 
