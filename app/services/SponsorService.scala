@@ -260,8 +260,7 @@ class SponsorServiceImpl(
       })
     } yield {
       val sponsors = Try {
-        (json \ "events").as[Seq[EventDevoxx]].filter(e => e.slug == "dvxfr18").head.sponsors
-          .map(s => {
+        (json \ "events").as[Seq[EventDevoxx]].filter(e => e.slug == "dvxuk18").head.sponsors.map(s => {
             logger.info(s"Sponsor ${s}")
             Sponsor(None, s.slug, s.name, s.level)
           }
