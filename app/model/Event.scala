@@ -52,3 +52,8 @@ case object CreateLead extends EventType {
 
 }
 
+case object Login extends EventType {
+  override val typeEvent: String = "Log in"
+
+}
+

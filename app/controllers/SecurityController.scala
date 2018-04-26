@@ -4,11 +4,12 @@ import java.time.LocalDateTime
 
 import config.Settings
 import config.Settings.oAuth._
+import model.{Event, Login}
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.{Json, Reads, __}
 import play.api.mvc.{Action, Controller}
-import services.{AuthService, AuthenticateUser, UnauthenticateUser}
+import services.{AuthService, AuthenticateUser, EventService, UnauthenticateUser}
 import utils.LoggerAudit
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -17,7 +18,7 @@ import scala.concurrent.Future
 /**
   * Created by fsznajderman on 28/02/2017.
   */
-class SecurityController(authService: AuthService) extends Controller with LoggerAudit {
+class SecurityController(authService: AuthService,es:EventService) extends Controller with LoggerAudit {
 
 
   case class UserData(login: String, pass: String)
@@ -34,6 +35,7 @@ class SecurityController(authService: AuthService) extends Controller with Logge
       ) (UserData.apply _)
 
 
+
     request.body.validate[UserData].asEither match {
       case Left(e) => Future.successful(Unauthorized(e.toString()))
       case Right(userData) => {
@@ -44,6 +46,7 @@ class SecurityController(authService: AuthService) extends Controller with Logge
           }
           case AuthenticateUser(_, _, email, token) => {
             logger.info(s"$userData authenticated")
+            es.addEvent(Event(typeEvent= Login.typeEvent,message =s"new connection with login ${userData.login}"))
             Ok(Json.toJson(Map("mail" -> email))).withSession("connected" -> email, "token" -> token, "exp" -> LocalDateTime.now().plusMinutes(Settings.session.timeout_mn).toString)
           }
           case _ => {
